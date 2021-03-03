@@ -3,7 +3,7 @@ function print_maps(underlay,varargin)
 underlay = '/storage/daniele/CBF/voxelwise/MNI152_T1_2mm.nii';
 overlay = '/storage/daniele/CBF/voxelwise/ALL_CBF_TAN_GM/spmT_0001.nii';
 name = 'Test HC > HC';
-CB_label = 'T-value';
+CB_label = 't-value';
 
 %--------------VARARGIN----------------------------------------------------
 params  =  {'underlay','overlay','Ulimits','Olimits','Ucolor','Ocolor','mount','FullOrt', 'SigNormalise', 'concat', 'type', 'tcompcor','SaveMask', 'MakeBinary'};
@@ -59,7 +59,7 @@ planes = fix(linspace(20,n_slices-20,mount(2)*mount(1)));
 % hight = (mount(2) + marginTollerance)*slice_dim(2);  
 % figure('Position',[0 0 width hight]);
 
-[pos,CBpos] = figure_grid([mount(2), mount(1)],slice_dim,[0 15 15 1],[1 1]); %left right top bottom %x,y
+[pos,CBpos] = figure_grid([mount(2), mount(1)],slice_dim,[0 8 12 1],[0 0]); %left right top bottom %x,y
 
 
 %tiledlayout(mount(2),mount(1), 'Padding', 'none', 'TileSpacing', 'compact'); 
@@ -91,7 +91,7 @@ function plot_slice(pos,img0,img1,plane,cordinate,img0_limits,img1_limits,img0_c
 ax0 = axes('Position',pos);
 switch plane
     case {'ax'}
-        imagesc(squeeze(img0(:,:,cordinate))',img0_limits);
+        imagesc(flipdim(squeeze(img0(:,:,cordinate)),2)',img0_limits);
         xlim([1 size(img0,1)]);
         ylim([1 size(img0,2)]);
     case {'sag'}
@@ -112,7 +112,7 @@ alphadata(isnan(alphadata)) = 0;
 ax1 = axes('Position',pos,'Visible','off');
 switch plane
     case {'ax'}
-        imagesc(squeeze(img1(:,:,cordinate))','AlphaData',alphadata(:,:,cordinate)');
+        imagesc(flipdim(squeeze(img1(:,:,cordinate)),2)','AlphaData',flipdim(squeeze(alphadata(:,:,cordinate)),2)');
         ax1.CLim = img1_limits;
         xlim([1 size(img0,1)]);
         ylim([1 size(img0,2)]);
@@ -135,5 +135,35 @@ colormap(ax1,img1_colormap)
 
 set(gca,'Xtick',[]);
 set(gca,'Ytick',[]);
+return
+end
+
+function [xyz] = mni2xyz(mni,vs)
+
+if vs == 2
+    origin = [45 63 36]; % [X Y Z]
+elseif vs == 1
+    origin = [91 126 72]; % [X Y Z]
+end
+
+
+xyz(1)=origin(1) + round(mni(1)/vs) +1;      %was origin(1) - mni(1)/vs
+xyz(2)=origin(2) + round(mni(2)/vs) +1;
+xyz(3)=origin(3) + round(mni(3)/vs) +1;
+            
+return
+end
+
+function [mni] = xyz2mni(xyz,vs)
+
+if vs == 2
+    origin = [45 63 36]; % [X Y Z]
+elseif vs == 1
+    origin = [91 126 72]; % [X Y Z]
+end
+
+mni = vs*(xyz - origin -1);
+
+            
 return
 end
