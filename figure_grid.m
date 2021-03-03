@@ -1,7 +1,11 @@
-mount = [2,8]; %rows, cols
-s = [50,100];
-margins = [0 0 0 0]; %left right top bottom
-InnerMargins = [0 0]; %x y
+function pos = figure_grid(mount,subplot_size,margins,InnerMargins)
+
+s = subplot_size;
+
+% mount = [2,8]; %rows, cols
+% s = [50,100];
+% margins = [0 0 0 0]; %left right top bottom
+% InnerMargins = [0 0]; %x y
 
 delta_x = s(1);
 figure_width = mount(2)*delta_x;
@@ -27,7 +31,7 @@ dx = delta_x./figure_width;
 dy = delta_y./figure_high;
 
 %pos = [x,y,deltax,deltay]
-figure('Position',[10 50 figure_width figure_high]);
+figure('Position',[10 50 figure_width figure_high],'color','k');
 
 count = 0;
 row_offset = margins(4)./figure_high;
@@ -47,6 +51,9 @@ for row = mount(1):-1:1 %rows
 row_offset = row_offset + dy + InnerMargins(2)./figure_high;
 end
 
+
+return
+end
 
 
 
