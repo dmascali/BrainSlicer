@@ -42,24 +42,32 @@ s =  size(img0);
 switch view
     case {'ax'}
         slice_dim = [s(1) s(2)];
+        n_slices = s(3);
     case {'sag'} %this might be flipped
         slice_dim = [s(2) s(3)];
+        n_slices = s(1);
     case {'cor'} %this might be flipped
         slice_dim = [s(1) s(3)];
+        n_slices = s(3);
 end
+
+%todo: skip a percentage of bottom and top slices
+
+planes = fix(linspace(20,n_slices-20,mount(2)*mount(1)));
 % marginTollerance = 2;
 % width = (mount(1) + marginTollerance)*slice_dim(1);  
 % hight = (mount(2) + marginTollerance)*slice_dim(2);  
 % figure('Position',[0 0 width hight]);
 
-[pos,CBpos] = figure_grid([mount(2), mount(1)],slice_dim,[0 15 15 1],[0 0]); %left right top bottom %x,y
+[pos,CBpos] = figure_grid([mount(2), mount(1)],slice_dim,[0 15 15 1],[1 1]); %left right top bottom %x,y
 
 
 %tiledlayout(mount(2),mount(1), 'Padding', 'none', 'TileSpacing', 'compact'); 
 count = 0;
 for row = 1:mount(2)
     for col = 1:mount(1)
-        plot_slice(pos{row,col},img0,img1,view,plane(2),under_limits,over_limits,'gray','hot',1);
+        count = count +1;
+        plot_slice(pos{row,col},img0,img1,view,planes(count),under_limits,over_limits,'gray','hot',1);
     end
 end
 
@@ -68,7 +76,7 @@ cb.Label.String = CB_label;
 cb.Label.FontSize = 10;
 cb.Label.Color = 'w';
 
-h = annotation('textbox', [0 0.95 0 0], 'String', name, 'FitBoxToText', true,'Color','w','edgecolor','none','verticalAlignment','middle','FontSize',17,'Fontweight','bold')
+h = annotation('textbox', [0 0.95 0 0], 'String', name, 'FitBoxToText', true,'Color','w','edgecolor','none','verticalAlignment','middle','FontSize',17,'Fontweight','bold');
 
 
 set(gcf, 'InvertHardcopy', 'off')
