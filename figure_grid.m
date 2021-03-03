@@ -51,17 +51,31 @@ for row = mount(1):-1:1 %rows
 row_offset = row_offset + dy + InnerMargins(2)./figure_high;
 end
 
-%colorbar position
+%colorbar position: just one
 %find out slice dimension (i.e, exlcuding margins, but including
 %InnerMargins)
-slice_dim_y = figure_high -  (margins(3) + margins(4));
+space_occupied_by_slices_y = figure_high -  (margins(3) + margins(4));
 cb_width = 0.12*dx;
 cb_high = 0.9*dy;
-cb_y = (margins(4) + slice_dim_y./2)./figure_high; cb_y = cb_y - cb_high/2;
+cb_y = (margins(4) + space_occupied_by_slices_y./2)./figure_high; cb_y = cb_y - cb_high/2;
 cb_x = (figure_width - margins(2))./figure_width + 0.05*dx;
-CBpos = [cb_x,cb_y,cb_width,cb_high];
+CBpos.one_bar = [cb_x,cb_y,cb_width,cb_high];
 
-
+%colorbar positions: two colorbars one
+%find out slice dimension (i.e, exlcuding margins, but including
+%InnerMargins)
+space_occupied_by_slices_y = figure_high -  (margins(3) + margins(4));
+cb_width = 0.12*dx;
+if mount(1) == 1 %just one row
+    cb_high = 0.9*dy/2;
+else
+    cb_high = 0.8*dy;
+end
+cb_y_1 = (margins(4) + space_occupied_by_slices_y./2)./figure_high; cb_y_1 = cb_y_1 - cb_high -0.04*dy;
+cb_y_2 = (margins(4) + space_occupied_by_slices_y./2)./figure_high; cb_y_2 = cb_y_2 + 0.04*dy;
+cb_x = (figure_width - margins(2))./figure_width + 0.05*dx;
+CBpos.two_bars{1} = [cb_x,cb_y_1,cb_width,cb_high];
+CBpos.two_bars{2} = [cb_x,cb_y_2,cb_width,cb_high];
 return
 end
 

@@ -1,7 +1,11 @@
 function print_maps(underlay,varargin)
 
-underlay = '/storage/daniele/CBF/voxelwise/MNI152_T1_2mm.nii';
-overlay = '/storage/daniele/CBF/voxelwise/ALL_CBF_TAN_GM/spmT_0001.nii';
+% underlay = '/storage/daniele/CBF/voxelwise/MNI152_T1_2mm.nii';
+% overlay = '/storage/daniele/CBF/voxelwise/ALL_CBF_TAN_GM/spmT_0001.nii';
+load data_test;
+underlay = bg.img;
+overlay = ol.img;
+
 name = 'Test HC > HC';
 CB_label = 't-value';
 
@@ -27,15 +31,26 @@ legalValues{14} ={'on','off'};
 
 plane = [22, 35, 43 55 67];
 under_limits = [0 10000];
-over_limits = [2 5];
+over_limits = [4 7];
 view = 'ax';
 
-mount = [7,2,10,1];
+mount = [5,3,10,1];
 
-img0 = spm_read_vols(spm_vol(underlay));
-img1 = spm_read_vols(spm_vol(overlay));
+if ischar(underlay)  %in case data is a path to a nifti file
+    img0 = spm_read_vols(spm_vol(underlay));
+else
+    img0 = underlay;
+end
+if ischar(overlay) 
+    img1 = spm_read_vols(spm_vol(overlay));
+else
+    img1 = overlay;
+end
 
 img0(img0 < 1000) = 0;
+
+%threshold overlay
+img1(abs(img1) < over_limits(1)) = 0; 
 
 %try to guess final figure size
 s =  size(img0);
@@ -59,7 +74,7 @@ planes = fix(linspace(20,n_slices-20,mount(2)*mount(1)));
 % hight = (mount(2) + marginTollerance)*slice_dim(2);  
 % figure('Position',[0 0 width hight]);
 
-[pos,CBpos] = figure_grid([mount(2), mount(1)],slice_dim,[0 8 12 1],[0 0]); %left right top bottom %x,y
+[pos,CBpos] = figure_grid([mount(2), mount(1)],slice_dim,[0 13 12 1],[0 0]); %left right top bottom %x,y
 
 
 %tiledlayout(mount(2),mount(1), 'Padding', 'none', 'TileSpacing', 'compact'); 
@@ -67,14 +82,20 @@ count = 0;
 for row = 1:mount(2)
     for col = 1:mount(1)
         count = count +1;
-        plot_slice(pos{row,col},img0,img1,view,planes(count),under_limits,over_limits,'gray','hot',1);
+        h_ax = plot_slice(pos{row,col},img0,img1,view,planes(count),under_limits,over_limits,'gray','hot',1);
     end
 end
 
-cb = colorbar('Position',CBpos,'Color','w');
-cb.Label.String = CB_label;
-cb.Label.FontSize = 10;
-cb.Label.Color = 'w';
+cb1 = colorbar(h_ax(2),'Position',CBpos.two_bars{2},'Color','w');
+cb2 = colorbar(h_ax(3),'Position',CBpos.two_bars{1},'Color','w');
+
+cb1.Label.String = CB_label;
+cb1.Label.FontSize = 10;
+cb1.Label.Color = 'w';
+
+cb2.Label.String = CB_label;
+cb2.Label.FontSize = 10;
+cb2.Label.Color = 'w';
 
 h = annotation('textbox', [0 0.95 0 0], 'String', name, 'FitBoxToText', true,'Color','w','edgecolor','none','verticalAlignment','middle','FontSize',17,'Fontweight','bold');
 
@@ -86,55 +107,76 @@ return
 end
 
 
-function plot_slice(pos,img0,img1,plane,cordinate,img0_limits,img1_limits,img0_colormap,img1_colormap,alpha)
+function [h_ax] = plot_slice(pos,img0,img1,plane,coordinates,img0_limits,img1_limits,img0_colormap,img1_colormap,alpha)
 
 ax0 = axes('Position',pos);
-switch plane
-    case {'ax'}
-        imagesc(flipdim(squeeze(img0(:,:,cordinate)),2)',img0_limits);
-        xlim([1 size(img0,1)]);
-        ylim([1 size(img0,2)]);
-    case {'sag'}
-        imagesc(flipdim(squeeze(img0(cordinate,:,:))',1),img0_limits);
-    case {'cor'}
-        imagesc(flipdim(squeeze(img0(:,cordinate,:))',1),img0_limits);
+draw_layer(plane,img0,coordinates,img0_limits)
+
+
+%overlay
+img1_pos = img1;
+img1_neg = img1;
+img1_pos(img1 < 0) = 0;
+img1_neg(img1 > 0) = 0;
+
+%find pixel to be transpart (either 0 or Nans)
+alphadata = alpha.*img1_pos;
+alphadata(img1_pos == 0) = 0;
+alphadata(isnan(alphadata)) = 0;
+
+ax1 = axes('Position',pos,'Visible','off');
+draw_layer(plane,img1_pos,coordinates,img1_limits,alphadata)
+
+%find pixel to be transpart (either 0 or Nans)
+alphadata = -1*alpha.*img1_neg;
+alphadata(img1_neg == 0) = 0;
+alphadata(isnan(alphadata)) = 0;
+
+ax2 = axes('Position',pos,'Visible','off');
+draw_layer(plane,img1_neg,coordinates,-1*flip(img1_limits),alphadata)
+
+
+
+
+linkaxes([ax0,ax1,ax2])
+% ax1.Visible = 'off';
+% ax1.XTick = [];
+% ax1.YTick = [];
+
+
+colormap(ax0,img0_colormap);
+colormap(ax1,img1_colormap);
+colormap(ax2,'winter');
+
+h_ax = [ax0; ax1; ax2];
+
+return
 end
 
+function draw_layer(plane,img,coordinates,limits,alphadata)
+
+if nargin < 5
+    alphadata = [];
+end
+switch plane
+    case {'ax'}
+        if isempty(alphadata)
+            imagesc(flipdim(squeeze(img(:,:,coordinates)),2)',limits);
+        else
+            imagesc(flipdim(squeeze(img(:,:,coordinates)),2)','AlphaData',flipdim(squeeze(alphadata(:,:,coordinates)),2)');
+            ax = gca;
+            ax.CLim = limits;
+        end
+        xlim([1 size(img,1)]);
+        ylim([1 size(img,2)]);
+    case {'sag'}
+        imagesc(flipdim(squeeze(img(coordinates,:,:))',1),limits);
+    case {'cor'}
+        imagesc(flipdim(squeeze(img(:,coordinates,:))',1),limits);
+end
 
 set(gca,'Visible','off');
 
-%find pixel to be transpart (either 0 or Nans)
-alphadata = alpha.*img1;
-alphadata(img1 == 0) = 0;
-alphadata(isnan(alphadata)) = 0;
-
-
-ax1 = axes('Position',pos,'Visible','off');
-switch plane
-    case {'ax'}
-        imagesc(flipdim(squeeze(img1(:,:,cordinate)),2)','AlphaData',flipdim(squeeze(alphadata(:,:,cordinate)),2)');
-        ax1.CLim = img1_limits;
-        xlim([1 size(img0,1)]);
-        ylim([1 size(img0,2)]);
-    case {'sag'}
-        imagesc(flipdim(squeeze(img1(cordinate,:,:))',1),img1_limits);
-        ax1.CLim = img1_limits;
-    case {'cor'}
-        imagesc(flipdim(squeeze(img1(:,cordinate,:))',1),img1_limits);
-        ax1.CLim = img1_limits;
-end
-
-linkaxes([ax0,ax1])
-ax1.Visible = 'off';
-ax1.XTick = [];
-ax1.YTick = [];
-
-
-colormap(ax0,img0_colormap)
-colormap(ax1,img1_colormap)
-
-set(gca,'Xtick',[]);
-set(gca,'Ytick',[]);
 return
 end
 
