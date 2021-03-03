@@ -34,6 +34,8 @@ mount = [8,2,10,1];
 img0 = spm_read_vols(spm_vol(underlay));
 img1 = spm_read_vols(spm_vol(overlay));
 
+img0(img0 < 1000) = 0;
+
 %try to guess final figure size
 s =  size(img0);
 switch view
@@ -49,7 +51,7 @@ end
 % hight = (mount(2) + marginTollerance)*slice_dim(2);  
 % figure('Position',[0 0 width hight]);
 
-pos = figure_grid([mount(2), mount(1)],slice_dim,[10 0 0 0],[0 0]);
+pos = figure_grid([mount(2), mount(1)],slice_dim,[5 1 3 1],[0 0]); %left right top bottom %x,y
 
 
 %tiledlayout(mount(2),mount(1), 'Padding', 'none', 'TileSpacing', 'compact'); 
@@ -60,27 +62,29 @@ for row = 1:mount(2)
     end
 end
 
+set(gcf, 'InvertHardcopy', 'off')
+print('test.png','-dpng','-r500')
+
 return
 end
 
 
 function plot_slice(pos,img0,img1,plane,cordinate,img0_limits,img1_limits,img0_colormap,img1_colormap,alpha)
 
-ax0 = axes;
-set(ax0,'Position',pos);
+ax0 = axes('Position',pos);
 switch plane
     case {'ax'}
         imagesc(squeeze(img0(:,:,cordinate))',img0_limits);
-        xlim([0 size(img0,1)]);
-        ylim([0 size(img0,2)]);
+        xlim([1 size(img0,1)]);
+        ylim([1 size(img0,2)]);
     case {'sag'}
         imagesc(flipdim(squeeze(img0(cordinate,:,:))',1),img0_limits);
     case {'cor'}
         imagesc(flipdim(squeeze(img0(:,cordinate,:))',1),img0_limits);
 end
 
-set(gca,'Xtick',[]);
-set(gca,'Ytick',[]);
+
+set(gca,'Visible','off');
 
 %find pixel to be transpart (either 0 or Nans)
 alphadata = alpha.*img1;
@@ -88,13 +92,13 @@ alphadata(img1 == 0) = 0;
 alphadata(isnan(alphadata)) = 0;
 
 
-ax1 = axes('Position',pos);
+ax1 = axes('Position',pos,'Visible','off');
 switch plane
     case {'ax'}
         imagesc(squeeze(img1(:,:,cordinate))','AlphaData',alphadata(:,:,cordinate)');
         ax1.CLim = img1_limits;
-        xlim([0 size(img0,1)]);
-        ylim([0 size(img0,2)]);
+        xlim([1 size(img0,1)]);
+        ylim([1 size(img0,2)]);
     case {'sag'}
         imagesc(flipdim(squeeze(img1(cordinate,:,:))',1),img1_limits);
         ax1.CLim = img1_limits;

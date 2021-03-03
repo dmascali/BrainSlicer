@@ -31,7 +31,7 @@ dx = delta_x./figure_width;
 dy = delta_y./figure_high;
 
 %pos = [x,y,deltax,deltay]
-figure('Position',[10 50 figure_width figure_high],'color','k');
+figure('Position',[100 100 figure_width figure_high],'color','k');
 
 count = 0;
 row_offset = margins(4)./figure_high;
@@ -41,11 +41,11 @@ for row = mount(1):-1:1 %rows
         count = count +1;
         pos{row,col} = [col_offset,row_offset,dx,dy];
         col_offset = col_offset + dx + InnerMargins(1)./figure_width;
-        ax = axes;
-        set(ax,'Position',pos{row,col});
-        set(gca,'Xtick',[]);
-        set(gca,'Ytick',[]);
-        text(0.5,0.5, [num2str(row),',',num2str(col)]);
+%         ax = axes;
+%         set(ax,'Position',pos{row,col});
+%         set(gca,'Xtick',[]);
+%         set(gca,'Ytick',[]);
+%         text(0.5,0.5, [num2str(row),',',num2str(col)]);
         
     end
 row_offset = row_offset + dy + InnerMargins(2)./figure_high;
