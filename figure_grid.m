@@ -1,4 +1,4 @@
-function pos = figure_grid(mount,subplot_size,margins,InnerMargins)
+function [pos,CBpos] = figure_grid(mount,subplot_size,margins,InnerMargins)
 
 s = subplot_size;
 
@@ -50,6 +50,16 @@ for row = mount(1):-1:1 %rows
     end
 row_offset = row_offset + dy + InnerMargins(2)./figure_high;
 end
+
+%colorbar position
+%find out slice dimension (i.e, exlcuding margins, but including
+%InnerMargins)
+slice_dim_y = figure_high -  (margins(3) + margins(4));
+cb_width = 0.12*dx;
+cb_high = 0.9*dy;
+cb_y = (margins(4) + slice_dim_y./2)./figure_high; cb_y = cb_y - cb_high/2;
+cb_x = (figure_width - margins(2))./figure_width + 0.05*dx;
+CBpos = [cb_x,cb_y,cb_width,cb_high];
 
 
 return

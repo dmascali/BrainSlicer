@@ -2,7 +2,8 @@ function print_maps(underlay,varargin)
 
 underlay = '/storage/daniele/CBF/voxelwise/MNI152_T1_2mm.nii';
 overlay = '/storage/daniele/CBF/voxelwise/ALL_CBF_TAN_GM/spmT_0001.nii';
-
+name = 'Test HC > HC';
+CB_label = 'T-value';
 
 %--------------VARARGIN----------------------------------------------------
 params  =  {'underlay','overlay','Ulimits','Olimits','Ucolor','Ocolor','mount','FullOrt', 'SigNormalise', 'concat', 'type', 'tcompcor','SaveMask', 'MakeBinary'};
@@ -26,10 +27,10 @@ legalValues{14} ={'on','off'};
 
 plane = [22, 35, 43 55 67];
 under_limits = [0 10000];
-over_limits = [-3 3];
+over_limits = [2 5];
 view = 'ax';
 
-mount = [8,2,10,1];
+mount = [7,2,10,1];
 
 img0 = spm_read_vols(spm_vol(underlay));
 img1 = spm_read_vols(spm_vol(overlay));
@@ -51,16 +52,24 @@ end
 % hight = (mount(2) + marginTollerance)*slice_dim(2);  
 % figure('Position',[0 0 width hight]);
 
-pos = figure_grid([mount(2), mount(1)],slice_dim,[5 1 3 1],[0 0]); %left right top bottom %x,y
+[pos,CBpos] = figure_grid([mount(2), mount(1)],slice_dim,[0 15 15 1],[0 0]); %left right top bottom %x,y
 
 
 %tiledlayout(mount(2),mount(1), 'Padding', 'none', 'TileSpacing', 'compact'); 
 count = 0;
 for row = 1:mount(2)
     for col = 1:mount(1)
-        plot_slice(pos{row,col},img0,img1,view,plane(2),under_limits,over_limits,'gray','jet',1);
+        plot_slice(pos{row,col},img0,img1,view,plane(2),under_limits,over_limits,'gray','hot',1);
     end
 end
+
+cb = colorbar('Position',CBpos,'Color','w');
+cb.Label.String = CB_label;
+cb.Label.FontSize = 10;
+cb.Label.Color = 'w';
+
+h = annotation('textbox', [0 0.95 0 0], 'String', name, 'FitBoxToText', true,'Color','w','edgecolor','none','verticalAlignment','middle','FontSize',17,'Fontweight','bold')
+
 
 set(gcf, 'InvertHardcopy', 'off')
 print('test.png','-dpng','-r500')
