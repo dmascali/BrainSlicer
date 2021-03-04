@@ -1,4 +1,4 @@
-function print_maps(underlay,varargin)
+function print_maps(underlay,overlay,under_limits,over_limits,view,mount,name,CB_label)
 
 % underlay = '/storage/daniele/CBF/voxelwise/MNI152_T1_2mm.nii';
 % overlay = '/storage/daniele/CBF/voxelwise/ALL_CBF_TAN_GM/spmT_0001.nii';
@@ -6,35 +6,35 @@ load data_test;
 underlay = bg.img;
 overlay = ol.img;
 
-name = 'Test HC > HC';
-CB_label = 't-value';
+% name = 'Test HC > HC';
+% CB_label = 't-value';
 
-%--------------VARARGIN----------------------------------------------------
-params  =  {'underlay','overlay','Ulimits','Olimits','Ucolor','Ocolor','mount','FullOrt', 'SigNormalise', 'concat', 'type', 'tcompcor','SaveMask', 'MakeBinary'};
-defParms = {        [],      [],       [],       [],          'off',     [],        1     'off',           'on',       [], 'mean',         [],     'off',         'off'};
-legalValues{1} = [];
-legalValues{2} = {'on','off'};
-legalValues{3} = {@(x) (isempty(x) || (~ischar(x) && sum(mod(x,1))==0 && sum((x < 0)) == 0)),'Only positive integers are allowed, which represent the derivative orders'};
-legalValues{4} = [];
-legalValues{5} = {'on','off'};
-legalValues{6} = [];
-legalValues{7} = [-1 0 1 2 3 4 5];
-legalValues{8} = {'on','off'};
-legalValues{9} ={'on','off'};
-legalValues{10} = {@(x) (isempty(x) || (~ischar(x) && sum(mod(x,1))==0 && sum((x < 0)) == 0)),'Only one positive integers are allowed, which represent the starting indexes of the runs.'};
-legalValues{11} = {'mean','median'};
-legalValues{12} = {@(x) (isempty(x) || (~ischar(x) && numel(x) == 1 && mod(x,1)==0 && x > 0)),'Only one positive integer is allowed. The value defines the number of voxels to be selected with the highest temporal standard deviation.'};
-legalValues{13} ={'on','off'};
-legalValues{14} ={'on','off'};
-[confounds,firstmean,deri,squares,DatNormalise,freq,PolOrder,FullOrt,SigNormalise,ConCat,MetricType,tCompCor,SaveMask,MakeBinary] = ParseVarargin(params,defParms,legalValues,varargin,1);
-%--------------------------------------------------------------------------
+% %--------------VARARGIN----------------------------------------------------
+% params  =  {'underlay','overlay','Ulimits','Olimits','Ucolor','Ocolor','mount','FullOrt', 'SigNormalise', 'concat', 'type', 'tcompcor','SaveMask', 'MakeBinary'};
+% defParms = {        [],      [],       [],       [],          'off',     [],        1     'off',           'on',       [], 'mean',         [],     'off',         'off'};
+% legalValues{1} = [];
+% legalValues{2} = {'on','off'};
+% legalValues{3} = {@(x) (isempty(x) || (~ischar(x) && sum(mod(x,1))==0 && sum((x < 0)) == 0)),'Only positive integers are allowed, which represent the derivative orders'};
+% legalValues{4} = [];
+% legalValues{5} = {'on','off'};
+% legalValues{6} = [];
+% legalValues{7} = [-1 0 1 2 3 4 5];
+% legalValues{8} = {'on','off'};
+% legalValues{9} ={'on','off'};
+% legalValues{10} = {@(x) (isempty(x) || (~ischar(x) && sum(mod(x,1))==0 && sum((x < 0)) == 0)),'Only one positive integers are allowed, which represent the starting indexes of the runs.'};
+% legalValues{11} = {'mean','median'};
+% legalValues{12} = {@(x) (isempty(x) || (~ischar(x) && numel(x) == 1 && mod(x,1)==0 && x > 0)),'Only one positive integer is allowed. The value defines the number of voxels to be selected with the highest temporal standard deviation.'};
+% legalValues{13} ={'on','off'};
+% legalValues{14} ={'on','off'};
+% [confounds,firstmean,deri,squares,DatNormalise,freq,PolOrder,FullOrt,SigNormalise,ConCat,MetricType,tCompCor,SaveMask,MakeBinary] = ParseVarargin(params,defParms,legalValues,varargin,1);
+% %--------------------------------------------------------------------------
 
-plane = [22, 35, 43 55 67];
-under_limits = [0 10000];
-over_limits = [4 7];
-view = 'ax';
 
-mount = [5,3,10,1];
+%under_limits = [0 10000];
+%over_limits = [4 7];
+%view = 'ax';
+
+%mount = [5,3];
 
 if ischar(underlay)  %in case data is a path to a nifti file
     img0 = spm_read_vols(spm_vol(underlay));
@@ -99,9 +99,10 @@ cb2.Label.Color = 'w';
 
 h = annotation('textbox', [0 0.95 0 0], 'String', name, 'FitBoxToText', true,'Color','w','edgecolor','none','verticalAlignment','middle','FontSize',17,'Fontweight','bold');
 
+name(strfind(name,' ')) = '_';
 
 set(gcf, 'InvertHardcopy', 'off')
-print('test.png','-dpng','-r500')
+print(name,'-dpng','-r500')
 
 return
 end
