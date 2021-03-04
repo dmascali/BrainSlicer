@@ -2,9 +2,9 @@ function print_maps(underlay,overlay,under_limits,over_limits,view,mount,name,CB
 
 % underlay = '/storage/daniele/CBF/voxelwise/MNI152_T1_2mm.nii';
 % overlay = '/storage/daniele/CBF/voxelwise/ALL_CBF_TAN_GM/spmT_0001.nii';
-load data_test;
-underlay = bg.img;
-overlay = ol.img;
+% load data_test;
+% underlay = bg.img;
+% overlay = ol.img;
 
 % name = 'Test HC > HC';
 % CB_label = 't-value';
@@ -68,13 +68,13 @@ end
 
 %todo: skip a percentage of bottom and top slices
 
-planes = fix(linspace(20,n_slices-20,mount(2)*mount(1)));
+planes = fix(linspace(15,n_slices-20,mount(2)*mount(1)));
 % marginTollerance = 2;
 % width = (mount(1) + marginTollerance)*slice_dim(1);  
 % hight = (mount(2) + marginTollerance)*slice_dim(2);  
 % figure('Position',[0 0 width hight]);
 
-[pos,CBpos] = figure_grid([mount(2), mount(1)],slice_dim,[0 13 12 1],[0 0]); %left right top bottom %x,y
+[pos,CBpos,figPos] = figure_grid([mount(2), mount(1)],slice_dim,[1 9 11 1],[0 0]); %left right top bottom %x,y
 
 
 %tiledlayout(mount(2),mount(1), 'Padding', 'none', 'TileSpacing', 'compact'); 
@@ -101,7 +101,9 @@ h = annotation('textbox', [0 0.95 0 0], 'String', name, 'FitBoxToText', true,'Co
 
 name(strfind(name,' ')) = '_';
 
-set(gcf, 'InvertHardcopy', 'off')
+set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
+%try to force again position. It works!
+set(gcf,'Position',figPos);
 print(name,'-dpng','-r500')
 
 return

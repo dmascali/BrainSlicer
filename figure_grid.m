@@ -1,4 +1,4 @@
-function [pos,CBpos] = figure_grid(mount,subplot_size,margins,InnerMargins)
+function [pos,CBpos,figPos] = figure_grid(mount,subplot_size,margins,InnerMargins)
 
 s = subplot_size;
 
@@ -31,7 +31,8 @@ dx = delta_x./figure_width;
 dy = delta_y./figure_high;
 
 %pos = [x,y,deltax,deltay]
-figure('Position',[100 100 figure_width figure_high],'color','k');
+figPos = [100 100 figure_width figure_high];
+figure('Position',figPos,'color','k');
 
 count = 0;
 row_offset = margins(4)./figure_high;
