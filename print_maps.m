@@ -2,12 +2,24 @@ function print_maps(underlay,overlay,under_limits,over_limits,view,mount,name,CB
 
 % underlay = '/storage/daniele/CBF/voxelwise/MNI152_T1_2mm.nii';
 % overlay = '/storage/daniele/CBF/voxelwise/ALL_CBF_TAN_GM/spmT_0001.nii';
-% load data_test;
-% underlay = bg.img;
-% overlay = ol.img;
 
-% name = 'Test HC > HC';
-% CB_label = 't-value';
+if nargin == 0
+    load data_test;
+    underlay = bg.img;
+    overlay = ol.img;
+    img = {underlay,overlay};
+    limits = [1000 10000; 2 5];
+    colormaps = {'grey','hot'};
+    alpha = [0 1];
+    name = 'Test HC HC';
+    CB_label = 't-value';
+
+    mount = [4,5];
+    view = 'ax';
+    
+    %optional
+   % background_suppression = 1;
+end
 
 % %--------------VARARGIN----------------------------------------------------
 % params  =  {'underlay','overlay','Ulimits','Olimits','Ucolor','Ocolor','mount','FullOrt', 'SigNormalise', 'concat', 'type', 'tcompcor','SaveMask', 'MakeBinary'};
@@ -29,28 +41,27 @@ function print_maps(underlay,overlay,under_limits,over_limits,view,mount,name,CB
 % [confounds,firstmean,deri,squares,DatNormalise,freq,PolOrder,FullOrt,SigNormalise,ConCat,MetricType,tCompCor,SaveMask,MakeBinary] = ParseVarargin(params,defParms,legalValues,varargin,1);
 % %--------------------------------------------------------------------------
 
+n_layers = length(img);
 
-%under_limits = [0 10000];
-%over_limits = [4 7];
-%view = 'ax';
 
-%mount = [5,3];
-
-if ischar(underlay)  %in case data is a path to a nifti file
-    img0 = spm_read_vols(spm_vol(underlay));
-else
-    img0 = underlay;
-end
-if ischar(overlay) 
-    img1 = spm_read_vols(spm_vol(overlay));
-else
-    img1 = overlay;
+for l = 1:n_layers
+    if ischar(img{1})  %in case data is a path to a nifti file
+        img{1} = spm_read_vols(spm_vol(underlay));
+        %threshold images
+        if not(isnan(limits(l,1)))
+           img{1}(abs(img{1}) < limits(l,1)) = 0; 
+        end
+        
+    end
 end
 
-img0(img0 < 1000) = 0;
+% % "backroung suppression" on first layer
+% if background_suppression
+%     img{1}(img{1} < 1000) = 0;
+% end
 
-%threshold overlay
-img1(abs(img1) < over_limits(1)) = 0; 
+% %threshold overlay
+% img1(abs(img1) < over_limits(1)) = 0; 
 
 %try to guess final figure size
 s =  size(img0);
@@ -82,7 +93,7 @@ count = 0;
 for row = 1:mount(2)
     for col = 1:mount(1)
         count = count +1;
-        h_ax = plot_slice(pos{row,col},img0,img1,view,planes(count),under_limits,over_limits,'gray','hot',1);
+        h_ax = plot_slice(pos{row,col},img,view,planes(count),limits,colormaps,alpha);
     end
 end
 
@@ -110,7 +121,7 @@ return
 end
 
 
-function [h_ax] = plot_slice(pos,img0,img1,plane,coordinates,img0_limits,img1_limits,img0_colormap,img1_colormap,alpha)
+function [h_ax] = plot_slice(pos,img,plane,coordinates,limits,colormaps,alphas)
 
 ax0 = axes('Position',pos);
 draw_layer(plane,img0,coordinates,img0_limits)
