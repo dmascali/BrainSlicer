@@ -1,4 +1,4 @@
-function [pos,CBpos,figPos] = figure_grid(mount,subplot_size,margins,InnerMargins)
+function [pos,CBpos,figPos] = figure_grid(mount,subplot_size,margins,InnerMargins,ColorbarN)
 
 s = subplot_size;
 
@@ -50,6 +50,22 @@ for row = mount(1):-1:1 %rows
         
     end
 row_offset = row_offset + dy + InnerMargins(2)./figure_high;
+end
+
+% locate colorbar on longest side
+if figure_width > figure_high
+    colorbarLocation = 'South';
+else
+    colorbarLocation = 'Est';
+end
+
+switch colorbarLocation
+    case {'East'}
+        space_occupied_by_slices_y = figure_high - (margins(3) + margins(4));
+        
+    case {'South'}
+        space_occupied_by_slices_y = figure_width - (margins(1) + margins(2));
+        
 end
 
 %colorbar position: just one

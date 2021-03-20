@@ -8,11 +8,11 @@ if nargin == 0
     underlay = bg.img;
     overlay = ol.img;
     img = {underlay,overlay};
-    limits = [1000 10000; 2 5];
-    colormaps = {'grey','hot'};
-    alpha = [0 1];
+    limits = {[1000 10000], [2 5]};
+    colormaps = {'gray','hot'};
+    alpha = {0 1};
     name = 'Test HC HC';
-    CB_label = 't-value';
+    labels = {'MNI','t-value'};
 
     mount = [4,5];
     view = 'ax';
@@ -61,10 +61,12 @@ end
 % end
 
 % %threshold overlay
-% img1(abs(img1) < over_limits(1)) = 0; 
+% img1(abs(img1) < over_limits(1)) = 0;
+
+%TODO add check for consistency between images
 
 %try to guess final figure size
-s =  size(img0);
+s =  size(img{1});
 switch view
     case {'ax'}
         slice_dim = [s(1) s(2)];
@@ -85,10 +87,17 @@ planes = fix(linspace(15,n_slices-20,mount(2)*mount(1)));
 % hight = (mount(2) + marginTollerance)*slice_dim(2);  
 % figure('Position',[0 0 width hight]);
 
-[pos,CBpos,figPos] = figure_grid([mount(2), mount(1)],slice_dim,[1 9 11 1],[0 0]); %left right top bottom %x,y
-
 %threshold images
 img = threshold_images(img,limits);
+
+%determin the number of colorbars based on variable labels. Layers with
+%empty labels will not have colorbars
+ColorbarIndex = cellfun(@isempty,labels);
+ColorbarN = sum(ColorbarIndex);
+
+[pos,CBpos,figPos] = figure_grid([mount(2), mount(1)],slice_dim,[1 9 11 1],[0 0],ColorbarN); %left right top bottom %x,y
+
+
 
 %tiledlayout(mount(2),mount(1), 'Padding', 'none', 'TileSpacing', 'compact'); 
 count = 0;
