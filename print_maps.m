@@ -123,57 +123,26 @@ return
 end
 
 
-function [h_ax] = plot_slice(pos,img,plane,coordinates,limits,colormaps,alphas)
-
+function h_ax = plot_slice(pos,img,plane,coordinates,limits,colormaps,alphas)
 n_layers = length(img);
 ax = cell(n_layers,1);
+h_ax = [];
 %cycle on layers
 for l = 1:n_layers
     ax{l} = axes('Position',pos);
-    draw_layer(plane,img{l},coordinates,img0_limits)
-
-    
+    if l > 1 %transparancy (exlude first layer)
+        %pixel to be transpart either 0 or Nans
+        alphadata = alphas{l}.*img{l};
+        alphadata(img{l} == 0) = 0;
+        alphadata(isnan(alphadata)) = 0;
+    else
+        alphadata = [];
+    end
+    draw_layer(plane,img{l},coordinates,limits{l},alphadata)
+    colormap(ax{l},colormaps{l});
+    h_ax = [h_ax,ax{l}];
 end
-
-
-
-%overlay
-img1_pos = img1;
-img1_neg = img1;
-img1_pos(img1 < 0) = 0;
-img1_neg(img1 > 0) = 0;
-
-%find pixel to be transpart (either 0 or Nans)
-alphadata = alpha.*img1_pos;
-alphadata(img1_pos == 0) = 0;
-alphadata(isnan(alphadata)) = 0;
-
-ax1 = axes('Position',pos,'Visible','off');
-draw_layer(plane,img1_pos,coordinates,img1_limits,alphadata)
-
-%find pixel to be transpart (either 0 or Nans)
-alphadata = -1*alpha.*img1_neg;
-alphadata(img1_neg == 0) = 0;
-alphadata(isnan(alphadata)) = 0;
-
-ax2 = axes('Position',pos,'Visible','off');
-draw_layer(plane,img1_neg,coordinates,-1*flip(img1_limits),alphadata)
-
-
-
-
-linkaxes([ax0,ax1,ax2])
-% ax1.Visible = 'off';
-% ax1.XTick = [];
-% ax1.YTick = [];
-
-
-colormap(ax0,img0_colormap);
-colormap(ax1,img1_colormap);
-colormap(ax2,'winter');
-
-h_ax = [ax0; ax1; ax2];
-
+linkaxes(h_ax);
 return
 end
 
@@ -213,9 +182,7 @@ switch plane
     case {'cor'}
         imagesc(flipdim(squeeze(img(:,coordinates,:))',1),limits);
 end
-
 set(gca,'Visible','off');
-
 return
 end
 
