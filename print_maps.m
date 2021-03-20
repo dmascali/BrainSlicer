@@ -87,6 +87,8 @@ planes = fix(linspace(15,n_slices-20,mount(2)*mount(1)));
 
 [pos,CBpos,figPos] = figure_grid([mount(2), mount(1)],slice_dim,[1 9 11 1],[0 0]); %left right top bottom %x,y
 
+%threshold images
+img = threshold_images(img,limits);
 
 %tiledlayout(mount(2),mount(1), 'Padding', 'none', 'TileSpacing', 'compact'); 
 count = 0;
@@ -123,8 +125,16 @@ end
 
 function [h_ax] = plot_slice(pos,img,plane,coordinates,limits,colormaps,alphas)
 
-ax0 = axes('Position',pos);
-draw_layer(plane,img0,coordinates,img0_limits)
+n_layers = length(img);
+ax = cell(n_layers,1);
+%cycle on layers
+for l = 1:n_layers
+    ax{l} = axes('Position',pos);
+    draw_layer(plane,img{l},coordinates,img0_limits)
+
+    
+end
+
 
 
 %overlay
@@ -164,6 +174,21 @@ colormap(ax2,'winter');
 
 h_ax = [ax0; ax1; ax2];
 
+return
+end
+
+function img = threshold_images(img,limits)
+n_layers = length(img);
+%cycle on layers
+for l = 1:n_layers
+    low = limits{l}(1);
+    up  = limits{l}(2);
+    if low < up
+        img{l}(img{l} < low) = 0;
+    else
+        img{l}(img{l} > up) = 0;
+    end
+end
 return
 end
 
