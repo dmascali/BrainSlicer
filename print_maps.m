@@ -92,10 +92,10 @@ img = threshold_images(img,limits);
 
 %determin the number of colorbars based on variable labels. Layers with
 %empty labels will not have colorbars
-ColorbarIndex = cellfun(@isempty,labels);
-ColorbarN = sum(ColorbarIndex);
+colorbarIndex = cellfun(@isempty,labels);
+colorbarN = sum(not(colorbarIndex));
 
-[pos,CBpos,figPos] = figure_grid([mount(2), mount(1)],slice_dim,[1 9 11 1],[0 0],ColorbarN); %left right top bottom %x,y
+[pos,CBpos,figPos] = figure_grid([mount(2), mount(1)],slice_dim,[1 9 11 1],[0 0],colorbarN); %left right top bottom %x,y
 
 
 
@@ -108,8 +108,13 @@ for row = 1:mount(2)
     end
 end
 
-cb1 = colorbar(h_ax(2),'Position',CBpos.two_bars{2},'Color','w');
-cb2 = colorbar(h_ax(3),'Position',CBpos.two_bars{1},'Color','w');
+
+for l = 1:colorbarN
+    cb = colorbar(h_ax(l),'Position',CBpos{l},'Color','w');
+    cb.Label.String = labels{l};
+    cb.Label.FontSize = 10;
+    cb.Label.Color = 'w';
+end
 
 cb1.Label.String = CB_label;
 cb1.Label.FontSize = 10;
