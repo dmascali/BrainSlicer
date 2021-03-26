@@ -7,6 +7,7 @@ s = subplot_size;
 % margins = [0 0 0 0]; %left right top bottom
 % InnerMargins = [0 0]; %x y
 
+%------------------- This variables are in pixel units---------------------
 delta_x = s(1);
 figureWidth = mount(2)*delta_x;
 delta_y = s(2);
@@ -24,9 +25,11 @@ innerMargins(2) = innerMargins(2)*figureHigh/100;
 %update figure dimesion with margins
 figureWidth = figureWidth + margins(1) + margins(2) + innerMargins(1)*(mount(2)-1);
 figureHigh  = figureHigh + margins(3) + margins(4) + innerMargins(2)*(mount(1)-1);
+%--------------------------------------------------------------------------
 
 pos = cell(mount);
 
+%normlized units
 dx = delta_x./figureWidth;
 dy = delta_y./figureHigh;
 
@@ -53,23 +56,42 @@ row_offset = row_offset + dy + innerMargins(2)./figureHigh;
 end
 
 % locate colorbar on longest side. 
-figureWidthNoMargins = figureWidth -(margins(1) + margins(2));
-figureHighNoMargins  = figureHigh - (margins(3) + margins(4));
+figureWidthNoMargins = figureWidth - (margins(1) + margins(2)); %pixel units
+figureHighNoMargins  = figureHigh  - (margins(3) + margins(4));
 if figureWidthNoMargins > figureHighNoMargins
     colorbarLocation = 'East';  %South just for testing
 else
     colorbarLocation = 'East';
 end
 
-figureWidthNoMarginsNorm = figureWidthNoMargins./figureWidth;
-figureHighNoMarginsNorm  = figureHighNoMargins./figureHigh;
+% figureWidthNoMarginsNorm = figureWidthNoMargins./figureWidth;
+% figureHighNoMarginsNorm  = figureHighNoMargins./figureHigh;
+%make all computation in pixel units then covert them to normalized units
 switch colorbarLocation
     case {'East'}
-        cbWidth = 0.12*dx;  cbHigh = 0.9*dy/colorbarN;
-        cbX = (figureWidth - margins(2))./figureWidth + 0.05*dx;
-        cbYStarts = linspace(margins(4),figureHighNoMargins+margins(4)-colorbarN*(cbHigh + 0.04*delta_y) ,colorbarN)./figureHigh;
+        %------------------define fix sizes--------------------------------
+        fracOfWidth        = 0.12; %defines cbWidth
+        fracOfHigh_r1      = 0.85; %defines cbHigh in case single row
+        fracOfHigh_rm      = 0.60; %defines cbHigh in case of multiple rows
+        fracOfSpaceBetween = 0.10; %defines space between colorbars
+        fracOfDistanceX    = 0.05; %defines X distance from slices
+        %------------------------------------------------------------------
+        cbWidth = fracOfWidth*delta_x;  
+        if mount(1) == 1 %just one row
+            cbHigh = fracOfHigh_r1*delta_y/colorbarN;
+        else
+            cbHigh = fracOfHigh_rm*figureHighNoMargins/colorbarN;
+        end
+        cbX = (figureWidth - margins(2)) + fracOfDistanceX*delta_x;
+        %calculate the total space occupied by the colorbars so that we can
+        %center them.
+        spaceBetweenBars = fracOfSpaceBetween*delta_y;
+        cbTotalLength = colorbarN*cbHigh + (colorbarN-1)*spaceBetweenBars;
+        discardedSpace = (figureHighNoMargins - cbTotalLength)/2; %this value might be negative, pay attention
+        cbYStarts = (margins(4)+discardedSpace):(cbHigh + spaceBetweenBars):figureHighNoMargins;
         for l = 1:colorbarN
-           colorbarPos{l} = [cbX,cbYStarts(l),cbWidth,cbHigh];
+            %store and normalize position
+            colorbarPos{l} = [cbX/figureWidth,cbYStarts(l)/figureHigh,cbWidth/figureWidth,cbHigh/figureHigh];
         end
     case {'South'}
         space_occupied_by_slices_y = figureWidth - (margins(1) + margins(2));

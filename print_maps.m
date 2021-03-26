@@ -14,7 +14,7 @@ if nargin == 0
     name = 'Test HC HC';
     labels = {'MNI','t-value'};
 
-    mount = [4,5];
+    mount = [5,2];
     view = 'ax';
     
     %optional
@@ -116,13 +116,13 @@ for l = 1:colorbarN
     cb.Label.Color = 'w';
 end
 
-cb1.Label.String = CB_label;
-cb1.Label.FontSize = 10;
-cb1.Label.Color = 'w';
-
-cb2.Label.String = CB_label;
-cb2.Label.FontSize = 10;
-cb2.Label.Color = 'w';
+% cb1.Label.String = CB_label;
+% cb1.Label.FontSize = 10;
+% cb1.Label.Color = 'w';
+% 
+% cb2.Label.String = CB_label;
+% cb2.Label.FontSize = 10;
+% cb2.Label.Color = 'w';
 
 h = annotation('textbox', [0 0.95 0 0], 'String', name, 'FitBoxToText', true,'Color','w','edgecolor','none','verticalAlignment','middle','FontSize',17,'Fontweight','bold');
 
