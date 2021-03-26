@@ -13,6 +13,7 @@ if nargin == 0
     alpha = {0 1};
     name = 'Test HC HC';
     labels = {'MNI','t-value'};
+    cbLocation = 'best';
 
     mount = [5,2];
     view = 'ax';
@@ -95,7 +96,7 @@ img = threshold_images(img,limits);
 colorbarIndex = cellfun(@isempty,labels);
 colorbarN = sum(not(colorbarIndex));
 
-[pos,CBpos,figPos] = figure_grid([mount(2), mount(1)],slice_dim,[1 9 11 1],[0 0],colorbarN); %left right top bottom %x,y
+[pos,CBpos,figPos] = figure_grid([mount(2), mount(1)],slice_dim,[1 9 11 1],[0 0],colorbarN,cbLocation); %left right top bottom %x,y
 
 
 

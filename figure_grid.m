@@ -1,4 +1,4 @@
-function [pos,colorbarPos,figPos] = figure_grid(mount,subplot_size,margins,innerMargins,colorbarN)
+function [pos,colorbarPos,figPos] = figure_grid(mount,subplot_size,margins,innerMargins,colorbarN,colorbarLocation)
 
 s = subplot_size;
 
@@ -58,14 +58,19 @@ end
 % locate colorbar on longest side. 
 figureWidthNoMargins = figureWidth - (margins(1) + margins(2)); %pixel units
 figureHighNoMargins  = figureHigh  - (margins(3) + margins(4));
-if figureWidthNoMargins > figureHighNoMargins
-    colorbarLocation = 'East';  %South just for testing
-else
-    colorbarLocation = 'East';
+switch lower(colorbarLocation)
+    case {'best','auto'}
+        if figureWidthNoMargins > figureHighNoMargins
+            colorbarLocation = 'South';
+        else
+            colorbarLocation = 'East';
+        end
+    case {'east'} %do nothing
+    case {'south'} %do nothing
+    otherwise
+        error('Not recognized colorbar location.')
 end
 
-% figureWidthNoMarginsNorm = figureWidthNoMargins./figureWidth;
-% figureHighNoMarginsNorm  = figureHighNoMargins./figureHigh;
 %make all computation in pixel units then covert them to normalized units
 switch colorbarLocation
     case {'East'}
@@ -94,7 +99,31 @@ switch colorbarLocation
             colorbarPos{l} = [cbX/figureWidth,cbYStarts(l)/figureHigh,cbWidth/figureWidth,cbHigh/figureHigh];
         end
     case {'South'}
-        space_occupied_by_slices_y = figureWidth - (margins(1) + margins(2));
+        %space_occupied_by_slices_y = figureWidth - (margins(1) + margins(2));
+        %------------------define fix sizes--------------------------------
+        fracOfHigh        = 0.12; %defines cbWidth
+        fracOfWidth_r1      = 0.85; %defines cbHigh in case single row
+        fracOfWidth_rm      = 0.60; %defines cbHigh in case of multiple rows
+        fracOfSpaceBetween = 0.10; %defines space between colorbars
+        fracOfDistanceY    = 0.05; %defines X distance from slices
+        %------------------------------------------------------------------
+        cbHigh = fracOfHigh*delta_y;  
+        if mount(2) == 1 %just one column
+            cbWidth = fracOfWidth_r1*delta_x/colorbarN;
+        else
+            cbWidth = fracOfWidth_rm*figureWidthNoMargins/colorbarN;
+        end
+        cbY = margins(3) - fracOfDistanceY*delta_y;
+        %calculate the total space occupied by the colorbars so that we can
+        %center them.
+        spaceBetweenBars = fracOfSpaceBetween*delta_x;
+        cbTotalLength = colorbarN*cbWidth + (colorbarN-1)*spaceBetweenBars;
+        discardedSpace = (figureWidthNoMargins - cbTotalLength)/2; %this value might be negative, pay attention
+        cbXStarts = (margins(1)+discardedSpace):(cbWidth + spaceBetweenBars):figureWidthNoMargins;
+        for l = 1:colorbarN
+            %store and normalize position
+            colorbarPos{l} = [cbXStarts(l)/figureWidth,cbY/figureHigh,cbWidth/figureWidth,cbHigh/figureHigh];
+        end
 end
 
 return
