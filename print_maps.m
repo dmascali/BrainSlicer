@@ -18,8 +18,8 @@ if nargin == 0
     cbLocation = 'best';
     margins = [0 0 0 0]; %left right top bottom
 
-    mount = [1,1];
-    view = 'ax';
+    mount = [3,5];
+    view = 'cor';
     
     %optional
    % background_suppression = 1;
@@ -45,6 +45,10 @@ end
 % [confounds,firstmean,deri,squares,DatNormalise,freq,PolOrder,FullOrt,SigNormalise,ConCat,MetricType,tCompCor,SaveMask,MakeBinary] = ParseVarargin(params,defParms,legalValues,varargin,1);
 % %--------------------------------------------------------------------------
 
+%check Matlab version, stop if version is older than:
+matlabVersion = version;
+matlabVersion = str2num(matlabVersion(1:3)); 
+
 n_layers = length(img);
 
 
@@ -69,20 +73,22 @@ end
 
 %TODO add check for consistency between images
 
-%try to guess final figure size
+%get info specific to the type of view
 s =  size(img{1});
 switch view
     case {'ax'}
-        slice_dim = [s(1) s(2)];
         n_slices = s(3);
+        for l = 1:n_layers
+            img{l} = flipdim(img{l},2);
+        end
+        slice_dim = [s(1) s(2)];
     case {'sag'} %this might be flipped
-        slice_dim = [s(2) s(3)];
         n_slices = s(1);
+        slice_dim = [s(2) s(3)];
     case {'cor'} %this might be flipped
         slice_dim = [s(1) s(3)];
         n_slices = s(3);
 end
-
 %todo: skip a percentage of bottom and top slices
 planes = fix(linspace(15,n_slices-20,mount(2)*mount(1)));
 
@@ -95,8 +101,19 @@ colorbarIndex = find(cellfun(@(x) not(isempty(x)),labels));
 colorbarN = length(colorbarIndex);
 
 %Defines how many pixels the title occupies
-titleInInches = fontsize.Title *1/72;
-ScreenPixelsPerInch = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
+titleInInches = (fontsize.Title+1) *1/72; %add one points to increase top space and convert points to inches
+% now convert inches to pixels
+%this needs at least matlab 8.6 (R2015b).
+if matlabVersion >= 8.6 && (ispc || ismac)
+    if ispc
+        ScreenPixelsPerInch = 96;
+    elseif ismac  
+        ScreenPixelsPerInch = 72;
+    end
+else
+    % in case of unix or older versions
+    ScreenPixelsPerInch = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
+end
 titleInPixels = titleInInches*ScreenPixelsPerInch;
 
 [pos,cbConfig,figPos] = figure_grid([mount(2), mount(1)],slice_dim,margins,[0 0],colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
@@ -123,7 +140,7 @@ for l = 1:colorbarN
         cb.Label.Color = 'w';
 end
 
-text(firstAxe(1),0,1,Title,'Color','w','verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontsize.Title,'FontUnits','points','Units','normalized');
+text(firstAxe(1),0,1,Title,'Color','w','verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontsize.Title,'FontUnits','points','Units','normalized','FontWeight','Bold');
 
 Title(strfind(Title,' ')) = '_';
 
@@ -131,6 +148,9 @@ set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
 %try to force again position. It works!
 set(gcf,'Position',figPos);
 print(Title,'-dpng',['-r',resolution])
+
+pause(1)
+close all
 
 return
 end
@@ -179,22 +199,35 @@ function draw_layer(plane,img,coordinates,limits,alphadata)
 if nargin < 5
     alphadata = [];
 end
+
 switch plane
     case {'ax'}
-        if isempty(alphadata)
-            imagesc(flipdim(squeeze(img(:,:,coordinates)),2)',limits);
+        img = squeeze(img(:,:,coordinates))';
+        if not(isempty(alphadata))
+            alphadata = squeeze(alphadata(:,:,coordinates))';
         else
-            imagesc(flipdim(squeeze(img(:,:,coordinates)),2)','AlphaData',flipdim(squeeze(alphadata(:,:,coordinates)),2)');
-            ax = gca;
-            ax.CLim = limits;
+            alphadata = 1;
         end
-        xlim([1 size(img,1)]);
-        ylim([1 size(img,2)]);
     case {'sag'}
-        imagesc(flipdim(squeeze(img(coordinates,:,:))',1),limits);
+        img = flipdim(flipdim(squeeze(img(coordinates,:,:)),2)',2);
+        if not(isempty(alphadata))
+            alphadata = flipdim(flipdim(squeeze(alphadata(coordinates,:,:)),2)',2);
+        else
+            alphadata = 1;
+        end
     case {'cor'}
-        imagesc(flipdim(squeeze(img(:,coordinates,:))',1),limits);
+        img = flipdim(squeeze(img(:,coordinates,:))',1);
+        if not(isempty(alphadata))
+            alphadata = flipdim(squeeze(alphadata(:,coordinates,:))',1);
+        else
+            alphadata = 1;
+        end
 end
+
+imagesc(img,'AlphaData',alphadata); ax = gca; ax.CLim = limits;
+AXIS = [1 size(img,2) 1 size(img,1)];
+axis(AXIS);
+
 set(gca,'Visible','off');
 return
 end

@@ -40,7 +40,7 @@ switch lower(colorbarLocation)
         margins(4) = margins(4)*figureHigh/100 + accomodateColorbar;
         margins(2) = margins(2)*figureWidth/100;
 end
-%accomodate titles
+%accomodate title
 if not(isempty(titleHighInPixel))
     extraSpaceTitle = 0;
    % add extra space
