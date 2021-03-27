@@ -8,7 +8,8 @@ if nargin == 0
     underlay = bg.img;
     overlay = ol.img;
     img = {underlay,overlay};
-    limits = {[1000 10000], [2 5]};
+    limits = {[1000 10000], [3.16 5]};
+    minClusterSize = {[], 200};
     colormaps = {'gray','hot'};
     alpha = {0 1};
     Title = 'Test p HC HC';
@@ -17,12 +18,12 @@ if nargin == 0
     labels = {[],'t-value'};
     cbLocation = 'best';
     margins = [0 0 0 0]; %left right top bottom
-
+    
     mount = [3,5];
-    view = 'cor';
+    view = 'ax';
     
     %optional
-   % background_suppression = 1;
+    % background_suppression = 1;
 end
 
 % %--------------VARARGIN----------------------------------------------------
@@ -47,7 +48,7 @@ end
 
 %check Matlab version, stop if version is older than:
 matlabVersion = version;
-matlabVersion = str2num(matlabVersion(1:3)); 
+matlabVersion = str2num(matlabVersion(1:3));
 
 n_layers = length(img);
 
@@ -57,7 +58,7 @@ for l = 1:n_layers
         img{1} = spm_read_vols(spm_vol(underlay));
         %threshold images
         if not(isnan(limits(l,1)))
-           img{1}(abs(img{1}) < limits(l,1)) = 0; 
+            img{1}(abs(img{1}) < limits(l,1)) = 0;
         end
         
     end
@@ -93,7 +94,7 @@ end
 planes = fix(linspace(15,n_slices-20,mount(2)*mount(1)));
 
 %threshold images
-img = threshold_images(img,limits);
+img = threshold_images(img,limits,minClusterSize);
 
 %determin the number of colorbars based on variable labels. Layers with
 %empty labels will not have colorbars
@@ -107,7 +108,7 @@ titleInInches = (fontsize.Title+1) *1/72; %add one points to increase top space 
 if matlabVersion >= 8.6 && (ispc || ismac)
     if ispc
         ScreenPixelsPerInch = 96;
-    elseif ismac  
+    elseif ismac
         ScreenPixelsPerInch = 72;
     end
 else
@@ -120,7 +121,7 @@ titleInPixels = titleInInches*ScreenPixelsPerInch;
 
 
 
-%tiledlayout(mount(2),mount(1), 'Padding', 'none', 'TileSpacing', 'compact'); 
+%tiledlayout(mount(2),mount(1), 'Padding', 'none', 'TileSpacing', 'compact');
 count = 0;
 for row = 1:mount(2)
     for col = 1:mount(1)
@@ -134,10 +135,10 @@ end
 
 
 for l = 1:colorbarN
-        cb = colorbar(h_ax(colorbarIndex(l)),'Location',cbConfig.location,'Position',cbConfig.colorbarPos{l},'Color','w');
-        cb.Label.String = labels{colorbarIndex(l)};
-        cb.Label.FontSize = 10;
-        cb.Label.Color = 'w';
+    cb = colorbar(h_ax(colorbarIndex(l)),'Location',cbConfig.location,'Position',cbConfig.colorbarPos{l},'Color','w');
+    cb.Label.String = labels{colorbarIndex(l)};
+    cb.Label.FontSize = 10;
+    cb.Label.Color = 'w';
 end
 
 text(firstAxe(1),0,1,Title,'Color','w','verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontsize.Title,'FontUnits','points','Units','normalized','FontWeight','Bold');
@@ -149,8 +150,8 @@ set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
 set(gcf,'Position',figPos);
 print(Title,'-dpng',['-r',resolution])
 
-pause(1)
-close all
+% pause(1)
+% close all
 
 return
 end
@@ -179,7 +180,7 @@ linkaxes(h_ax);
 return
 end
 
-function img = threshold_images(img,limits)
+function img = threshold_images(img,limits,minClusterSize)
 n_layers = length(img);
 %cycle on layers
 for l = 1:n_layers
@@ -189,6 +190,22 @@ for l = 1:n_layers
         img{l}(img{l} < low) = 0;
     else
         img{l}(img{l} > up) = 0;
+    end
+    if not(isempty(minClusterSize{l})) | (minClusterSize{l} > 1)
+        %binarize img
+        a = img{l}; a(not(a==0)) = 1;
+        %find connected clusters
+        [L,num] = spm_bwlabel(a,18);
+        for j = 1:num
+            indx = find(L==j);
+            if length(indx) < minClusterSize{l}
+                %then remove indices
+                L(indx) = 0;
+            end
+        end
+        %find not surviving indices
+        indx = find(L==0);
+        img{l}(indx) = 0;
     end
 end
 return
@@ -244,7 +261,7 @@ end
 xyz(1)=origin(1) + round(mni(1)/vs) +1;      %was origin(1) - mni(1)/vs
 xyz(2)=origin(2) + round(mni(2)/vs) +1;
 xyz(3)=origin(3) + round(mni(3)/vs) +1;
-            
+
 return
 end
 
@@ -258,6 +275,6 @@ end
 
 mni = vs*(xyz - origin -1);
 
-            
+
 return
 end
