@@ -1,4 +1,4 @@
-function [axesPos,cbConfig,figPos] = figure_grid(mount,subplot_size,margins,innerMargins,colorbarN,colorbarLocation)
+function [axesPos,cbConfig,figPos] = figure_grid(mount,subplot_size,margins,innerMargins,colorbarN,colorbarLocation,titleHighInPixel)
 
 s = subplot_size;
 
@@ -40,7 +40,13 @@ switch lower(colorbarLocation)
         margins(4) = margins(4)*figureHigh/100 + accomodateColorbar;
         margins(2) = margins(2)*figureWidth/100;
 end
-margins(3) = margins(3)*figureHigh/100;
+%accomodate titles
+if not(isempty(titleHighInPixel))
+    extraSpaceTitle = 0;
+   % add extra space
+   titleHighInPixel = titleHighInPixel + extraSpaceTitle*delta_y;
+end
+margins(3) = margins(3)*figureHigh/100 + titleHighInPixel;
 
 innerMargins(1) = innerMargins(1)*figureWidth/100;
 innerMargins(2) = innerMargins(2)*figureHigh/100;
@@ -81,18 +87,6 @@ end
 % locate colorbar on longest side. 
 figureWidthNoMargins = figureWidth - (margins(1) + margins(2)); %pixel units
 figureHighNoMargins  = figureHigh  - (margins(3) + margins(4));
-% switch lower(colorbarLocation)
-%     case {'best','auto'}
-%         if figureWidthNoMargins > figureHighNoMargins
-%             colorbarLocation = 'South';
-%         else
-%             colorbarLocation = 'East';
-%         end
-%     case {'east'} %do nothing
-%     case {'south'} %do nothing
-%     otherwise
-%         error('Not recognized colorbar location.')
-% end
 
 %make all computation in pixel units then covert them to normalized units
 switch colorbarLocation

@@ -1,4 +1,4 @@
-function print_maps(underlay,overlay,under_limits,over_limits,view,mount,name,CB_label)
+function print_maps(underlay,overlay,under_limits,over_limits,view,mount,Title,CB_label)
 
 % underlay = '/storage/daniele/CBF/voxelwise/MNI152_T1_2mm.nii';
 % overlay = '/storage/daniele/CBF/voxelwise/ALL_CBF_TAN_GM/spmT_0001.nii';
@@ -11,12 +11,14 @@ if nargin == 0
     limits = {[1000 10000], [2 5]};
     colormaps = {'gray','hot'};
     alpha = {0 1};
-    name = 'Test HC HC';
+    Title = 'Test p HC HC';
+    fontsize.Title = 12; % in points (1 point is 1/72 inches)
+    resolution = '500';  %pixels/inches
     labels = {[],'t-value'};
     cbLocation = 'best';
-    margins = [0 0 10 0]; %left right top bottom
+    margins = [0 0 0 0]; %left right top bottom
 
-    mount = [4,7];
+    mount = [1,1];
     view = 'ax';
     
     %optional
@@ -82,12 +84,7 @@ switch view
 end
 
 %todo: skip a percentage of bottom and top slices
-
 planes = fix(linspace(15,n_slices-20,mount(2)*mount(1)));
-% marginTollerance = 2;
-% width = (mount(1) + marginTollerance)*slice_dim(1);  
-% hight = (mount(2) + marginTollerance)*slice_dim(2);  
-% figure('Position',[0 0 width hight]);
 
 %threshold images
 img = threshold_images(img,limits);
@@ -97,7 +94,12 @@ img = threshold_images(img,limits);
 colorbarIndex = find(cellfun(@(x) not(isempty(x)),labels));
 colorbarN = length(colorbarIndex);
 
-[pos,cbConfig,figPos] = figure_grid([mount(2), mount(1)],slice_dim,margins,[0 0],colorbarN,cbLocation); %left right top bottom %x,y
+%Defines how many pixels the title occupies
+titleInInches = fontsize.Title *1/72;
+ScreenPixelsPerInch = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
+titleInPixels = titleInInches*ScreenPixelsPerInch;
+
+[pos,cbConfig,figPos] = figure_grid([mount(2), mount(1)],slice_dim,margins,[0 0],colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
 
 
 
@@ -107,6 +109,9 @@ for row = 1:mount(2)
     for col = 1:mount(1)
         count = count +1;
         h_ax = plot_slice(pos{row,col},img,view,planes(count),limits,colormaps,alpha);
+        if count == 1
+            firstAxe = h_ax;
+        end
     end
 end
 
@@ -118,22 +123,14 @@ for l = 1:colorbarN
         cb.Label.Color = 'w';
 end
 
-% cb1.Label.String = CB_label;
-% cb1.Label.FontSize = 10;
-% cb1.Label.Color = 'w';
-% 
-% cb2.Label.String = CB_label;
-% cb2.Label.FontSize = 10;
-% cb2.Label.Color = 'w';
+text(firstAxe(1),0,1,Title,'Color','w','verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontsize.Title,'FontUnits','points','Units','normalized');
 
-h = annotation('textbox', [0 0.95 0 0], 'String', name, 'FitBoxToText', true,'Color','w','edgecolor','none','verticalAlignment','middle','FontSize',17,'Fontweight','bold');
-
-name(strfind(name,' ')) = '_';
+Title(strfind(Title,' ')) = '_';
 
 set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
 %try to force again position. It works!
 set(gcf,'Position',figPos);
-print(name,'-dpng','-r500')
+print(Title,'-dpng',['-r',resolution])
 
 return
 end
