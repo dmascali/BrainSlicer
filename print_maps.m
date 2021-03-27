@@ -12,11 +12,11 @@ if nargin == 0
     colormaps = {'gray','hot'};
     alpha = {0 1};
     name = 'Test HC HC';
-    labels = {'MNI','t-value'};
+    labels = {[],'t-value'};
     cbLocation = 'best';
-    margins = [0 0 0 0]; %left right top bottom
+    margins = [0 0 10 0]; %left right top bottom
 
-    mount = [2,5];
+    mount = [5,2];
     view = 'ax';
     
     %optional
@@ -94,8 +94,8 @@ img = threshold_images(img,limits);
 
 %determin the number of colorbars based on variable labels. Layers with
 %empty labels will not have colorbars
-colorbarIndex = cellfun(@isempty,labels);
-colorbarN = sum(not(colorbarIndex));
+colorbarIndex = find(cellfun(@(x) not(isempty(x)),labels));
+colorbarN = length(colorbarIndex);
 
 [pos,cbConfig,figPos] = figure_grid([mount(2), mount(1)],slice_dim,margins,[0 0],colorbarN,cbLocation); %left right top bottom %x,y
 
@@ -112,10 +112,10 @@ end
 
 
 for l = 1:colorbarN
-    cb = colorbar(h_ax(l),'Location',cbConfig.location,'Position',cbConfig.colorbarPos{l},'Color','w');
-    cb.Label.String = labels{l};
-    cb.Label.FontSize = 10;
-    cb.Label.Color = 'w';
+        cb = colorbar(h_ax(colorbarIndex(l)),'Location',cbConfig.location,'Position',cbConfig.colorbarPos{l},'Color','w');
+        cb.Label.String = labels{colorbarIndex(l)};
+        cb.Label.FontSize = 10;
+        cb.Label.Color = 'w';
 end
 
 % cb1.Label.String = CB_label;

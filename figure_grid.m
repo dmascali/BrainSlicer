@@ -13,6 +13,28 @@ figureWidth = mount(2)*delta_x;
 delta_y = s(2);
 figureHigh  = mount(1)*delta_y;
 
+% we need to locate where the colorbar will be so that we can increase
+% margins appropriately
+switch lower(colorbarLocation)
+    case {'best','auto'}
+        if figureWidth > figureHigh
+            colorbarLocation = 'South';
+        else
+            colorbarLocation = 'East';
+        end
+    case {'east'} %do nothing
+    case {'south'} %do nothing
+    otherwise
+        error('Not recognized colorbar location.')
+end
+%increase margins (these are defined in percentages)
+switch lower(colorbarLocation)
+    case {'east'}
+        margins(2) = margins(2) + 30; 
+    case {'south'}
+        margins(4) = margins(4) + 30;
+end
+
 %convert margins from percentage to pixel 
 margins(1) = margins(1)*figureWidth/100;
 margins(2) = margins(2)*figureWidth/100;
@@ -58,18 +80,18 @@ end
 % locate colorbar on longest side. 
 figureWidthNoMargins = figureWidth - (margins(1) + margins(2)); %pixel units
 figureHighNoMargins  = figureHigh  - (margins(3) + margins(4));
-switch lower(colorbarLocation)
-    case {'best','auto'}
-        if figureWidthNoMargins > figureHighNoMargins
-            colorbarLocation = 'South';
-        else
-            colorbarLocation = 'East';
-        end
-    case {'east'} %do nothing
-    case {'south'} %do nothing
-    otherwise
-        error('Not recognized colorbar location.')
-end
+% switch lower(colorbarLocation)
+%     case {'best','auto'}
+%         if figureWidthNoMargins > figureHighNoMargins
+%             colorbarLocation = 'South';
+%         else
+%             colorbarLocation = 'East';
+%         end
+%     case {'east'} %do nothing
+%     case {'south'} %do nothing
+%     otherwise
+%         error('Not recognized colorbar location.')
+% end
 
 %make all computation in pixel units then covert them to normalized units
 switch colorbarLocation
@@ -101,11 +123,11 @@ switch colorbarLocation
     case {'South'}
         %space_occupied_by_slices_y = figureWidth - (margins(1) + margins(2));
         %------------------define fix sizes--------------------------------
-        fracOfHigh        = 0.12; %defines cbWidth
-        fracOfWidth_r1      = 0.85; %defines cbHigh in case single row
-        fracOfWidth_rm      = 0.60; %defines cbHigh in case of multiple rows
+        fracOfHigh         = 0.12; %defines cbWidth
+        fracOfWidth_r1     = 0.85; %defines cbHigh in case single row
+        fracOfWidth_rm     = 0.60; %defines cbHigh in case of multiple rows
         fracOfSpaceBetween = 0.10; %defines space between colorbars
-        fracOfDistanceY    = 0.05; %defines X distance from slices
+        fracOfDistanceY    = 0.15; %defines Y distance from slices
         %------------------------------------------------------------------
         cbHigh = fracOfHigh*delta_y;  
         if mount(2) == 1 %just one column
