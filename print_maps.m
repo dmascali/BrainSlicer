@@ -14,8 +14,9 @@ if nargin == 0
     name = 'Test HC HC';
     labels = {'MNI','t-value'};
     cbLocation = 'best';
+    margins = [0 0 0 0]; %left right top bottom
 
-    mount = [5,2];
+    mount = [2,5];
     view = 'ax';
     
     %optional
@@ -96,7 +97,7 @@ img = threshold_images(img,limits);
 colorbarIndex = cellfun(@isempty,labels);
 colorbarN = sum(not(colorbarIndex));
 
-[pos,CBpos,figPos] = figure_grid([mount(2), mount(1)],slice_dim,[1 9 11 1],[0 0],colorbarN,cbLocation); %left right top bottom %x,y
+[pos,cbConfig,figPos] = figure_grid([mount(2), mount(1)],slice_dim,margins,[0 0],colorbarN,cbLocation); %left right top bottom %x,y
 
 
 
@@ -111,7 +112,7 @@ end
 
 
 for l = 1:colorbarN
-    cb = colorbar(h_ax(l),'Position',CBpos{l},'Color','w');
+    cb = colorbar(h_ax(l),'Location',cbConfig.location,'Position',cbConfig.colorbarPos{l},'Color','w');
     cb.Label.String = labels{l};
     cb.Label.FontSize = 10;
     cb.Label.Color = 'w';

@@ -1,4 +1,4 @@
-function [pos,colorbarPos,figPos] = figure_grid(mount,subplot_size,margins,innerMargins,colorbarN,colorbarLocation)
+function [axesPos,cbConfig,figPos] = figure_grid(mount,subplot_size,margins,innerMargins,colorbarN,colorbarLocation)
 
 s = subplot_size;
 
@@ -27,7 +27,7 @@ figureWidth = figureWidth + margins(1) + margins(2) + innerMargins(1)*(mount(2)-
 figureHigh  = figureHigh + margins(3) + margins(4) + innerMargins(2)*(mount(1)-1);
 %--------------------------------------------------------------------------
 
-pos = cell(mount);
+axesPos = cell(mount);
 
 %normlized units
 dx = delta_x./figureWidth;
@@ -43,7 +43,7 @@ for row = mount(1):-1:1 %rows
     col_offset = margins(1)./figureWidth;
     for col = 1:mount(2) %col
         count = count +1;
-        pos{row,col} = [col_offset,row_offset,dx,dy];
+        axesPos{row,col} = [col_offset,row_offset,dx,dy];
         col_offset = col_offset + dx + innerMargins(1)./figureWidth;
 %         ax = axes;
 %         set(ax,'Position',pos{row,col});
@@ -96,7 +96,7 @@ switch colorbarLocation
         cbYStarts = (margins(4)+discardedSpace):(cbHigh + spaceBetweenBars):figureHighNoMargins;
         for l = 1:colorbarN
             %store and normalize position
-            colorbarPos{l} = [cbX/figureWidth,cbYStarts(l)/figureHigh,cbWidth/figureWidth,cbHigh/figureHigh];
+            cbConfig.colorbarPos{l} = [cbX/figureWidth,cbYStarts(l)/figureHigh,cbWidth/figureWidth,cbHigh/figureHigh];
         end
     case {'South'}
         %space_occupied_by_slices_y = figureWidth - (margins(1) + margins(2));
@@ -113,7 +113,7 @@ switch colorbarLocation
         else
             cbWidth = fracOfWidth_rm*figureWidthNoMargins/colorbarN;
         end
-        cbY = margins(3) - fracOfDistanceY*delta_y;
+        cbY = margins(4) - fracOfDistanceY*delta_y;
         %calculate the total space occupied by the colorbars so that we can
         %center them.
         spaceBetweenBars = fracOfSpaceBetween*delta_x;
@@ -122,9 +122,11 @@ switch colorbarLocation
         cbXStarts = (margins(1)+discardedSpace):(cbWidth + spaceBetweenBars):figureWidthNoMargins;
         for l = 1:colorbarN
             %store and normalize position
-            colorbarPos{l} = [cbXStarts(l)/figureWidth,cbY/figureHigh,cbWidth/figureWidth,cbHigh/figureHigh];
+            cbConfig.colorbarPos{l} = [cbXStarts(l)/figureWidth,cbY/figureHigh,cbWidth/figureWidth,cbHigh/figureHigh];
         end
 end
+
+cbConfig.location = colorbarLocation;
 
 return
 
