@@ -16,7 +16,7 @@ if nargin == 0
     cbLocation = 'best';
     margins = [0 0 10 0]; %left right top bottom
 
-    mount = [5,2];
+    mount = [4,7];
     view = 'ax';
     
     %optional

@@ -27,19 +27,20 @@ switch lower(colorbarLocation)
     otherwise
         error('Not recognized colorbar location.')
 end
-%increase margins (these are defined in percentages)
+%increase margins to accomodate colorbars (these are defined in pixels) 
+% and covert margins from percentage to pixel %units
+margins(1) = margins(1)*figureWidth/100;
 switch lower(colorbarLocation)
     case {'east'}
-        margins(2) = margins(2) + 30; 
+        accomodateColorbar = delta_x*0.7; 
+        margins(2) = margins(2)*figureWidth/100 + accomodateColorbar;
+        margins(4) = margins(4)*figureHigh/100;
     case {'south'}
-        margins(4) = margins(4) + 30;
+        accomodateColorbar = delta_y*0.5; 
+        margins(4) = margins(4)*figureHigh/100 + accomodateColorbar;
+        margins(2) = margins(2)*figureWidth/100;
 end
-
-%convert margins from percentage to pixel 
-margins(1) = margins(1)*figureWidth/100;
-margins(2) = margins(2)*figureWidth/100;
 margins(3) = margins(3)*figureHigh/100;
-margins(4) = margins(4)*figureHigh/100;
 
 innerMargins(1) = innerMargins(1)*figureWidth/100;
 innerMargins(2) = innerMargins(2)*figureHigh/100;
