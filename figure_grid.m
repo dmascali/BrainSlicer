@@ -18,9 +18,9 @@ figureHigh  = mount(1)*delta_y;
 switch lower(colorbarLocation)
     case {'best','auto'}
         if figureWidth > figureHigh
-            colorbarLocation = 'South';
+            colorbarLocation = 'south';
         else
-            colorbarLocation = 'East';
+            colorbarLocation = 'east';
         end
     case {'east'} %do nothing
     case {'south'} %do nothing
@@ -90,7 +90,7 @@ figureHighNoMargins  = figureHigh  - (margins(3) + margins(4));
 
 %make all computation in pixel units then covert them to normalized units
 switch colorbarLocation
-    case {'East'}
+    case {'east'}
         %------------------define fix sizes--------------------------------
         fracOfWidth        = 0.12; %defines cbWidth
         fracOfHigh_r1      = 0.85; %defines cbHigh in case single row
@@ -115,7 +115,7 @@ switch colorbarLocation
             %store and normalize position
             cbConfig.colorbarPos{l} = [cbX/figureWidth,cbYStarts(l)/figureHigh,cbWidth/figureWidth,cbHigh/figureHigh];
         end
-    case {'South'}
+    case {'south'}
         %space_occupied_by_slices_y = figureWidth - (margins(1) + margins(2));
         %------------------define fix sizes--------------------------------
         fracOfHigh         = 0.12; %defines cbWidth
