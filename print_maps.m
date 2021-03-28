@@ -1,64 +1,75 @@
-function print_maps(underlay,overlay,under_limits,over_limits,view,mount,Title,CB_label)
+function print_maps(img,Title,varargin)
 
 % underlay = '/storage/daniele/CBF/voxelwise/MNI152_T1_2mm.nii';
 % overlay = '/storage/daniele/CBF/voxelwise/ALL_CBF_TAN_GM/spmT_0001.nii';
 
-if nargin == 0
+if nargin == 0 %test mode
     load data_test;
     underlay = bg.img;
     overlay = ol.img;
     img = {underlay,overlay};
-    limits = {[1000 10000], [3.16 5]};
-    minClusterSize = {[], 200};
-    colormaps = {'gray','hot'};
-    alpha = {0 1};
-    Title = 'Test p HC HC';
-    fontsize.Title = 12; % in points (1 point is 1/72 inches)
-    resolution = '500';  %pixels/inches
-    labels = {[],'t-value'};
-    cbLocation = 'best';
-    margins = [0 0 0 0]; %left right top bottom
-    
-    mount = [3,5];
-    view = 'ax';
+%    limits = {[1000 10000], [3.16 5]};
+% %     minClusterSize = {[], 200};
+% %     colormaps = {'gray','hot'};
+%     alpha = {0 1};
+     Title = 'Test p HC HC';
+%     fontsize.Title = 12; % in points (1 point is 1/72 inches)
+%     resolution = '500';  %pixels/inches
+%     labels = {[],'t-value'};
+%     cbLocation = 'best';
+%     margins = [0 0 0 0]; %left right top bottom
+%     
+%     mount = [3,5];
+%     view = 'ax';
     
     %optional
     % background_suppression = 1;
 end
+
+nLayers = length(img);
+layerStrings = cellstr(num2str([1:nLayers]')); %this is used to construct default parameters
+num2cell(1:nLayers);
+colorbarDefaultList = {'gray','hot','cool'};
+
+% variable that needs to be put in varargin in the future:
+fontsize.Title = 12;
+
+%--------------VARARGIN----------------------------------------------------
+params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'mount', 'view','resolution'};
+defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ...
+            cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % use min and max in each image as limits
+            cell(1,nLayers),...
+            colorbarDefaultList(1:nLayers),...
+            num2cell([0 ones(1,nLayers-1)]),...
+            'best', [0 0 0 0],   [6 2],   'ax', '300'};
+legalValues{1} = [];
+legalValues{2} = [];
+legalValues{3} = [];
+legalValues{4} = [];
+legalValues{5} = [];
+legalValues{6} = {'best','south','east'};
+legalValues{7} = [];
+legalValues{8} = [];
+legalValues{9} = {'ax','sag','cor'};
+legalValues{10} =[];
+[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,mount,view,resolution] = ParseVarargin(params,defParms,legalValues,varargin,1);
+%--------------------------------------------------------------------------
 
 %TO:
 % add colormaps from FSL:
 % they should be in:
 % /usr/local/fsl/fslpython/envs/fslpython/lib/python3.7/site-packages/fsleyes/assets/colourmaps
 
-% %--------------VARARGIN----------------------------------------------------
-% params  =  {'underlay','overlay','Ulimits','Olimits','Ucolor','Ocolor','mount','FullOrt', 'SigNormalise', 'concat', 'type', 'tcompcor','SaveMask', 'MakeBinary'};
-% defParms = {        [],      [],       [],       [],          'off',     [],        1     'off',           'on',       [], 'mean',         [],     'off',         'off'};
-% legalValues{1} = [];
-% legalValues{2} = {'on','off'};
-% legalValues{3} = {@(x) (isempty(x) || (~ischar(x) && sum(mod(x,1))==0 && sum((x < 0)) == 0)),'Only positive integers are allowed, which represent the derivative orders'};
-% legalValues{4} = [];
-% legalValues{5} = {'on','off'};
-% legalValues{6} = [];
-% legalValues{7} = [-1 0 1 2 3 4 5];
-% legalValues{8} = {'on','off'};
-% legalValues{9} ={'on','off'};
-% legalValues{10} = {@(x) (isempty(x) || (~ischar(x) && sum(mod(x,1))==0 && sum((x < 0)) == 0)),'Only one positive integers are allowed, which represent the starting indexes of the runs.'};
-% legalValues{11} = {'mean','median'};
-% legalValues{12} = {@(x) (isempty(x) || (~ischar(x) && numel(x) == 1 && mod(x,1)==0 && x > 0)),'Only one positive integer is allowed. The value defines the number of voxels to be selected with the highest temporal standard deviation.'};
-% legalValues{13} ={'on','off'};
-% legalValues{14} ={'on','off'};
-% [confounds,firstmean,deri,squares,DatNormalise,freq,PolOrder,FullOrt,SigNormalise,ConCat,MetricType,tCompCor,SaveMask,MakeBinary] = ParseVarargin(params,defParms,legalValues,varargin,1);
-% %--------------------------------------------------------------------------
+
 
 %check Matlab version, stop if version is older than:
 matlabVersion = version;
 matlabVersion = str2num(matlabVersion(1:3));
 
-n_layers = length(img);
 
 
-for l = 1:n_layers
+
+for l = 1:nLayers
     if ischar(img{1})  %in case data is a path to a nifti file
         img{1} = spm_read_vols(spm_vol(underlay));
         %threshold images
@@ -84,7 +95,7 @@ s =  size(img{1});
 switch view
     case {'ax'}
         n_slices = s(3);
-        for l = 1:n_layers
+        for l = 1:nLayers
             img{l} = flipdim(img{l},2);
         end
         slice_dim = [s(1) s(2)];
@@ -163,11 +174,11 @@ end
 
 
 function h_ax = plot_slice(pos,img,plane,coordinates,limits,colormaps,alphas)
-n_layers = length(img);
-ax = cell(n_layers,1);
+nLayers = length(img);
+ax = cell(nLayers,1);
 h_ax = [];
 %cycle on layers
-for l = 1:n_layers
+for l = 1:nLayers
     ax{l} = axes('Position',pos);
     if l > 1 %transparancy (exlude first layer)
         %pixel to be transpart either 0 or Nans
@@ -186,9 +197,9 @@ return
 end
 
 function img = threshold_images(img,limits,minClusterSize)
-n_layers = length(img);
+nLayers = length(img);
 %cycle on layers
-for l = 1:n_layers
+for l = 1:nLayers
     low = limits{l}(1);
     up  = limits{l}(2);
     if low < up
