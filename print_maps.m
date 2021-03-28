@@ -26,6 +26,11 @@ if nargin == 0
     % background_suppression = 1;
 end
 
+%TO:
+% add colormaps from FSL:
+% they should be in:
+% /usr/local/fsl/fslpython/envs/fslpython/lib/python3.7/site-packages/fsleyes/assets/colourmaps
+
 % %--------------VARARGIN----------------------------------------------------
 % params  =  {'underlay','overlay','Ulimits','Olimits','Ucolor','Ocolor','mount','FullOrt', 'SigNormalise', 'concat', 'type', 'tcompcor','SaveMask', 'MakeBinary'};
 % defParms = {        [],      [],       [],       [],          'off',     [],        1     'off',           'on',       [], 'mean',         [],     'off',         'off'};
