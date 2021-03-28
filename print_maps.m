@@ -70,12 +70,12 @@ matlabVersion = str2num(matlabVersion(1:3));
 
 
 for l = 1:nLayers
-    if ischar(img{1})  %in case data is a path to a nifti file
-        img{1} = spm_read_vols(spm_vol(underlay));
-        %threshold images
-        if not(isnan(limits(l,1)))
-            img{1}(abs(img{1}) < limits(l,1)) = 0;
-        end
+    if ischar(img{l})  %in case data is a path to a nifti file
+        img{l} = spm_read_vols(spm_vol(img{l}));
+%         %threshold images
+%         if not(isnan(limits(l,1)))
+%             img{1}(abs(img{1}) < limits(l,1)) = 0;
+%         end
         
     end
 end
