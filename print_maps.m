@@ -35,13 +35,13 @@ colorbarDefaultList = {'gray','hot','cool'};
 fontsize.Title = 12;
 
 %--------------VARARGIN----------------------------------------------------
-params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'mount', 'view','resolution'};
+params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'mount', 'view','resolution','zscore'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ...
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % use min and max in each image as limits
             cell(1,nLayers),...
             colorbarDefaultList(1:nLayers),...
             num2cell([0 ones(1,nLayers-1)]),...
-            'best', [0 0 0 0],   [6 2],   'ax', '300'};
+            'best', [0 0 0 0],   [6 2],   'ax', '300',cell(1,nLayers)};
 legalValues{1} = [];
 legalValues{2} = [];
 legalValues{3} = [];
@@ -52,7 +52,8 @@ legalValues{7} = [];
 legalValues{8} = [];
 legalValues{9} = {'ax','sag','cor'};
 legalValues{10} =[];
-[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,mount,view,resolution] = ParseVarargin(params,defParms,legalValues,varargin,1);
+legalValues{11} =[];
+[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,mount,view,resolution,zScore] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 %TO:
@@ -109,8 +110,11 @@ end
 %todo: skip a percentage of bottom and top slices
 planes = fix(linspace(15,n_slices-20,mount(2)*mount(1)));
 
+%zscore images if required
+img = zscore_images(img,zScore,nLayers);
+
 %threshold images
-img = threshold_images(img,limits,minClusterSize);
+img = threshold_images(img,limits,minClusterSize,nLayers);
 
 %determin the number of colorbars based on variable labels. Layers with
 %empty labels will not have colorbars
@@ -182,9 +186,9 @@ for l = 1:nLayers
     ax{l} = axes('Position',pos);
     if l > 1 %transparancy (exlude first layer)
         %pixel to be transpart either 0 or Nans
-        alphadata = alphas{l}.*img{l};
-        alphadata(img{l} == 0) = 0;
-        alphadata(isnan(alphadata)) = 0;
+        alphadata = alphas{l}.*ones(size(img{l}));
+        %alphadata(img{l} == 0) = 0;
+        alphadata(isnan(img{l})) = 0;
     else
         alphadata = [];
     end
@@ -196,16 +200,15 @@ linkaxes(h_ax);
 return
 end
 
-function img = threshold_images(img,limits,minClusterSize)
-nLayers = length(img);
+function img = threshold_images(img,limits,minClusterSize,nLayers)
 %cycle on layers
 for l = 1:nLayers
     low = limits{l}(1);
     up  = limits{l}(2);
     if low < up
-        img{l}(img{l} < low) = 0;
+        img{l}(img{l} <= low) = NaN;
     else
-        img{l}(img{l} > up) = 0;
+        img{l}(img{l} >= up) = NaN;
     end
     if not(isempty(minClusterSize{l})) | (minClusterSize{l} > 1)
         %binarize img
@@ -226,6 +229,26 @@ for l = 1:nLayers
 end
 return
 end
+
+function img = zscore_images(img,zScore,nLayers)
+%cycle on layers
+for l = 1:nLayers
+    if isempty(zScore{l}) || zScore{l} == 0
+        continue
+    end
+    % NB: this function is provisional. it only works for positive images.
+    % Zero indeed are not considered legal values.
+    %find non zero voxels
+    indxZero = find(img{l} == 0);
+    indx = find(img{l});
+    a = img{l}(indx);
+    a = zscore(a);
+    img{l}(indx) = a;
+    img{l}(indxZero) = NaN;
+end
+return
+end
+
 
 function draw_layer(plane,img,coordinates,limits,alphadata)
 
@@ -272,8 +295,6 @@ if vs == 2
 elseif vs == 1
     origin = [91 126 72]; % [X Y Z]
 end
-
-
 xyz(1)=origin(1) + round(mni(1)/vs) +1;      %was origin(1) - mni(1)/vs
 xyz(2)=origin(2) + round(mni(2)/vs) +1;
 xyz(3)=origin(3) + round(mni(3)/vs) +1;
@@ -282,7 +303,6 @@ return
 end
 
 function [mni] = xyz2mni(xyz,vs)
-
 if vs == 2
     origin = [45 63 36]; % [X Y Z]
 elseif vs == 1
@@ -290,7 +310,5 @@ elseif vs == 1
 end
 
 mni = vs*(xyz - origin -1);
-
-
 return
 end
