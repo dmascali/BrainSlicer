@@ -27,6 +27,11 @@ if nargin == 0 %test mode
 end
 
 nLayers = length(img);
+for l = 1:nLayers
+    if ischar(img{l})  %in case data is a path to a nifti file
+        img{l} = spm_read_vols(spm_vol(img{l}));       
+    end
+end
 layerStrings = cellstr(num2str([1:nLayers]')); %this is used to construct default parameters
 num2cell(1:nLayers);
 colorbarDefaultList = {'gray','hot','cool'};
@@ -60,36 +65,13 @@ legalValues{11} =[];
 % add colormaps from FSL:
 % they should be in:
 % /usr/local/fsl/fslpython/envs/fslpython/lib/python3.7/site-packages/fsleyes/assets/colourmaps
-
+%TODO add check for consistency between images
 
 
 %check Matlab version, stop if version is older than:
 matlabVersion = version;
 matlabVersion = str2num(matlabVersion(1:3));
 
-
-
-
-for l = 1:nLayers
-    if ischar(img{l})  %in case data is a path to a nifti file
-        img{l} = spm_read_vols(spm_vol(img{l}));
-%         %threshold images
-%         if not(isnan(limits(l,1)))
-%             img{1}(abs(img{1}) < limits(l,1)) = 0;
-%         end
-        
-    end
-end
-
-% % "backroung suppression" on first layer
-% if background_suppression
-%     img{1}(img{1} < 1000) = 0;
-% end
-
-% %threshold overlay
-% img1(abs(img1) < over_limits(1)) = 0;
-
-%TODO add check for consistency between images
 
 %get info specific to the type of view
 s =  size(img{1});
@@ -108,7 +90,8 @@ switch view
         n_slices = s(3);
 end
 %todo: skip a percentage of bottom and top slices
-planes = fix(linspace(15,n_slices-20,mount(2)*mount(1)));
+planes = fix(linspace(20,n_slices-25,mount(2)*mount(1)));
+%planes = fix(linspace(1,n_slices,mount(2)*mount(1)));
 
 %zscore images if required
 img = zscore_images(img,zScore,nLayers);
@@ -139,9 +122,6 @@ titleInPixels = titleInInches*ScreenPixelsPerInch;
 
 [pos,cbConfig,figPos] = figure_grid([mount(2), mount(1)],slice_dim,margins,[0 0],colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
 
-
-
-%tiledlayout(mount(2),mount(1), 'Padding', 'none', 'TileSpacing', 'compact');
 count = 0;
 for row = 1:mount(2)
     for col = 1:mount(1)
@@ -161,14 +141,17 @@ for l = 1:colorbarN
     cb.Label.Color = 'w';
 end
 
+%remove any undersocre present in the title
+Title(strfind(Title,'_')) = '';
 text(firstAxe(1),0,1,Title,'Color','w','verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontsize.Title,'FontUnits','points','Units','normalized','FontWeight','Bold');
 
-Title(strfind(Title,' ')) = '_';
+%remove any blank space in the outputname
+Title(strfind(Title,' ')) = '';
 
 set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
 %try to force again position. It works!
 set(gcf,'Position',figPos);
-print(Title,'-dpng',['-r',resolution])
+print([Title,'.png'],'-dpng',['-r',resolution])
 
 % pause(1)
 % close all
@@ -205,10 +188,17 @@ function img = threshold_images(img,limits,minClusterSize,nLayers)
 for l = 1:nLayers
     low = limits{l}(1);
     up  = limits{l}(2);
-    if low < up
+    %there are three limits cases:
+    % 1) + + -> threshold on min saturate on max
+    % 2) - - -> threshold on max saturate on min
+    % 3) - + -> threshold on min saturate on max (arbitrary choice. We might deal with the
+    %        opposite case in the future)
+    if sum(limits{l}>=0) >= 2 %case 1 
         img{l}(img{l} <= low) = NaN;
-    else
+    elseif sum(limits{l}<=0) == 2 %case 2
         img{l}(img{l} >= up) = NaN;
+    else %case 3
+        img{l}(img{l} <= low) = NaN;
     end
     if not(isempty(minClusterSize{l})) | (minClusterSize{l} > 1)
         %binarize img
