@@ -40,13 +40,13 @@ colorbarDefaultList = {'gray','hot','cool'};
 fontsize.Title = 12;
 
 %--------------VARARGIN----------------------------------------------------
-params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'mount', 'view','resolution','zscore'};
+params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'mount', 'view','resolution','zscore','slices','skip'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ...
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % use min and max in each image as limits
             cell(1,nLayers),...
             colorbarDefaultList(1:nLayers),...
             num2cell([0 ones(1,nLayers-1)]),...
-            'best', [0 0 0 0],   [6 2],   'ax', '300',cell(1,nLayers)};
+            'best', [0 0 0 0],   [6 2],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2]};
 legalValues{1} = [];
 legalValues{2} = [];
 legalValues{3} = [];
@@ -58,7 +58,9 @@ legalValues{8} = [];
 legalValues{9} = {'ax','sag','cor'};
 legalValues{10} =[];
 legalValues{11} =[];
-[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,mount,view,resolution,zScore] = ParseVarargin(params,defParms,legalValues,varargin,1);
+legalValues{12} =[];
+legalValues{13} =[];
+[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,mount,view,resolution,zScore,slices,skip] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 %TO:
@@ -89,8 +91,17 @@ switch view
         slice_dim = [s(1) s(3)];
         n_slices = s(3);
 end
-%todo: skip a percentage of bottom and top slices
-planes = fix(linspace(20,n_slices-25,mount(2)*mount(1)));
+if ischar(slices) %it means is auto
+    if not(isempty(skip))
+        if skip(1) < 1; skip(1) = skip(1)*n_slices; end
+        if skip(2) < 1; skip(2) = skip(2)*n_slices; end
+    else
+        skip = [0 0];
+    end
+    planes = fix(linspace( 1+(skip(1)) , n_slices-(skip(2)) ,mount(2)*mount(1)));
+else
+    planes = slices;
+end
 %planes = fix(linspace(1,n_slices,mount(2)*mount(1)));
 
 %zscore images if required
