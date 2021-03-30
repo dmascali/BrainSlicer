@@ -2,8 +2,6 @@ function [axesPos,cbConfig,figPos] = figure_grid(mount,subplot_size,margins,inne
 
 s = subplot_size;
 
-% mount = [2,8]; %rows, cols
-% s = [50,100];
 % margins = [0 0 0 0]; %left right top bottom
 % InnerMargins = [0 0]; %x y
 

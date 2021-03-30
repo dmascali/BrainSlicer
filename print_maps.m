@@ -46,7 +46,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ...
             cell(1,nLayers),...
             colorbarDefaultList(1:nLayers),...
             num2cell([0 ones(1,nLayers-1)]),...
-            'best', [0 0 0 0],   [6 2],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2]};
+            'best', [0 0 0 0],   [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2]};
 legalValues{1} = [];
 legalValues{2} = [];
 legalValues{3} = [];
@@ -134,11 +134,11 @@ else
 end
 titleInPixels = titleInInches*ScreenPixelsPerInch;
 
-[pos,cbConfig,figPos] = figure_grid([mount(2), mount(1)],slice_dim,margins,[0 0],colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
+[pos,cbConfig,figPos] = figure_grid(mount,slice_dim,margins,[0 0],colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
 
 count = 0;
-for row = 1:mount(2)
-    for col = 1:mount(1)
+for row = 1:mount(1)
+    for col = 1:mount(2)
         count = count +1;
         h_ax = plot_slice(pos{row,col},img,view,planes(count),limits,colormaps,alpha);
         if count == 1
