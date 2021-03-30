@@ -27,16 +27,16 @@ switch lower(colorbarLocation)
 end
 %increase margins to accomodate colorbars (these are defined in pixels) 
 % and covert margins from percentage to pixel %units
-margins(1) = margins(1)*figureWidth/100;
+margins(1) = margins(1)*figureWidth;
 switch lower(colorbarLocation)
     case {'east'}
         accomodateColorbar = delta_x*0.7; 
-        margins(2) = margins(2)*figureWidth/100 + accomodateColorbar;
-        margins(4) = margins(4)*figureHigh/100;
+        margins(2) = margins(2)*figureWidth + accomodateColorbar;
+        margins(4) = margins(4)*figureHigh;
     case {'south'}
         accomodateColorbar = delta_y*0.5; 
-        margins(4) = margins(4)*figureHigh/100 + accomodateColorbar;
-        margins(2) = margins(2)*figureWidth/100;
+        margins(4) = margins(4)*figureHigh + accomodateColorbar;
+        margins(2) = margins(2)*figureWidth;
 end
 %accomodate title
 if not(isempty(titleHighInPixel))
@@ -44,10 +44,10 @@ if not(isempty(titleHighInPixel))
    % add extra space
    titleHighInPixel = titleHighInPixel + extraSpaceTitle*delta_y;
 end
-margins(3) = margins(3)*figureHigh/100 + titleHighInPixel;
+margins(3) = margins(3)*figureHigh + titleHighInPixel;
 
-innerMargins(1) = innerMargins(1)*figureWidth/100;
-innerMargins(2) = innerMargins(2)*figureHigh/100;
+innerMargins(1) = innerMargins(1)*figureWidth;
+innerMargins(2) = innerMargins(2)*figureHigh;
 
 %update figure dimesion with margins
 figureWidth = figureWidth + margins(1) + margins(2) + innerMargins(1)*(mount(2)-1);
