@@ -40,13 +40,13 @@ colorbarDefaultList = {'gray','hot','cool'};
 fontsize.Title = 12;
 
 %--------------VARARGIN----------------------------------------------------
-params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'innerMargins','mount', 'view','resolution','zscore','slices','skip'};
+params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'innerMargins','mount', 'view','resolution','zscore','slices','skip','colormode'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ...
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % use min and max in each image as limits
             cell(1,nLayers),...
             colorbarDefaultList(1:nLayers),...
-            num2cell([0 ones(1,nLayers-1)]),...
-            'best', [0 0 0 0], [0 0],  [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2]};
+            num2cell(ones(1,nLayers)),...
+            'best', [0 0 0 0], [0 0],  [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2], 'k'};
 legalValues{1} = [];
 legalValues{2} = [];
 legalValues{3} = [];
@@ -61,7 +61,8 @@ legalValues{11} =[];
 legalValues{12} =[];
 legalValues{13} =[];
 legalValues{14} =[];
-[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,innerMargins,mount,view,resolution,zScore,slices,skip] = ParseVarargin(params,defParms,legalValues,varargin,1);
+legalValues{15} = {'k','black','w','white'};
+[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,innerMargins,mount,view,resolution,zScore,slices,skip,colorMode] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 %TO:
@@ -75,6 +76,14 @@ legalValues{14} =[];
 matlabVersion = version;
 matlabVersion = str2num(matlabVersion(1:3));
 
+switch colorMode
+    case {'k','black'}
+        colorSet.background = 'k';
+        colorSet.fonts = 'w';
+    case {'w','white'}
+        colorSet.background = 'w';
+        colorSet.fonts = 'k';
+end
 
 %get info specific to the type of view
 s =  size(img{1});
@@ -137,7 +146,7 @@ titleInPixels = titleInInches*ScreenPixelsPerInch;
 
 [hFig,pos,cbConfig,figPos] = figure_grid(mount,sliceDim,margins,innerMargins,colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
 
-set(hFig,'color','k');
+set(hFig,'color',colorSet.background);
 
 count = 0;
 for row = 1:mount(1)
@@ -155,12 +164,13 @@ for l = 1:colorbarN
     cb = colorbar(h_ax(colorbarIndex(l)),'Location',cbConfig.location,'Position',cbConfig.colorbarPos{l},'Color','w');
     cb.Label.String = labels{colorbarIndex(l)};
     cb.Label.FontSize = 10;
-    cb.Label.Color = 'w';
+    cb.Label.Color = colorSet.fonts;
+    cb.Color = colorSet.fonts;
 end
 
 %remove any undersocre present in the title
 Title(strfind(Title,'_')) = '';
-text(firstAxe(1),0,1,Title,'Color','w','verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontsize.Title,'FontUnits','points','Units','normalized','FontWeight','Bold');
+text(firstAxe(1),0,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontsize.Title,'FontUnits','points','Units','normalized','FontWeight','Bold');
 
 %remove any blank space in the outputname
 Title(strfind(Title,' ')) = '';
@@ -184,8 +194,8 @@ h_ax = [];
 %cycle on layers
 for l = 1:nLayers
     ax{l} = axes('Position',pos);
-    if l > 1 %transparancy (exlude first layer)
-        %pixel to be transpart either 0 or Nans
+    if l > 0 % set to 1 to exlude first layer
+        %pixel to be transpart are marked by Nans
         alphadata = alphas{l}.*ones(size(img{l}));
         %alphadata(img{l} == 0) = 0;
         alphadata(isnan(img{l})) = 0;
