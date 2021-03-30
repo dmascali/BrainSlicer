@@ -40,13 +40,13 @@ colorbarDefaultList = {'gray','hot','cool'};
 fontsize.Title = 12;
 
 %--------------VARARGIN----------------------------------------------------
-params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'mount', 'view','resolution','zscore','slices','skip'};
+params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'innerMargins','mount', 'view','resolution','zscore','slices','skip'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ...
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % use min and max in each image as limits
             cell(1,nLayers),...
             colorbarDefaultList(1:nLayers),...
             num2cell([0 ones(1,nLayers-1)]),...
-            'best', [0 0 0 0],   [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2]};
+            'best', [0 0 0 0], [0 0],  [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2]};
 legalValues{1} = [];
 legalValues{2} = [];
 legalValues{3} = [];
@@ -55,12 +55,13 @@ legalValues{5} = [];
 legalValues{6} = {'best','south','east'};
 legalValues{7} = [];
 legalValues{8} = [];
-legalValues{9} = {'ax','sag','cor'};
-legalValues{10} =[];
+legalValues{9} = [];
+legalValues{10} = {'ax','sag','cor'};
 legalValues{11} =[];
 legalValues{12} =[];
 legalValues{13} =[];
-[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,mount,view,resolution,zScore,slices,skip] = ParseVarargin(params,defParms,legalValues,varargin,1);
+legalValues{14} =[];
+[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,innerMargins,mount,view,resolution,zScore,slices,skip] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 %TO:
@@ -83,12 +84,12 @@ switch view
         for l = 1:nLayers
             img{l} = flipdim(img{l},2);
         end
-        slice_dim = [s(1) s(2)];
+        sliceDim = [s(1) s(2)];
     case {'sag'} %this might be flipped
         n_slices = s(1);
-        slice_dim = [s(2) s(3)];
+        sliceDim = [s(2) s(3)];
     case {'cor'} %this might be flipped
-        slice_dim = [s(1) s(3)];
+        sliceDim = [s(1) s(3)];
         n_slices = s(3);
 end
 if ischar(slices) %it means is auto
@@ -134,7 +135,7 @@ else
 end
 titleInPixels = titleInInches*ScreenPixelsPerInch;
 
-[pos,cbConfig,figPos] = figure_grid(mount,slice_dim,margins,[0 0],colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
+[pos,cbConfig,figPos] = figure_grid(mount,sliceDim,margins,innerMargins,colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
 
 count = 0;
 for row = 1:mount(1)
