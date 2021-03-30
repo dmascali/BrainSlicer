@@ -1,6 +1,6 @@
-function [axesPos,cbConfig,figPos] = figure_grid(mount,subplot_size,margins,innerMargins,colorbarN,colorbarLocation,titleHighInPixel)
+function [hFig,axesPos,cbConfig,figPos] = figure_grid(mount,sliceDim,margins,innerMargins,colorbarN,colorbarLocation,titleHighInPixel)
 
-s = subplot_size;
+s = sliceDim;
 
 % margins = [0 0 0 0]; %left right top bottom
 % InnerMargins = [0 0]; %x y
@@ -60,7 +60,7 @@ dy = delta_y./figureHigh;
 
 %pos = [x,y,deltax,deltay]
 figPos = [100 100 figureWidth figureHigh];
-figure('Position',figPos,'color','k');
+hFig = figure('Position',figPos);
 
 count = 0;
 row_offset = margins(4)./figureHigh;

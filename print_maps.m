@@ -135,7 +135,9 @@ else
 end
 titleInPixels = titleInInches*ScreenPixelsPerInch;
 
-[pos,cbConfig,figPos] = figure_grid(mount,sliceDim,margins,innerMargins,colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
+[hFig,pos,cbConfig,figPos] = figure_grid(mount,sliceDim,margins,innerMargins,colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
+
+set(hFig,'color','k');
 
 count = 0;
 for row = 1:mount(1)
