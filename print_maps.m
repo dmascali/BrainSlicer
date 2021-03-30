@@ -114,6 +114,9 @@ img = threshold_images(img,limits,minClusterSize,nLayers);
 %empty labels will not have colorbars
 colorbarIndex = find(cellfun(@(x) not(isempty(x)),labels));
 colorbarN = length(colorbarIndex);
+if colorbarN == 0
+    cbLocation = 'none';
+end
 
 %Defines how many pixels the title occupies
 titleInInches = (fontsize.Title+1) *1/72; %add one points to increase top space and convert points to inches

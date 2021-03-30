@@ -24,8 +24,6 @@ switch lower(colorbarLocation)
         end
     case {'east'} %do nothing
     case {'south'} %do nothing
-    otherwise
-        error('Not recognized colorbar location.')
 end
 %increase margins to accomodate colorbars (these are defined in pixels) 
 % and covert margins from percentage to pixel %units
@@ -140,7 +138,7 @@ switch colorbarLocation
         for l = 1:colorbarN
             %store and normalize position
             cbConfig.colorbarPos{l} = [cbXStarts(l)/figureWidth,cbY/figureHigh,cbWidth/figureWidth,cbHigh/figureHigh];
-        end
+        end       
 end
 
 cbConfig.location = colorbarLocation;
