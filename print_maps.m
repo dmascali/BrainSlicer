@@ -173,7 +173,7 @@ Title(strfind(Title,'_')) = '';
 text(firstAxe(1),0,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontsize.Title,'FontUnits','points','Units','normalized','FontWeight','Bold');
 
 %remove any blank space in the outputname
-Title(strfind(Title,' ')) = '';
+Title(strfind(Title,' ')) = '_';
 
 set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
 %try to force again position. It works!
