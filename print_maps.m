@@ -229,7 +229,7 @@ for l = 1:nLayers
     end
     if not(isempty(minClusterSize{l})) | (minClusterSize{l} > 1)
         %binarize img
-        a = img{l}; a(not(a==0)) = 1;
+        a = img{l}; a(isnan(a)) = 0; a(a~=0) = 1;
         %find connected clusters
         [L,num] = spm_bwlabel(a,18);
         for j = 1:num
