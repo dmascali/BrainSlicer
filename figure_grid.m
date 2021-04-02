@@ -35,6 +35,9 @@ switch lower(colorbarLocation)
         accomodateColorbar = delta_y*0.5; 
         margins(4) = margins(4)*figureHigh + accomodateColorbar;
         margins(2) = margins(2)*figureWidth;
+    otherwise
+        margins(2) = margins(2)*figureWidth;
+        margins(4) = margins(4)*figureHigh;
 end
 %accomodate title
 if not(isempty(titleHighInPixel))
