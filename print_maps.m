@@ -8,6 +8,7 @@ if nargin == 0 %test mode
     underlay = bg.img;
     overlay = ol.img;
     img = {underlay};
+    img = {'spmT_0001.nii'};
 %    limits = {[1000 10000], [3.16 5]};
 % %     minClusterSize = {[], 200};
 % %     colormaps = {'gray','hot'};
@@ -29,7 +30,8 @@ end
 nLayers = length(img);
 for l = 1:nLayers
     if ischar(img{l})  %in case data is a path to a nifti file
-        img{l} = spm_read_vols(spm_vol(img{l}));       
+        hdr = spm_vol(img{l});
+        img{l} = spm_read_vols(hdr);       
     end
 end
 layerStrings = cellstr(num2str([1:nLayers]')); %this is used to construct default parameters
@@ -46,7 +48,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ...
             cell(1,nLayers),...
             colorbarDefaultList(1:nLayers),...
             num2cell(ones(1,nLayers)),...
-            'best', [0 0 0 0], [0 0],  [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2], 'k',  1, 'sw'};
+            'best', [0 0 0 0], [0 0],  [2 6],   'sag', '300',cell(1,nLayers), 'auto', [0.2 0.2], 'k',  1, 'sw'};
 legalValues{1} = [];
 legalValues{2} = [];
 legalValues{3} = [];
@@ -150,7 +152,16 @@ titleInPixels = titleInInches*ScreenPixelsPerInch;
 
 set(hFig,'color',colorSet.background);
 
-if showCoordinates; planeCord = plane_coordinates(coordinateLocation); end
+if showCoordinates
+    planeCord = plane_coordinates(coordinateLocation);
+    if exist('hdr','var')
+        coordinates = xyz2mm(planes,hdr(1).mat,view);
+        disp('Coordinates are in mm.');
+    else
+        coordinates = planes;
+        disp('Coordinates are in voxels.');
+    end
+end
 
 count = 0;
 for row = 1:mount(1)
@@ -161,7 +172,7 @@ for row = 1:mount(1)
             firstAxe = h_ax;
         end
         if showCoordinates
-            text(planeCord{1},planeCord{2},num2str(planes(count)),'Color',colorSet.fonts,'verticalAlignment',planeCord{4},'HorizontalAlignment',planeCord{3},'FontSize',6,'FontUnits','points','Units','normalized','FontWeight','normal');
+            text(planeCord{1},planeCord{2},num2str(coordinates(count)),'Color',colorSet.fonts,'verticalAlignment',planeCord{4},'HorizontalAlignment',planeCord{3},'FontSize',6,'FontUnits','points','Units','normalized','FontWeight','normal');
         end
     end
 end
@@ -336,27 +347,25 @@ set(gca,'Visible','off');
 return
 end
 
-function [xyz] = mni2xyz(mni,vs)
+function mm = xyz2mm(xyz,mat,view)
 
-if vs == 2
-    origin = [45 63 36]; % [X Y Z]
-elseif vs == 1
-    origin = [91 126 72]; % [X Y Z]
+voxelSize = [mat(1,1), mat(2,2), mat(3,3)]';
+origin = round(mat(1:3,4)./voxelSize);
+if nargin == 2
+    if isrow(xyz)
+        xyz = xyz';
+    end
+    mm = voxelSize.*(xyz + origin);
+else
+    switch view
+        case {'ax'}
+            mm = voxelSize(3)*(xyz + origin(3));
+        case {'sag'}
+            mm = voxelSize(1)*(xyz + origin(1));
+        case {'cor'}
+            mm = voxelSize(2)*(xyz + origin(2));
+    end
 end
-xyz(1)=origin(1) + round(mni(1)/vs) +1;      %was origin(1) - mni(1)/vs
-xyz(2)=origin(2) + round(mni(2)/vs) +1;
-xyz(3)=origin(3) + round(mni(3)/vs) +1;
 
-return
-end
-
-function [mni] = xyz2mni(xyz,vs)
-if vs == 2
-    origin = [45 63 36]; % [X Y Z]
-elseif vs == 1
-    origin = [91 126 72]; % [X Y Z]
-end
-
-mni = vs*(xyz - origin -1);
 return
 end
