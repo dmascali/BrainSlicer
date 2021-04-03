@@ -34,7 +34,7 @@ for l = 1:nLayers
 end
 layerStrings = cellstr(num2str([1:nLayers]')); %this is used to construct default parameters
 num2cell(1:nLayers);
-colorbarDefaultList = {'gray','hot','cool'};
+colorbarDefaultList = {1,2,3};
 
 % variable that needs to be put in varargin in the future:
 fontsize.Title = 12;
@@ -187,7 +187,7 @@ return
 end
 
 
-function h_ax = plot_slice(pos,img,plane,coordinates,limits,colormaps,alphas)
+function h_ax = plot_slice(pos,img,plane,coordinates,limits,colorMaps,alphas)
 nLayers = length(img);
 ax = cell(nLayers,1);
 h_ax = [];
@@ -203,7 +203,7 @@ for l = 1:nLayers
         alphadata = [];
     end
     draw_layer(plane,img{l},coordinates,limits{l},alphadata)
-    colormap(ax{l},colormaps{l});
+    colormap(ax{l},colormaps(colorMaps{l}));
     h_ax = [h_ax,ax{l}];
 end
 linkaxes(h_ax);
