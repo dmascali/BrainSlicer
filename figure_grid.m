@@ -63,7 +63,7 @@ dy = delta_y./figureHigh;
 
 %pos = [x,y,deltax,deltay]
 figPos = [100 100 figureWidth figureHigh];
-hFig = figure('Position',figPos);
+hFig = figure('Position',figPos,'MenuBar', 'None');
 
 count = 0;
 row_offset = margins(4)./figureHigh;
