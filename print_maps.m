@@ -7,7 +7,7 @@ if nargin == 0 %test mode
     load data_test;
     underlay = bg.img;
     overlay = ol.img;
-    img = {underlay,overlay};
+    img = {underlay};
 %    limits = {[1000 10000], [3.16 5]};
 % %     minClusterSize = {[], 200};
 % %     colormaps = {'gray','hot'};
@@ -40,13 +40,13 @@ colorbarDefaultList = {1,2,3};
 fontsize.Title = 12;
 
 %--------------VARARGIN----------------------------------------------------
-params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'innerMargins','mount', 'view','resolution','zscore','slices','skip','colormode'};
+params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'innerMargins','mount', 'view','resolution','zscore','slices','skip','colormode','showCoordinates','coordinateLocation'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ...
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % use min and max in each image as limits
             cell(1,nLayers),...
             colorbarDefaultList(1:nLayers),...
             num2cell(ones(1,nLayers)),...
-            'best', [0 0 0 0], [0 0],  [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2], 'k'};
+            'best', [0 0 0 0], [0 0],  [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2], 'k',  1, 'sw'};
 legalValues{1} = [];
 legalValues{2} = [];
 legalValues{3} = [];
@@ -62,7 +62,9 @@ legalValues{12} =[];
 legalValues{13} =[];
 legalValues{14} =[];
 legalValues{15} = {'k','black','w','white'};
-[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,innerMargins,mount,view,resolution,zScore,slices,skip,colorMode] = ParseVarargin(params,defParms,legalValues,varargin,1);
+legalValues{16} = [0 1];
+legalValues{17} = {'north','south','east','west','n','s','e','w','northeast','northwest','southeast','southwest','ne','nw','se','sw'};
+[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,showCoordinates,coordinateLocation] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 %TO:
@@ -148,6 +150,8 @@ titleInPixels = titleInInches*ScreenPixelsPerInch;
 
 set(hFig,'color',colorSet.background);
 
+if showCoordinates; planeCord = plane_coordinates(coordinateLocation); end
+
 count = 0;
 for row = 1:mount(1)
     for col = 1:mount(2)
@@ -155,6 +159,9 @@ for row = 1:mount(1)
         h_ax = plot_slice(pos{row,col},img,view,planes(count),limits,colormaps,alpha);
         if count == 1
             firstAxe = h_ax;
+        end
+        if showCoordinates
+            text(planeCord{1},planeCord{2},num2str(planes(count)),'Color',colorSet.fonts,'verticalAlignment',planeCord{4},'HorizontalAlignment',planeCord{3},'FontSize',6,'FontUnits','points','Units','normalized','FontWeight','normal');
         end
     end
 end
@@ -182,6 +189,30 @@ print([Title,'.png'],'-dpng',['-r',resolution])
 
 % pause(1)
 % close all
+
+return
+end
+
+function planeCordSettings = plane_coordinates(coordlocation)
+
+switch lower(coordlocation)
+    case {'north','n'}
+        planeCordSettings = {0.5,1,'center','top'};
+    case {'south','s'}
+        planeCordSettings = {0.5,0,'center','bottom'};
+    case {'east','e'}
+        planeCordSettings = {1,0.5,'right','center'};
+    case {'west','w'}
+        planeCordSettings = {0,0.5,'left','center'};
+    case {'northeast','ne'}
+        planeCordSettings = {1,1,'right','top'};
+    case {'northwest','nw'}
+        planeCordSettings = {0,1,'left','top'};
+    case {'southeast','se'}
+        planeCordSettings = {1,0,'right','bottom'};
+    case {'southwest','sw'}
+        planeCordSettings = {0,0,'left','bottom'};
+end
 
 return
 end
