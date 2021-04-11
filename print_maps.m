@@ -232,8 +232,12 @@ if ~isempty(output)
     %remove any blank space in the outputname
     output(strfind(output,' ')) = '_';
     
+    % decompose output name just in case there is a path
+    [fp,nm,ext] = fileparts(output);
+    if ~isempty(fp);fp = [fp,filesep];end
+        
     %preappend function name
-    output = [funcName,'_',output];
+    output = [fp,funcName,'_',nm,ext];
     
     set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
     %force again the position
@@ -241,7 +245,6 @@ if ~isempty(output)
     print([output,'.png'],'-dpng',['-r',resolution])
 
     % Store parameters in a structure
-    %opt.images = 
     opt.nLayers = nLayers;
     opt.limits = limits;
     opt.minClusterSize = minClusterSize;
@@ -260,7 +263,7 @@ if ~isempty(output)
     opt.appearance.coordinateLocation = coordinateLocation;
     opt.appearance.resolution = resolution;
 
-    opt
+    save([output,'.mat'],'opt');
 else
     fprintf('%s - no figure will be printed. Use ''output'' to save the figure.\n',funcName);
 end
