@@ -85,9 +85,14 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             cell(1,nLayers), 'auto', [0.2 0.2],... %zscore; sclice; skip
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
             [], []}; % title; output
-legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),'''labels'' is expected to be a cell array whose length equals the number of layers. Empty labels will result in no colorbar.'};
-legalValues{2} = [];
-legalValues{3} = [];
+legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),['Labels is expected '...
+    'to be a cell array whose length equals the number of layers. Empty labels ',...
+    'will result in no colorbar.']};
+legalValues{2} = {@(x) (iscell(x) && length(x) == nLayers && sum(cellfun(@numel, x)/nLayers) == 2),...
+    ['Limits is expected to be a cell array whose length equals the number of layers. ',...
+    'Each cell is expected to be a 2-element.']};
+legalValues{3} = {@(x) (iscell(x) && length(x) == nLayers),['MinClusterSize is ',...
+    'expected to be a cell array whose length equals the number of layers.']};
 legalValues{4} = [];
 legalValues{5} = [];
 legalValues{6} = {'best','south','east'};
@@ -361,7 +366,7 @@ for l = 1:nLayers
         end
         %find not surviving indices
         indx = find(L==0);
-        img{l}(indx) = 0;
+        img{l}(indx) = NaN;
     end
 end
 return
