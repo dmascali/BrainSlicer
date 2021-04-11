@@ -1,4 +1,31 @@
 function print_maps(img,Title,varargin)
+%
+%
+% Properties:
+%   
+%   APPEARANCE:
+%     limits
+%     minClusterSize
+%     labels
+%   Montage:
+%     view
+%     mount
+%     slices
+%     skip
+%   Appearance:
+%     colormaps
+%     alpha
+%     colorBarLocation
+%     margins
+%     innerMargins
+%     colorMode
+%     resolution           - 
+%     showCoordinates      - Show plane coordinates
+%     coordinateLocation   - Location of plane coordinates
+%     
+%     
+%     
+%   
 
 % underlay = '/storage/daniele/CBF/voxelwise/MNI152_T1_2mm.nii';
 % overlay = '/storage/daniele/CBF/voxelwise/ALL_CBF_TAN_GM/spmT_0001.nii';
@@ -48,7 +75,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ...
             cell(1,nLayers),...
             colorbarDefaultList(1:nLayers),...
             num2cell(ones(1,nLayers)),...
-            'best', [0 0 0 0], [0 0],  [2 6],   'sag', '300',cell(1,nLayers), 'auto', [0.2 0.2], 'k',  1, 'sw'};
+            'best', [0 0 0 0], [0 0],  [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2], 'k',  1, 'sw'};
 legalValues{1} = [];
 legalValues{2} = [];
 legalValues{3} = [];
@@ -74,6 +101,7 @@ legalValues{17} = {'north','south','east','west','n','s','e','w','northeast','no
 % they should be in:
 % /usr/local/fsl/fslpython/envs/fslpython/lib/python3.7/site-packages/fsleyes/assets/colourmaps
 %TODO add check for consistency between images
+
 
 
 %check Matlab version, stop if version is older than:
@@ -197,6 +225,28 @@ set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
 %try to force again position. It works!
 set(gcf,'Position',figPos);
 print([Title,'.png'],'-dpng',['-r',resolution])
+
+% Store parameters in a structure
+%opt.images = 
+opt.nLayers = nLayers;
+opt.limits = limits;
+opt.minClusterSize = minClusterSize;
+opt.colormaps = colormaps;
+opt.labels = labels;
+opt.opacityLevels = alpha;
+opt.montage.view = view;
+opt.montage.mount = mount;
+opt.montage.slices = slices;
+opt.montage.skip = skip;  %it's not anymore in %, now is in slices.
+opt.appearance.colorMode = colorMode;
+opt.appearance.margins = margins;
+opt.appearance.innerMargins = innerMargins;
+opt.appearance.colorBarLocation0 = cbLocation;
+opt.appearance.showCoordinates = showCoordinates;
+opt.appearance.coordinateLocation = coordinateLocation;
+opt.appearance.resolution = resolution;
+
+opt
 
 % pause(1)
 % close all
