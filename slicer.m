@@ -1,4 +1,4 @@
-function print_maps(img,varargin)
+function slicer(img,varargin)
 %
 %
 % Properties:
@@ -36,8 +36,8 @@ if nargin == 0 %test mode
     load data_test;
     underlay = bg.img;
     overlay = ol.img;
-    img = {underlay};
-    img = {'spmT_0001.nii'};
+    img = {underlay,overlay};
+    %img = {'spmT_0001.nii'};
 %    limits = {[1000 10000], [3.16 5]};
 % %     minClusterSize = {[], 200};
 % %     colormaps = {'gray','hot'};
@@ -65,21 +65,27 @@ for l = 1:nLayers
 end
 layerStrings = cellstr(num2str([1:nLayers]')); %this is used to construct default parameters
 num2cell(1:nLayers);
-colorbarDefaultList = {1,2,3};
+colorbarDefaultList = {1,2,3,4,5};
 
 % variable that needs to be put in varargin in the future:
 fontsize.Title = 12;
 
 %--------------VARARGIN----------------------------------------------------
-params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'innerMargins','mount',...
-            'view','resolution','zscore','slices','skip','colormode','showCoordinates','coordinateLocation','title','output'};
-defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ...
-            cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % use min and max in each image as limits
-            cell(1,nLayers),...
-            colorbarDefaultList(1:nLayers),...
-            num2cell(ones(1,nLayers)),...
-            'best', [0 0 0 0], [0 0],  [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2], 'k',  1, 'sw', [], []};
-legalValues{1} = [];
+params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation',...
+            'margins', 'innerMargins','mount', 'view','resolution','zscore',...
+            'slices','skip','colormode','showCoordinates','coordinateLocation',...
+            'title','output'};
+defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % labels
+            cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % limits: use min and max in each image as limits
+            cell(1,nLayers),... % minClusterSize
+            colorbarDefaultList(1:nLayers),... % colormaps
+            num2cell(ones(1,nLayers)),...% alpha lelvel
+            'best', [0 0 0 0], [0 0], ... % cbLocation; margins; InnerMargins
+            [2 6],   'ax', '300',... % mount; view; resolution
+            cell(1,nLayers), 'auto', [0.2 0.2],... %zscore; sclice; skip
+            'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
+            [], []}; % title; output
+legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),'''labels'' is expected to be a cell array whose length equals the number of layers. Empty labels will result in no colorbar.'};
 legalValues{2} = [];
 legalValues{3} = [];
 legalValues{4} = [];
@@ -98,7 +104,10 @@ legalValues{16} = [0 1];
 legalValues{17} = {'north','south','east','west','n','s','e','w','northeast','northwest','southeast','southwest','ne','nw','se','sw'};
 legalValues{18} = [];
 legalValues{19} = [];
-[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,showCoordinates,coordinateLocation,Title,output] = ParseVarargin(params,defParms,legalValues,varargin,1);
+[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,...
+    innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,...
+    showCoordinates,coordinateLocation,Title,...
+    output] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 %TODO add check for consistency between images
