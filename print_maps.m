@@ -3,18 +3,18 @@ function print_maps(img,varargin)
 %
 % Properties:
 %   
-%   Basic:
+%   BASIC:
 %     limits
 %     minClusterSize
 %     labels
 %     output
 %     title
-%   Montage:
+%   MONTAGE:
 %     view
 %     mount
 %     slices
 %     skip
-%   Appearance:
+%   APPEARANCE:
 %     colormaps
 %     alpha
 %     colorBarLocation
@@ -72,13 +72,13 @@ fontsize.Title = 12;
 
 %--------------VARARGIN----------------------------------------------------
 params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'innerMargins','mount',...
-            'view','resolution','zscore','slices','skip','colormode','showCoordinates','coordinateLocation','title'};
+            'view','resolution','zscore','slices','skip','colormode','showCoordinates','coordinateLocation','title','output'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ...
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % use min and max in each image as limits
             cell(1,nLayers),...
             colorbarDefaultList(1:nLayers),...
             num2cell(ones(1,nLayers)),...
-            'best', [0 0 0 0], [0 0],  [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2], 'k',  1, 'sw', []};
+            'best', [0 0 0 0], [0 0],  [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2], 'k',  1, 'sw', [], []};
 legalValues{1} = [];
 legalValues{2} = [];
 legalValues{3} = [];
@@ -97,16 +97,15 @@ legalValues{15} = {'k','black','w','white'};
 legalValues{16} = [0 1];
 legalValues{17} = {'north','south','east','west','n','s','e','w','northeast','northwest','southeast','southwest','ne','nw','se','sw'};
 legalValues{18} = [];
-[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,showCoordinates,coordinateLocation,Title] = ParseVarargin(params,defParms,legalValues,varargin,1);
+legalValues{19} = [];
+[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,showCoordinates,coordinateLocation,Title,output] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
-%TO:
-% add colormaps from FSL:
-% they should be in:
-% /usr/local/fsl/fslpython/envs/fslpython/lib/python3.7/site-packages/fsleyes/assets/colourmaps
 %TODO add check for consistency between images
 
-
+%get function name
+funcName = mfilename;
+fprintf('%s - welcome\n',funcName);
 
 %check Matlab version, stop if version is older than:
 matlabVersion = version;
@@ -158,7 +157,7 @@ img = threshold_images(img,limits,minClusterSize,nLayers);
 
 %determin the number of colorbars based on variable labels. Layers with
 %empty labels will not have colorbars
-colorbarIndex = find(cellfun(@(x) not(isempty(x)),labels));
+colorbarIndex = find(cellfun(@(x) ~isempty(x),labels));
 colorbarN = length(colorbarIndex);
 if colorbarN == 0
     cbLocation = 'none';
@@ -192,10 +191,10 @@ if showCoordinates
     planeCord = plane_coordinates(coordinateLocation);
     if exist('hdr','var')
         coordinates = xyz2mm(planes,hdr(1).mat,view);
-        disp('Coordinates are in mm.');
+        fprintf('%s - coordinates are in mm\n',mfilename);
     else
         coordinates = planes;
-        disp('Coordinates are in voxels.');
+        fprintf('%s - coordinates are in voxels\n',mfilename);
     end
 end
 
@@ -222,44 +221,51 @@ for l = 1:colorbarN
     cb.Color = colorSet.fonts;
 end
 
-%remove any undersocre present in the title
+%remove any underscore present in the title
 if ~isempty(Title)
     Title(strfind(Title,'_')) = '';
     text(firstAxe(1),0,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontsize.Title,'FontUnits','points','Units','normalized','FontWeight','Bold');
 end
 
-%remove any blank space in the outputname
-Title(strfind(Title,' ')) = '_';
+% print figure if an output name is specified
+if ~isempty(output)
+    %remove any blank space in the outputname
+    output(strfind(output,' ')) = '_';
+    
+    %preappend function name
+    output = [funcName,'_',output];
+    
+    set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
+    %force again the position
+    set(gcf,'Position',figPos);
+    print([output,'.png'],'-dpng',['-r',resolution])
 
-set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
-%try to force again position. It works!
-set(gcf,'Position',figPos);
-print([Title,'.png'],'-dpng',['-r',resolution])
+    % Store parameters in a structure
+    %opt.images = 
+    opt.nLayers = nLayers;
+    opt.limits = limits;
+    opt.minClusterSize = minClusterSize;
+    opt.colormaps = colormaps;
+    opt.labels = labels;
+    opt.opacityLevels = alpha;
+    opt.montage.view = view;
+    opt.montage.mount = mount;
+    opt.montage.slices = slices;
+    opt.montage.skip = skip;  %it's not anymore in %, now is in slices.
+    opt.appearance.colorMode = colorMode;
+    opt.appearance.margins = margins;
+    opt.appearance.innerMargins = innerMargins;
+    opt.appearance.colorBarLocation0 = cbLocation;
+    opt.appearance.showCoordinates = showCoordinates;
+    opt.appearance.coordinateLocation = coordinateLocation;
+    opt.appearance.resolution = resolution;
 
-% Store parameters in a structure
-%opt.images = 
-opt.nLayers = nLayers;
-opt.limits = limits;
-opt.minClusterSize = minClusterSize;
-opt.colormaps = colormaps;
-opt.labels = labels;
-opt.opacityLevels = alpha;
-opt.montage.view = view;
-opt.montage.mount = mount;
-opt.montage.slices = slices;
-opt.montage.skip = skip;  %it's not anymore in %, now is in slices.
-opt.appearance.colorMode = colorMode;
-opt.appearance.margins = margins;
-opt.appearance.innerMargins = innerMargins;
-opt.appearance.colorBarLocation0 = cbLocation;
-opt.appearance.showCoordinates = showCoordinates;
-opt.appearance.coordinateLocation = coordinateLocation;
-opt.appearance.resolution = resolution;
+    opt
+else
+    fprintf('%s - no figure will be printed. Use ''output'' to save the figure.\n',funcName);
+end
 
-opt
-
-% pause(1)
-% close all
+fprintf('%s - end\n',funcName);
 
 return
 end
