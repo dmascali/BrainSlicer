@@ -1,12 +1,14 @@
-function print_maps(img,Title,varargin)
+function print_maps(img,varargin)
 %
 %
 % Properties:
 %   
-%   APPEARANCE:
+%   Basic:
 %     limits
 %     minClusterSize
 %     labels
+%     output
+%     title
 %   Montage:
 %     view
 %     mount
@@ -40,7 +42,7 @@ if nargin == 0 %test mode
 % %     minClusterSize = {[], 200};
 % %     colormaps = {'gray','hot'};
 %     alpha = {0 1};
-     Title = 'Test p HC HC';
+     %Title = 'Test p HC HC';
 %     fontsize.Title = 12; % in points (1 point is 1/72 inches)
 %     resolution = '500';  %pixels/inches
 %     labels = {[],'t-value'};
@@ -69,13 +71,14 @@ colorbarDefaultList = {1,2,3};
 fontsize.Title = 12;
 
 %--------------VARARGIN----------------------------------------------------
-params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'innerMargins','mount', 'view','resolution','zscore','slices','skip','colormode','showCoordinates','coordinateLocation'};
+params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation', 'margins', 'innerMargins','mount',...
+            'view','resolution','zscore','slices','skip','colormode','showCoordinates','coordinateLocation','title'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ...
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % use min and max in each image as limits
             cell(1,nLayers),...
             colorbarDefaultList(1:nLayers),...
             num2cell(ones(1,nLayers)),...
-            'best', [0 0 0 0], [0 0],  [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2], 'k',  1, 'sw'};
+            'best', [0 0 0 0], [0 0],  [2 6],   'ax', '300',cell(1,nLayers), 'auto', [0.2 0.2], 'k',  1, 'sw', []};
 legalValues{1} = [];
 legalValues{2} = [];
 legalValues{3} = [];
@@ -93,7 +96,8 @@ legalValues{14} =[];
 legalValues{15} = {'k','black','w','white'};
 legalValues{16} = [0 1];
 legalValues{17} = {'north','south','east','west','n','s','e','w','northeast','northwest','southeast','southwest','ne','nw','se','sw'};
-[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,showCoordinates,coordinateLocation] = ParseVarargin(params,defParms,legalValues,varargin,1);
+legalValues{18} = [];
+[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,showCoordinates,coordinateLocation,Title] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 %TO:
