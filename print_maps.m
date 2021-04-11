@@ -164,21 +164,25 @@ if colorbarN == 0
     cbLocation = 'none';
 end
 
-%Defines how many pixels the title occupies
-titleInInches = (fontsize.Title+1) *1/72; %add one points to increase top space and convert points to inches
-% now convert inches to pixels
-%this needs at least matlab 8.6 (R2015b).
-if matlabVersion >= 8.6 && (ispc || ismac)
-    if ispc
-        ScreenPixelsPerInch = 96;
-    elseif ismac
-        ScreenPixelsPerInch = 72;
+if ~isempty(Title)
+    %Defines how many pixels the title occupies
+    titleInInches = (fontsize.Title+1) *1/72; %add one points to increase top space and convert points to inches
+    % now convert inches to pixels
+    %this needs at least matlab 8.6 (R2015b).
+    if matlabVersion >= 8.6 && (ispc || ismac)
+        if ispc
+            ScreenPixelsPerInch = 96;
+        elseif ismac
+            ScreenPixelsPerInch = 72;
+        end
+    else
+        % in case of unix or older versions
+        ScreenPixelsPerInch = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
     end
+    titleInPixels = titleInInches*ScreenPixelsPerInch;
 else
-    % in case of unix or older versions
-    ScreenPixelsPerInch = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
+    titleInPixels = [];
 end
-titleInPixels = titleInInches*ScreenPixelsPerInch;
 
 [hFig,pos,cbConfig,figPos] = figure_grid(mount,sliceDim,margins,innerMargins,colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
 
@@ -219,8 +223,10 @@ for l = 1:colorbarN
 end
 
 %remove any undersocre present in the title
-Title(strfind(Title,'_')) = '';
-text(firstAxe(1),0,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontsize.Title,'FontUnits','points','Units','normalized','FontWeight','Bold');
+if ~isempty(Title)
+    Title(strfind(Title,'_')) = '';
+    text(firstAxe(1),0,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontsize.Title,'FontUnits','points','Units','normalized','FontWeight','Bold');
+end
 
 %remove any blank space in the outputname
 Title(strfind(Title,' ')) = '_';
