@@ -105,7 +105,8 @@ legalValues{7} = {@(x) (~ischar(x) && numel(x)==4 && sum(x <= 1) == 4),['Margin 
 legalValues{8} = {@(x) (~ischar(x) && numel(x)==2 && sum(x <= 1) == 2),['InnerMargins is expected ',...
     'to be a 2-element vector: [x y]. InnerMargins define the space between slices and ',...
     'are in percentage (0-1).']};
-legalValues{9} = [];
+legalValues{9} = {@(x) (~ischar(x) && numel(x)==2 && all(mod(x,1)==0) && all(x>0)),['Mount is ',...
+    'expected to be a 2-element vector: [rows columns]. Only positive integers are allowed.']};
 legalValues{10} = {'ax','sag','cor'};
 legalValues{11} =[];
 legalValues{12} =[];
