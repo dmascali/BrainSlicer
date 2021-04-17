@@ -64,7 +64,6 @@ for l = 1:nLayers
     end
 end
 layerStrings = cellstr(num2str([1:nLayers]')); %this is used to construct default parameters
-num2cell(1:nLayers);
 colorbarDefaultList = {1,2,3,4,5};
 
 % variable that needs to be put in varargin in the future:
@@ -98,7 +97,8 @@ legalValues{4} = {@(x) (iscell(x) && length(x) == nLayers),['Colormaps is expect
     'indicates a colormap which can be selected either by its name (string) or ',...
     'by its index (scalar). Run ''colormaps'' in matalab command window '...
     'for a list of available colormaps.']};
-legalValues{5} = [];
+legalValues{5} = {@(x) (iscell(x) && length(x) == nLayers),['Alpha is ',...
+    'expected to be a cell array whose length equals the number of layers (0<=alpha<=1).']};
 legalValues{6} = {'best','south','east'};
 legalValues{7} = {@(x) (~ischar(x) && numel(x)==4 && sum(x <= 1) == 4),['Margin is expected ',...
     'to be a 4-element vector: [left right top bottom]. Margins are in percentage (0-1).']};
