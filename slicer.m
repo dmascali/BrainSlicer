@@ -163,7 +163,8 @@ switch view
         n_slices = s(3);
 end
 if ischar(slices) %it means is auto
-    if not(isempty(skip))
+    slicesMode = 'auto';
+    if ~isempty(skip)
         if skip(1) < 1; skip(1) = skip(1)*n_slices; end
         if skip(2) < 1; skip(2) = skip(2)*n_slices; end
     else
@@ -171,6 +172,8 @@ if ischar(slices) %it means is auto
     end
     planes = fix(linspace( 1+(skip(1)) , n_slices-(skip(2)) ,mount(2)*mount(1)));
 else
+    skip = [];
+    slicesMode = 'manual';
     planes = slices;
 end
 %planes = fix(linspace(1,n_slices,mount(2)*mount(1)));
@@ -279,6 +282,7 @@ if ~isempty(output)
     opt.opacityLevels = alpha;
     opt.montage.view = view;
     opt.montage.mount = mount;
+    opt.montage.slicesMode = slicesMode;
     opt.montage.slices = slices;
     opt.montage.skip = skip;  %it's not anymore in %, now is in slices.
     opt.appearance.colorMode = colorMode;
