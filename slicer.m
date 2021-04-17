@@ -108,16 +108,17 @@ legalValues{8} = {@(x) (~ischar(x) && numel(x)==2 && sum(x <= 1) == 2),['InnerMa
 legalValues{9} = {@(x) (~ischar(x) && numel(x)==2 && all(mod(x,1)==0) && all(x>0)),['Mount is ',...
     'expected to be a 2-element vector: [rows columns]. Only positive integers are allowed.']};
 legalValues{10} = {'ax','sag','cor'};
-legalValues{11} =[];
-legalValues{12} =[];
-legalValues{13} =[];
-legalValues{14} =[];
+legalValues{11} ={@(x) (ischar(x) || numel(x) == 1),['Resolution is expected to be a scalar ',...
+    'or char.']}; 
+legalValues{12} =[]; %zscore
+legalValues{13} =[]; %slices
+legalValues{14} =[]; %skip
 legalValues{15} = {'k','black','w','white'};
-legalValues{16} = [0 1];
+legalValues{16} = [0 1]; %showCoordinates
 legalValues{17} = {'north','south','east','west','n','s','e','w','northeast','northwest',...
     'southeast','southwest','ne','nw','se','sw'};
-legalValues{18} = [];
-legalValues{19} = [];
+legalValues{18} = []; %title
+legalValues{19} = []; %output
 [labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,...
     innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,...
     showCoordinates,coordinateLocation,Title,...
