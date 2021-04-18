@@ -1,4 +1,4 @@
-function [hFig,axesPos,cbConfig,figPos] = figure_grid(mount,sliceDim,margins,innerMargins,colorbarN,colorbarLocation,titleHighInPixel)
+function [hFig,axesPos,cbConfig,figPos] = figureGrid(mount,sliceDim,margins,innerMargins,colorbarN,colorbarLocation,titleHighInPixel)
 
 s = sliceDim;
 
@@ -65,7 +65,12 @@ dy = delta_y./figureHigh;
 
 %pos = [x,y,deltax,deltay]
 figPos = [100 100 figureWidth figureHigh];
-hFig = figure('Position',figPos,'MenuBar', 'None');
+hFig = figure('Position',figPos,'MenuBar', 'None','visible','off');
+movegui(hFig,'center');
+%update figPos
+figPos = get(hFig,'Position');
+%make it visible
+set(hFig,'visible','on');
 
 count = 0;
 row_offset = margins(4)./figureHigh;
