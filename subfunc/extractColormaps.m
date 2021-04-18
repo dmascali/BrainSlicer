@@ -1,4 +1,4 @@
-function extract_colormaps_fsl(varargin)
+function extractColormaps(varargin)
 % This function needs to be run just once to create "cmaps.mat" that stores
 % various colormaps, including those from FSL, Brain Colours and also those
 % from matlab (yet, created at high resolution: 256 levels). 

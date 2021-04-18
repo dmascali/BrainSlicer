@@ -33,7 +33,7 @@ function slicer(img,varargin)
 % overlay = '/storage/daniele/CBF/voxelwise/ALL_CBF_TAN_GM/spmT_0001.nii';
 
 if nargin == 0 %test mode
-    load data_test;
+    load ./exampleData/data_test;
     underlay = bg.img;
     overlay = ol.img;
     img = {underlay,overlay};
@@ -212,7 +212,7 @@ else
     titleInPixels = [];
 end
 
-[hFig,pos,cbConfig,figPos] = figure_grid(mount,sliceDim,margins,innerMargins,colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
+[hFig,pos,cbConfig,figPos] = figureGrid(mount,sliceDim,margins,innerMargins,colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
 
 set(hFig,'color',colorSet.background);
 

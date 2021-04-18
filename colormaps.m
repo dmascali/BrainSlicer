@@ -2,7 +2,7 @@ function map = colormaps(arg,varargin)
 % help to be defined
 try 
     [p,~,~] = fileparts(which(mfilename));
-    load([p,'/cmaps.mat']);
+    load([p,'/subfunc/cmaps.mat']);
 catch 
     error('Could not find "cmaps.mat" file.');
 end
@@ -20,7 +20,7 @@ if nargin == 0 || printMaps% just plot colormaps and return help
     
     % prepare figure and find axe locations
     mount = [27,4];
-    [hFig,axesPos,~,figPos] = figure_grid(mount,[155,25],[0.01 0.24 0.01 0.01],[0.32 0.005],0,'none',0);
+    [hFig,axesPos,~,figPos] = figureGrid(mount,[155,25],[0.01 0.24 0.01 0.01],[0.32 0.005],0,'none',0);
 
     countMap = 1; %counter for maps
     count = 0;  %counter for axes
