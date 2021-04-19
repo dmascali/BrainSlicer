@@ -121,7 +121,7 @@ legalValues{17} = {'north','south','east','west','n','s','e','w','northeast','no
     'southeast','southwest','ne','nw','se','sw'};
 legalValues{18} = []; %title
 legalValues{19} = []; %output
-[labels,limits,minClusterSize,colormaps,alpha,cbLocation,margins,...
+[labels,limits,minClusterSize,colorMaps,alpha,cbLocation,margins,...
     innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,...
     showCoordinates,coordinateLocation,Title,...
     output] = ParseVarargin(params,defParms,legalValues,varargin,1);
@@ -231,7 +231,7 @@ count = 0;
 for row = 1:mount(1)
     for col = 1:mount(2)
         count = count +1;
-        h_ax = plot_slice(pos{row,col},img,view,planes(count),limits,colormaps,alpha);
+        h_ax = plot_slice(pos{row,col},img,view,planes(count),limits,colorMaps,alpha);
         if count == 1
             firstAxe = h_ax;
         end
@@ -277,7 +277,7 @@ if ~isempty(output)
     opt.nLayers = nLayers;
     opt.limits = limits;
     opt.minClusterSize = minClusterSize;
-    opt.colormaps = colormaps;
+    opt.colormaps = colorMaps;
     opt.labels = labels;
     opt.opacityLevels = alpha;
     opt.montage.view = view;
