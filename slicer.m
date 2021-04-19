@@ -68,12 +68,13 @@ colorbarDefaultList = {1,2,3,4,5};
 
 % variable that needs to be put in varargin in the future:
 fontsize.Title = 12;
+fontSize = [12 10 6];  %title,colorbar,coordinates
 
 %--------------VARARGIN----------------------------------------------------
 params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation',...
             'margins', 'innerMargins','mount', 'view','resolution','zscore',...
             'slices','skip','colormode','showCoordinates','coordinateLocation',...
-            'title','output'};
+            'title','output','fontsize'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % labels
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % limits: use min and max in each image as limits
             cell(1,nLayers),... % minClusterSize
@@ -83,7 +84,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             [2 6],   'ax', '300',... % mount; view; resolution
             cell(1,nLayers), 'auto', [0.2 0.2],... %zscore; sclice; skip
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
-            [], []}; % title; output
+            [], [], [12 10 6]}; % title; output; fontsize(title,colorbar,coord)
 legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),['Labels is expected '...
     'to be a cell array whose length equals the number of layers. Empty labels ',...
     'will result in no colorbar.']};
@@ -121,10 +122,12 @@ legalValues{17} = {'north','south','east','west','n','s','e','w','northeast','no
     'southeast','southwest','ne','nw','se','sw'};
 legalValues{18} = []; %title
 legalValues{19} = []; %output
+legalValues{20} = {@(x) (~ischar(x) && numel(x)==3 && all(x>0)),['FontSize is expected ',...
+    'to be a 3-element vector: [Title ColorbarLabel Coordinate]. Default is [12 10 6].']};
 [labels,limits,minClusterSize,colorMaps,alpha,cbLocation,margins,...
     innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,...
-    showCoordinates,coordinateLocation,Title,...
-    output] = ParseVarargin(params,defParms,legalValues,varargin,1);
+    showCoordinates,coordinateLocation,Title,output,...
+    fontSize] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 %TODO add check for consistency between images
@@ -194,7 +197,7 @@ end
 
 if ~isempty(Title)
     %Defines how many pixels the title occupies
-    titleInInches = (fontsize.Title+1) *1/72; %add one points to increase top space and convert points to inches
+    titleInInches = (fontSize(1)+1) *1/72; %add one points to increase top space and convert points to inches
     % now convert inches to pixels
     %this needs at least matlab 8.6 (R2015b).
     if matlabVersion >= 8.6 && (ispc || ismac)
@@ -236,7 +239,7 @@ for row = 1:mount(1)
             firstAxe = h_ax;
         end
         if showCoordinates
-            text(planeCord{1},planeCord{2},num2str(coordinates(count)),'Color',colorSet.fonts,'verticalAlignment',planeCord{4},'HorizontalAlignment',planeCord{3},'FontSize',6,'FontUnits','points','Units','normalized','FontWeight','normal');
+            text(planeCord{1},planeCord{2},num2str(coordinates(count)),'Color',colorSet.fonts,'verticalAlignment',planeCord{4},'HorizontalAlignment',planeCord{3},'FontSize',fontSize(3),'FontUnits','points','Units','normalized','FontWeight','normal');
         end
     end
 end
@@ -245,7 +248,7 @@ end
 for l = 1:colorbarN
     cb = colorbar(h_ax(colorbarIndex(l)),'Location',cbConfig.location,'Position',cbConfig.colorbarPos{l},'Color','w');
     cb.Label.String = labels{colorbarIndex(l)};
-    cb.Label.FontSize = 10;
+    cb.Label.FontSize = fontSize(2);
     cb.Label.Color = colorSet.fonts;
     cb.Color = colorSet.fonts;
 end
@@ -253,7 +256,7 @@ end
 %remove any underscore present in the title
 if ~isempty(Title)
     Title(strfind(Title,'_')) = '';
-    text(firstAxe(1),0,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontsize.Title,'FontUnits','points','Units','normalized','FontWeight','Bold');
+    text(firstAxe(1),0,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontSize(1),'FontUnits','points','Units','normalized','FontWeight','Bold');
 end
 
 % print figure if an output name is specified
