@@ -310,6 +310,7 @@ if ~isempty(output)
     opt.appearance.colorMode = colorMode;
     opt.appearance.margins = margins;
     opt.appearance.innerMargins = innerMargins;
+    opt.appearance.fontSize = fontSize;
     opt.appearance.colorBarLocation0 = cbLocation;
     opt.appearance.showCoordinates = showCoordinates;
     opt.appearance.coordinateLocation = coordinateLocation;
