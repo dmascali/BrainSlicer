@@ -56,8 +56,6 @@ end
 nLayers = length(img);
 for l = 1:nLayers
     if ischar(img{l})  %in case data is a path to a nifti file
-        %store image path
-        img_paths{l} = img{l};
         hdr = spm_vol(img{l});
         img{l} = spm_read_vols(hdr);       
     end
@@ -145,8 +143,6 @@ switch colorMode
 end
 
 %convert colormaps from selectors to actual maps
-%first store user input to later save in opt variable
-colorMapsInput = colorMaps;
 for l = 1:nLayers
     a = colorMaps{l};
     if isnumeric(a)
@@ -158,11 +154,9 @@ for l = 1:nLayers
         map = colormaps(a);
     end
     % The default behaviour is to flip the map if both limits are negative.
-    % The user can revert this by using a "negative" map (see above).
-    if all(limits{l} <= 0)
-        map = flip(map);
-    end
-    colorMaps{l} = map;        
+    % The user can revert this by using a "negative" map
+    if sum(limits{l} <= 0)
+            
 end
 
 %get info specific to the type of view
@@ -277,8 +271,6 @@ end
 
 % print figure if an output name is specified
 if ~isempty(output)
-    %add output name to figure title
-    set(hFig,'name',output)
     %remove any blank space in the outputname
     output(strfind(output,' ')) = '_';
     
@@ -295,13 +287,10 @@ if ~isempty(output)
     print([output,'.png'],'-dpng',['-r',resolution])
 
     % Store parameters in a structure
-    
     opt.nLayers = nLayers;
-    paths = GetFullPath(img_paths);
-    for l = 1:nLayers; opt.(['img',num2str(l)]) = paths{l}; end
     opt.limits = limits;
     opt.minClusterSize = minClusterSize;
-    opt.colorMaps = colorMapsInput;
+    opt.colormaps = colorMaps;
     opt.labels = labels;
     opt.opacityLevels = alpha;
     opt.montage.view = view;
@@ -312,7 +301,6 @@ if ~isempty(output)
     opt.appearance.colorMode = colorMode;
     opt.appearance.margins = margins;
     opt.appearance.innerMargins = innerMargins;
-    opt.appearance.fontSize = fontSize;
     opt.appearance.colorBarLocation0 = cbLocation;
     opt.appearance.showCoordinates = showCoordinates;
     opt.appearance.coordinateLocation = coordinateLocation;
@@ -369,7 +357,7 @@ for l = 1:nLayers
         alphadata = [];
     end
     draw_layer(plane,img{l},coordinates,limits{l},alphadata)
-    colormap(ax{l},colorMaps{l});
+    colormap(ax{l},colormaps(colorMaps{l}));
     h_ax = [h_ax,ax{l}];
 end
 linkaxes(h_ax);
@@ -386,9 +374,9 @@ for l = 1:nLayers
     % 2) - - -> threshold on max saturate on min
     % 3) - + -> threshold on min saturate on max (arbitrary choice. We might deal with the
     %        opposite case in the future)
-    if all(limits{l}>=0) %case 1 
+    if sum(limits{l}>=0) >= 2 %case 1 
         img{l}(img{l} <= low) = NaN;
-    elseif all(limits{l}<=0)  %case 2
+    elseif sum(limits{l}<=0) == 2 %case 2
         img{l}(img{l} >= up) = NaN;
     else %case 3
         img{l}(img{l} <= low) = NaN;
