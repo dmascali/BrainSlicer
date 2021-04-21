@@ -29,9 +29,6 @@ function slicer(img,varargin)
 %     
 %   
 
-% underlay = '/storage/daniele/CBF/voxelwise/MNI152_T1_2mm.nii';
-% overlay = '/storage/daniele/CBF/voxelwise/ALL_CBF_TAN_GM/spmT_0001.nii';
-
 if nargin == 0 %test mode
     load ./exampleData/data_test;
     underlay = bg.img;
@@ -65,10 +62,6 @@ for l = 1:nLayers
 end
 layerStrings = cellstr(num2str([1:nLayers]')); %this is used to construct default parameters
 colorbarDefaultList = {1,2,3,4,5};
-
-% variable that needs to be put in varargin in the future:
-fontsize.Title = 12;
-fontSize = [12 10 6];  %title,colorbar,coordinates
 
 %--------------VARARGIN----------------------------------------------------
 params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation',...
@@ -147,6 +140,25 @@ switch colorMode
     case {'w','white'}
         colorSet.background = 'w';
         colorSet.fonts = 'k';
+end
+
+%convert colormaps from selectors to actual maps
+for l = 1:nLayers
+    a = colorMaps{l};
+    if isnumeric(a)
+        map = colormaps(abs(a));
+        if a < 0 %flip the map
+            map = flip(map);
+        end
+    else % no way to flip 
+        map = colormaps(a);
+    end
+    % The default behaviour is to flip the map if both limits are negative.
+    % The user can revert this by using a "negative" map (see above).
+    if all(limits{l} <= 0)
+        map = flip(map);
+    end
+    colorMaps{l} = map;        
 end
 
 %get info specific to the type of view
@@ -347,7 +359,7 @@ for l = 1:nLayers
         alphadata = [];
     end
     draw_layer(plane,img{l},coordinates,limits{l},alphadata)
-    colormap(ax{l},colormaps(colorMaps{l}));
+    colormap(ax{l},colorMaps{l});
     h_ax = [h_ax,ax{l}];
 end
 linkaxes(h_ax);
@@ -364,9 +376,9 @@ for l = 1:nLayers
     % 2) - - -> threshold on max saturate on min
     % 3) - + -> threshold on min saturate on max (arbitrary choice. We might deal with the
     %        opposite case in the future)
-    if sum(limits{l}>=0) >= 2 %case 1 
+    if all(limits{l}>=0) %case 1 
         img{l}(img{l} <= low) = NaN;
-    elseif sum(limits{l}<=0) == 2 %case 2
+    elseif all(limits{l}<=0)  %case 2
         img{l}(img{l} >= up) = NaN;
     else %case 3
         img{l}(img{l} <= low) = NaN;
