@@ -145,6 +145,8 @@ switch colorMode
 end
 
 %convert colormaps from selectors to actual maps
+%first store user input to later save in opt variable
+colorMapsInput = colorMaps;
 for l = 1:nLayers
     a = colorMaps{l};
     if isnumeric(a)
@@ -297,7 +299,7 @@ if ~isempty(output)
     for l = 1:nLayers; opt.(['img',num2str(l)]) = paths{l}; end
     opt.limits = limits;
     opt.minClusterSize = minClusterSize;
-    opt.colormaps = colorMaps;
+    opt.colorMaps = colorMapsInput;
     opt.labels = labels;
     opt.opacityLevels = alpha;
     opt.montage.view = view;
