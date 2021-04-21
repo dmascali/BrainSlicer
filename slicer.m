@@ -56,6 +56,8 @@ end
 nLayers = length(img);
 for l = 1:nLayers
     if ischar(img{l})  %in case data is a path to a nifti file
+        %store image path
+        img_paths{l} = img{l};
         hdr = spm_vol(img{l});
         img{l} = spm_read_vols(hdr);       
     end
@@ -289,7 +291,10 @@ if ~isempty(output)
     print([output,'.png'],'-dpng',['-r',resolution])
 
     % Store parameters in a structure
+    
     opt.nLayers = nLayers;
+    paths = GetFullPath(img_paths);
+    for l = 1:nLayers; opt.(['img',num2str(l)]) = paths{l}; end
     opt.limits = limits;
     opt.minClusterSize = minClusterSize;
     opt.colormaps = colorMaps;
