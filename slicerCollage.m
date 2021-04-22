@@ -27,6 +27,10 @@ else
     %--------------------------------------------------------------------------
 end
    
+%get function name
+funcName = mfilename;
+fprintf('%s - welcome\n',funcName);
+
 if isempty(list)
     list = dir('slicer_*.png');
     if isempty(list)
@@ -44,15 +48,22 @@ if isempty(dim)
     s1 = size(img); [~,dim] = min(s1(1:2));    
 end
   
+fprintf('%s - dime  = %d\n',funcName,dim);
+fprintf(['%s - order = ',repmat('%d ', 1, length(order)),'\n'],funcName,order);
+fprintf('%s - concatenating images:\n',funcName);
+
 IMG = [];
+count = 1;
 for l = order
    img = imread(list(l).name); 
+   fprintf('-> %d(%d) %s\n',count,l,list(l).name);
    if l > 1 %check size consistency
       if any(size(img)~= s1)
           error('Images must have equal size.');
       end
    end
    IMG = cat(dim,IMG,img);
+   count = count +1;
 end
 imwrite(IMG,[output,'.png']);
 
@@ -63,5 +74,6 @@ if showFigure
     warning on
 end
     
+fprintf('%s - end\n',funcName);
 return
 end
