@@ -5,7 +5,7 @@ s = sliceDim;
 % margins = [0 0 0 0]; %left right top bottom
 % InnerMargins = [0 0]; %x y
 
-%------------------- This variables are in pixel units---------------------
+%------------------- These variables are in pixel units---------------------
 delta_x = s(1);
 figureWidth = mount(2)*delta_x;
 delta_y = s(2);
@@ -79,18 +79,12 @@ for row = mount(1):-1:1 %rows
     for col = 1:mount(2) %col
         count = count +1;
         axesPos{row,col} = [col_offset,row_offset,dx,dy];
-        col_offset = col_offset + dx + innerMargins(1)./figureWidth;
-%         ax = axes;
-%         set(ax,'Position',pos{row,col});
-%         set(gca,'Xtick',[]);
-%         set(gca,'Ytick',[]);
-%         text(0.5,0.5, [num2str(row),',',num2str(col)]);
-        
+        col_offset = col_offset + dx + innerMargins(1)./figureWidth;       
     end
 row_offset = row_offset + dy + innerMargins(2)./figureHigh;
 end
 
-% locate colorbar on longest side. 
+
 figureWidthNoMargins = figureWidth - (margins(1) + margins(2)); %pixel units
 figureHighNoMargins  = figureHigh  - (margins(3) + margins(4));
 
@@ -148,36 +142,7 @@ switch colorbarLocation
             cbConfig.colorbarPos{l} = [cbXStarts(l)/figureWidth,cbY/figureHigh,cbWidth/figureWidth,cbHigh/figureHigh];
         end       
 end
-
 cbConfig.location = colorbarLocation;
-
-return
-
-%colorbar position: just one
-%find out slice dimension (i.e, exlcuding margins, but including
-%InnerMargins)
-space_occupied_by_slices_y = figureHigh -  (margins(3) + margins(4));
-cb_width = 0.12*dx;
-cb_high = 0.9*dy;
-cb_y = (margins(4) + space_occupied_by_slices_y./2)./figureHigh; cb_y = cb_y - cb_high/2;
-cb_x = (figureWidth - margins(2))./figureWidth + 0.05*dx;
-CBpos.one_bar = [cb_x,cb_y,cb_width,cb_high];
-
-%colorbar positions: two colorbars one
-%find out slice dimension (i.e, exlcuding margins, but including
-%InnerMargins)
-space_occupied_by_slices_y = figureHigh -  (margins(3) + margins(4));
-cb_width = 0.12*dx;
-if mount(1) == 1 %just one row
-    cb_high = 0.9*dy/2;
-else
-    cb_high = 0.8*dy;
-end
-cb_y_1 = (margins(4) + space_occupied_by_slices_y./2)./figureHigh; cb_y_1 = cb_y_1 - cb_high -0.04*dy;
-cb_y_2 = (margins(4) + space_occupied_by_slices_y./2)./figureHigh; cb_y_2 = cb_y_2 + 0.04*dy;
-cb_x = (figureWidth - margins(2))./figureWidth + 0.05*dx;
-CBpos.two_bars{1} = [cb_x,cb_y_1,cb_width,cb_high];
-CBpos.two_bars{2} = [cb_x,cb_y_2,cb_width,cb_high];
 return
 end
 
