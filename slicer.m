@@ -69,7 +69,7 @@ colorbarDefaultList = {1,2,3,4,5};
 params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation',...
             'margins', 'innerMargins','mount', 'view','resolution','zscore',...
             'slices','skip','colormode','showCoordinates','coordinateLocation',...
-            'title','output','fontsize'};
+            'title','output','fontsize','noMat','show'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % labels
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % limits: use min and max in each image as limits
             cell(1,nLayers),... % minClusterSize
@@ -79,7 +79,8 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             [2 6],   'ax', '300',... % mount; view; resolution
             cell(1,nLayers), 'auto', [0.2 0.2],... %zscore; sclice; skip
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
-            [], [], [12 10 6]}; % title; output; fontsize(title,colorbar,coord)
+            [], [], [12 10 6],..., % title; output; fontsize(title,colorbar,coord),
+            0, 1}; %  noMat, show
 legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),['Labels is expected '...
     'to be a cell array whose length equals the number of layers. Empty labels ',...
     'will result in no colorbar.']};
@@ -118,11 +119,13 @@ legalValues{17} = {'north','south','east','west','n','s','e','w','northeast','no
 legalValues{18} = []; %title
 legalValues{19} = []; %output
 legalValues{20} = {@(x) (~ischar(x) && numel(x)==3 && all(x>0)),['FontSize is expected ',...
-    'to be a 3-element vector: [Title ColorbarLabel Coordinate]. Default is [12 10 6].']};
+        'to be a 3-element vector: [Title ColorbarLabel Coordinate]. Default is [12 10 6].']};
+legalValues{21} = [0 1]; %noMat
+legalValues{22} = [0 1]; %Show
 [labels,limits,minClusterSize,colorMaps,alpha,cbLocation,margins,...
     innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,...
     showCoordinates,coordinateLocation,Title,output,...
-    fontSize] = ParseVarargin(params,defParms,legalValues,varargin,1);
+    fontSize,noMat,show] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 %TODO add check for consistency between images
@@ -231,7 +234,7 @@ else
     titleInPixels = [];
 end
 
-[hFig,pos,cbConfig,figPos] = figureGrid(mount,sliceDim,margins,innerMargins,colorbarN,cbLocation,titleInPixels); %left right top bottom %x,y
+[hFig,pos,cbConfig,figPos] = figureGrid(mount,sliceDim,margins,innerMargins,colorbarN,cbLocation,titleInPixels,show); %left right top bottom %x,y
 
 set(hFig,'color',colorSet.background);
 
@@ -294,31 +297,32 @@ if ~isempty(output)
     set(gcf,'Position',figPos);
     print([output,'.png'],'-dpng',['-r',resolution])
 
-    % Store parameters in a structure
-    
-    opt.nLayers = nLayers;
-    paths = GetFullPath(img_paths);
-    for l = 1:nLayers; opt.(['img',num2str(l)]) = paths{l}; end
-    opt.limits = limits;
-    opt.minClusterSize = minClusterSize;
-    opt.colorMaps = colorMapsInput;
-    opt.labels = labels;
-    opt.opacityLevels = alpha;
-    opt.montage.view = view;
-    opt.montage.mount = mount;
-    opt.montage.slicesMode = slicesMode;
-    opt.montage.slices = slices;
-    opt.montage.skip = skip;  %it's not anymore in %, now is in slices.
-    opt.appearance.colorMode = colorMode;
-    opt.appearance.margins = margins;
-    opt.appearance.innerMargins = innerMargins;
-    opt.appearance.fontSize = fontSize;
-    opt.appearance.colorBarLocation0 = cbLocation;
-    opt.appearance.showCoordinates = showCoordinates;
-    opt.appearance.coordinateLocation = coordinateLocation;
-    opt.appearance.resolution = resolution;
+    if ~noMat
+        % Store parameters in a structure  
+        opt.nLayers = nLayers;
+        paths = GetFullPath(img_paths);
+        for l = 1:nLayers; opt.(['img',num2str(l)]) = paths{l}; end
+        opt.limits = limits;
+        opt.minClusterSize = minClusterSize;
+        opt.colorMaps = colorMapsInput;
+        opt.labels = labels;
+        opt.opacityLevels = alpha;
+        opt.montage.view = view;
+        opt.montage.mount = mount;
+        opt.montage.slicesMode = slicesMode;
+        opt.montage.slices = slices;
+        opt.montage.skip = skip;  %it's not anymore in %, now is in slices.
+        opt.appearance.colorMode = colorMode;
+        opt.appearance.margins = margins;
+        opt.appearance.innerMargins = innerMargins;
+        opt.appearance.fontSize = fontSize;
+        opt.appearance.colorBarLocation0 = cbLocation;
+        opt.appearance.showCoordinates = showCoordinates;
+        opt.appearance.coordinateLocation = coordinateLocation;
+        opt.appearance.resolution = resolution;
 
-    save([output,'.mat'],'opt');
+        save([output,'.mat'],'opt');
+    end
 else
     fprintf('%s - no figure will be printed. Use ''output'' to save the figure.\n',funcName);
 end
