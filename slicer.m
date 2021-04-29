@@ -1,33 +1,78 @@
 function slicer(img,varargin)
+% SLICER Visualize and print volumetric brain data. 
+%   SLICER(IMG) shows a bunch of slices from IMG. IMG is expected to be a 
+%   cell array containing either paths to NIfTI volumes or 3D matrices (TODO). 
+%   Each cell in IMG represents a layer. Each layer is plotted on top of 
+%   previous layers.
+%   To print the figure as PNG use the "output" option (see below).
 %
-%
-% Properties:
+% Options can be specified using the following parameters (each parameter 
+%  must be followed by its value ie,'param1',value1,'param2',value2. 
+%  NB: when a cell array is required, its length needs to be equal to the
+%  number of layers.):
 %   
 %   BASIC:
-%     limits
-%     minClusterSize
-%     labels
-%     output
-%     title
+%     limits               - CellArray. Each cell is expected to be a 
+%                            2-element vector indicating minimum and maximum
+%                            values to be displayed for that layer. For 
+%                            empty vectors the min and max value across the
+%                            volume is used (TODO). Default: {[]}.
+%     minClusterSize       - CellArray. Each cell contains the minimum 
+%                            cluster size that is allowed (in voxels) for 
+%                            that layer. Default: {[]}.
+%     colormaps            - CellArray. Each cell indicates a colormap 
+%                            which can be selected either by its name (char)
+%                            or by its index (scalar). Run 'colormaps' 
+%                            in matalab command window for a list of 
+%                            available colormaps.
+%     labels               - CellArray. Each layer is associated with a
+%                            colorbar, this option allows you to specify
+%                            the label on each colorbar. Empty cell will
+%                            result in no colorbar appearing for that
+%                            layer.[e.g., {[],'t-maps'} will show the
+%                            colorbar for the second layer only]. 
+%     output               - Char. Export the figure as PNG using the 
+%                            specified ouptut name. Without this option,
+%                            no figure will be printed. Default: [].
+%     title                - Char. Show a title on the top-left corner. 
+%                            Default: [].
+%
 %   MONTAGE:
 %     view
 %     mount
 %     slices
 %     skip
+%
 %   APPEARANCE:
-%     colormaps
-%     alpha
-%     colorBarLocation
-%     margins
-%     innerMargins
-%     colorMode
-%     resolution           - 
-%     showCoordinates      - Show plane coordinates
-%     coordinateLocation   - Location of plane coordinates
+%     alpha                - CellArray. Each cell indicates the layer's 
+%                            opacity level ( 0<=alpha<=1 ). Default = {1}
+%     colorBarLocation     - Char. Specify the location for the colorbars.
+%                            Available locations are:
+%                            'best','south','east'. Default = 'best'.
+%     margins              - 4-element vector specifying figure margins:
+%                            [left right top bottom]. Margins are in 
+%                            percentage (0-1). Defalut = [0 0 0 0].
+%     innerMargins         - 2-element vector specifying the space between
+%                            slices: [x y].  InnerMargins are in 
+%                            percentage (0-1). Defalut = [0 0].
+%     colorMode            - Char. Two colorMode are available: 'black' (or
+%                            'k') for a dark mode in which the background is
+%                            black, or a 'white' (or 'w') for a light mode
+%                            in which the background is white. Default:
+%                            'black'.
+%     resolution           - Scalar/char indicating the PNG resolution.
+%                            Default: 300. 
+%     showCoordinates      - Boolean. Show plane coordinates. Default:
+%                            True.
+%     coordinateLocation   - Char. Location of plane coordinates. Available
+%                            locations are: 'north','south','east','west',
+%                            'northeast','northwest','southeast','southwest',
+%                            or aliases: 'n','s','e','w','ne','nw','se',
+%                            'sw'. Default: 'southwest'.
 %     
 %     
 %     
-%   
+%   See also SLICERCOLLAGE, COLORMAPS
 
 if nargin == 0 %test mode
     load ./exampleData/data_test;
@@ -95,7 +140,7 @@ legalValues{4} = {@(x) (iscell(x) && length(x) == nLayers),['Colormaps is expect
     'by its index (scalar). Run ''colormaps'' in matalab command window '...
     'for a list of available colormaps.']};
 legalValues{5} = {@(x) (iscell(x) && length(x) == nLayers),['Alpha is ',...
-    'expected to be a cell array whose length equals the number of layers (0<=alpha<=1).']};
+    'expected to be a cell array whose length equals the number of layers (.']};
 legalValues{6} = {'best','south','east'};
 legalValues{7} = {@(x) (~ischar(x) && numel(x)==4 && sum(x <= 1) == 4),['Margin is expected ',...
     'to be a 4-element vector: [left right top bottom]. Margins are in percentage (0-1).']};
@@ -114,7 +159,7 @@ legalValues{14} ={@(x) (~ischar(x) && numel(x)==2),['Skip is expected to be a ',
     'a 2-element vector: [bottom top].']};
 legalValues{15} = {'k','black','w','white'};
 legalValues{16} = [0 1]; %showCoordinates
-legalValues{17} = {'north','south','east','west','n','s','e','w','northeast','northwest',...
+legalValues{17} = {'north','south','east','west',,'northeast','northwest',...
     'southeast','southwest','ne','nw','se','sw'};
 legalValues{18} = []; %title
 legalValues{19} = []; %output
@@ -129,6 +174,9 @@ legalValues{22} = [0 1]; %Show
 %--------------------------------------------------------------------------
 
 %TODO add check for consistency between images
+
+%TODO allows for empty limits. Check here if there is such instance, in
+%that case guess automatic limits
 
 %get function name
 funcName = mfilename;
@@ -295,6 +343,7 @@ if ~isempty(output)
     set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
     %force again the position
     set(gcf,'Position',figPos);
+    if ~ischar(resolution); resolution=num2str(resolution); end
     print([output,'.png'],'-dpng',['-r',resolution])
 
     if ~noMat
