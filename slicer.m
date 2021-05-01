@@ -159,7 +159,7 @@ legalValues{14} ={@(x) (~ischar(x) && numel(x)==2),['Skip is expected to be a ',
     'a 2-element vector: [bottom top].']};
 legalValues{15} = {'k','black','w','white'};
 legalValues{16} = [0 1]; %showCoordinates
-legalValues{17} = {'north','south','east','west',,'northeast','northwest',...
+legalValues{17} = {'north','south','east','west','northeast','northwest',...
     'southeast','southwest','ne','nw','se','sw'};
 legalValues{18} = []; %title
 legalValues{19} = []; %output
