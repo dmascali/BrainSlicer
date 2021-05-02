@@ -2,10 +2,10 @@ function slicer(img,varargin)
 % SLICER Visualize and print volumetric brain data. 
 %   SLICER(IMG) shows a bunch of slices from IMG. IMG is expected to be a 
 %   cell array containing either paths to NIfTI volumes or 3D matrices (TODO). 
-%   Each cell in IMG represents a layer. Each layer is plotted on top of 
+%   Each cell in IMG represents a layer, each layer is plotted on top of 
 %   previous layers.
 %   To print the figure as PNG use the "output" option (see below). A mat
-%   file will be saved storing info related to the printed figure. 
+%   file, which stores info related to the printed figure, will be saved too. 
 %
 % Options can be specified using the following parameters (each parameter 
 %  must be followed by its value ie,'param1',value1,'param2',value2. 
@@ -35,17 +35,22 @@ function slicer(img,varargin)
 %     output               - Char. Export the figure as PNG using the 
 %                            specified ouptut name. Without this option,
 %                            no figure will be printed. Default: [].
-%     title                - Char. Show a title on the top-left corner. 
-%                            Default: [].
 %
 %   MONTAGE:
 %     view                 - Char. Choose between one of the three planes:
 %                            'ax','sag','cor'. Default: 'ax'. 
-%     mount
-%     slices
-%     skip
+%     mount                -
+%     slices               - Char/Vector. 
+%     skip                 - 2-element vector. When 'slices' is set to 'auto',
+%                            you can specify how many slices to skip from
+%                            the beginning and end of the series. If values
+%                            are < 1, values are considered as percent
+%                            (i.e, skip as many slices corresponding to the
+%                            percentage value). Default: [0.2 0.2]
 %
 %   APPEARANCE:
+%     title                - Char. Show a title on the top-left corner. 
+%                            Default: [].
 %     alpha                - CellArray. Each cell indicates the layer's 
 %                            opacity level ( 0<=alpha<=1 ). Default = {1}
 %     colorBarLocation     - Char. Specify the location for the colorbars.
@@ -230,33 +235,43 @@ end
 s =  size(img{1});
 switch view
     case {'ax'}
-        n_slices = s(3);
         for l = 1:nLayers
             img{l} = flipdim(img{l},2);
         end
         sliceDim = [s(1) s(2)];
     case {'sag'} %this might be flipped
-        n_slices = s(1);
         sliceDim = [s(2) s(3)];
     case {'cor'} %this might be flipped
         sliceDim = [s(1) s(3)];
-        n_slices = s(2);
 end
 if ischar(slices) %it means is auto
     slicesMode = 'auto';
+    switch view
+        case 'ax', totalSlices = s(3);
+        case 'sag',totalSlices = s(1);
+        case 'cor',totalSlices = s(2);
+    end
     if ~isempty(skip)
-        if skip(1) < 1; skip(1) = skip(1)*n_slices; end
-        if skip(2) < 1; skip(2) = skip(2)*n_slices; end
+        if skip(1) < 1; skip(1) = skip(1)*totalSlices; end
+        if skip(2) < 1; skip(2) = skip(2)*totalSlices; end
     else
         skip = [0 0];
     end
-    planes = fix(linspace( 1+(skip(1)) , n_slices-(skip(2)) ,mount(2)*mount(1)));
+    planes = fix(linspace( 1+(skip(1)) , totalSlices-(skip(2)) ,mount(2)*mount(1)));
 else
     skip = [];
     slicesMode = 'manual';
     planes = slices;
+    if length(planes) > mount(2)*mount(1)
+        % let's adjust mount 
+        discrepancy = length(planes) - mount(2)*mount(1);
+        [~,maxIndx] = max(mount); [~,minIndx] = min(mount);
+        % how many row/column to add to cover the discrepancy?
+        toAdd = ceil(discrepancy/(mount(maxIndx)));
+        mount(minIndx) = mount(minIndx) + toAdd;
+    end
 end
-%planes = fix(linspace(1,n_slices,mount(2)*mount(1)));
+nPlanes = length(planes);
 
 %zscore images if required
 img = zscore_images(img,zScore,nLayers);
@@ -311,6 +326,9 @@ count = 0;
 for row = 1:mount(1)
     for col = 1:mount(2)
         count = count +1;
+        if count > nPlanes
+            break
+        end
         h_ax = plot_slice(pos{row,col},img,view,planes(count),limits,colorMaps,alpha);
         if count == 1
             firstAxe = h_ax;
