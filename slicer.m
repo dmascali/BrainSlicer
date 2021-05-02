@@ -4,12 +4,13 @@ function slicer(img,varargin)
 %   cell array containing either paths to NIfTI volumes or 3D matrices (TODO). 
 %   Each cell in IMG represents a layer. Each layer is plotted on top of 
 %   previous layers.
-%   To print the figure as PNG use the "output" option (see below).
+%   To print the figure as PNG use the "output" option (see below). A mat
+%   file will be saved storing info related to the printed figure. 
 %
 % Options can be specified using the following parameters (each parameter 
 %  must be followed by its value ie,'param1',value1,'param2',value2. 
 %  NB: when a cell array is required, its length needs to be equal to the
-%  number of layers.):
+%  number of layers):
 %   
 %   BASIC:
 %     limits               - CellArray. Each cell is expected to be a 
@@ -38,7 +39,8 @@ function slicer(img,varargin)
 %                            Default: [].
 %
 %   MONTAGE:
-%     view
+%     view                 - Char. Choose between one of the three planes:
+%                            'ax','sag','cor'. Default: 'ax'. 
 %     mount
 %     slices
 %     skip
@@ -49,6 +51,9 @@ function slicer(img,varargin)
 %     colorBarLocation     - Char. Specify the location for the colorbars.
 %                            Available locations are:
 %                            'best','south','east'. Default = 'best'.
+%     fontsize             - 3-element vector specifying the fontsize of:
+%                            [Title, ColorBarLabel, Coordinates]. 
+%                            Default: [12,10,6].
 %     margins              - 4-element vector specifying figure margins:
 %                            [left right top bottom]. Margins are in 
 %                            percentage (0-1). Defalut = [0 0 0 0].
@@ -69,6 +74,11 @@ function slicer(img,varargin)
 %                            'northeast','northwest','southeast','southwest',
 %                            or aliases: 'n','s','e','w','ne','nw','se',
 %                            'sw'. Default: 'southwest'.
+%   MISCELLANEOUS:
+%     show                 - Boolean. Show figure. Default: True. 
+%     noMat                - Boolean. Do not output the mat file containing
+%                            info related to the printed figure. Default:
+%                            False.
 %     
 %     
 %     
@@ -122,7 +132,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             num2cell(ones(1,nLayers)),...% alpha lelvel
             'best', [0 0 0 0], [0 0], ... % cbLocation; margins; InnerMargins
             [2 6],   'ax', '300',... % mount; view; resolution
-            cell(1,nLayers), 'auto', [0.2 0.2],... %zscore; sclice; skip
+            cell(1,nLayers), 'auto', [0.2 0.2],... %zscore; slice; skip
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
             [], [], [12 10 6],..., % title; output; fontsize(title,colorbar,coord),
             0, 1}; %  noMat, show
@@ -196,7 +206,7 @@ switch colorMode
 end
 
 %convert colormaps from selectors to actual maps
-%first store user input to later save in opt variable
+%first store user input for later saving in opt variable
 colorMapsInput = colorMaps;
 for l = 1:nLayers
     a = colorMaps{l};
