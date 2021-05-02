@@ -258,20 +258,30 @@ if ischar(slices) %it means is auto
         skip = [0 0];
     end
     planes = fix(linspace( 1+(skip(1)) , totalSlices-(skip(2)) ,mount(2)*mount(1)));
+    nPlanes = length(planes);
 else
     skip = [];
     slicesMode = 'manual';
     planes = slices;
-    if length(planes) > mount(2)*mount(1)
+    nPlanes = length(planes);
+    if nPlanes > mount(2)*mount(1)
         % let's adjust mount 
         discrepancy = length(planes) - mount(2)*mount(1);
         [~,maxIndx] = max(mount); [~,minIndx] = min(mount);
         % how many row/column to add to cover the discrepancy?
         toAdd = ceil(discrepancy/(mount(maxIndx)));
         mount(minIndx) = mount(minIndx) + toAdd;
+    elseif nPlanes < mount(2)*mount(1)
+        % let's handle the case the slices are fewer than the largest
+        % dimension of mount
+        [~,maxIndx] = max(mount); [~,minIndx] = min(mount);
+        if nPlanes <= mount(maxIndx)
+            mount(minIndx) = 1;
+            mount(maxIndx) = nPlanes;
+        end
     end
 end
-nPlanes = length(planes);
+
 
 %zscore images if required
 img = zscore_images(img,zScore,nLayers);
