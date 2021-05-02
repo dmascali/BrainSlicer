@@ -240,7 +240,7 @@ switch view
         sliceDim = [s(2) s(3)];
     case {'cor'} %this might be flipped
         sliceDim = [s(1) s(3)];
-        n_slices = s(3);
+        n_slices = s(2);
 end
 if ischar(slices) %it means is auto
     slicesMode = 'auto';
