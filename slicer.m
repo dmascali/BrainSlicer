@@ -35,6 +35,8 @@ function slicer(img,varargin)
 %     output               - Char. Export the figure as PNG using the 
 %                            specified ouptut name. Without this option,
 %                            no figure will be printed. Default: [].
+%     volume               - CellArray
+%     p-map                - CellArray
 %
 %   MONTAGE:
 %     view                 - Char. Choose between one of the three planes:
@@ -129,7 +131,7 @@ colorbarDefaultList = {1,2,3,4,5};
 params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation',...
             'margins', 'innerMargins','mount', 'view','resolution','zscore',...
             'slices','skip','colormode','showCoordinates','coordinateLocation',...
-            'title','output','fontsize','noMat','show','volume'};
+            'title','output','fontsize','noMat','show','volume','p-map'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % labels
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % limits: use min and max in each image as limits
             cell(1,nLayers),... % minClusterSize
@@ -140,7 +142,8 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             cell(1,nLayers), 'auto', [0.2 0.2],... %zscore; slice; skip
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
             [], [], [12 10 6],..., % title; output; fontsize(title,colorbar,coord),
-            0, 1, num2cell(ones(1,nLayers))}; %  noMat, show, volume
+            0, 1, num2cell(ones(1,nLayers)),...%  noMat, show, volume
+            num2cell(zeros(1,nLayers))}; 
 legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),['Labels is expected '...
     'to be a cell array whose length equals the number of layers. Empty labels ',...
     'will result in no colorbar.']};
@@ -184,10 +187,12 @@ legalValues{21} = [0 1]; %noMat
 legalValues{22} = [0 1]; %Show
 legalValues{23} = {@(x) (iscell(x) && length(x) == nLayers),['Volume is ',...
     'expected to be a cell array whose length equals the number of layers.']};
+legalValues{24} = {@(x) (iscell(x) && length(x) == nLayers),['P-map is ',...
+    'expected to be a cell array whose length equals the number of layers.']};
 [labels,limits,minClusterSize,colorMaps,alpha,cbLocation,margins,...
     innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,...
     showCoordinates,coordinateLocation,Title,output,fontSize,noMat,...
-    show,volume] = ParseVarargin(params,defParms,legalValues,varargin,1);
+    show,volume,pmap] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 %TODO add check for consistency between images
@@ -215,6 +220,17 @@ if any(is4D)
         frpintf([repmat(' ',length([funcName,' - '])),'use ''volume'' to select volumes\n']); 
     end
 end
+
+%check for p-maps
+if sum([pmap{:}]) >= 1
+   indx = find([pmap{:}]);
+   for l = 1:length(indx)
+       %find where image is greater than zero
+       indxMap = find(img{indx});
+       img{indx}(indxMap) = 1 - img{indx}(indxMap);
+   end   
+end
+
 
 %check Matlab version, stop if version is older than:
 matlabVersion = version;
