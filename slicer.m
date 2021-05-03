@@ -129,7 +129,7 @@ colorbarDefaultList = {1,2,3,4,5};
 params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation',...
             'margins', 'innerMargins','mount', 'view','resolution','zscore',...
             'slices','skip','colormode','showCoordinates','coordinateLocation',...
-            'title','output','fontsize','noMat','show'};
+            'title','output','fontsize','noMat','show','volume'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % labels
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % limits: use min and max in each image as limits
             cell(1,nLayers),... % minClusterSize
@@ -140,7 +140,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             cell(1,nLayers), 'auto', [0.2 0.2],... %zscore; slice; skip
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
             [], [], [12 10 6],..., % title; output; fontsize(title,colorbar,coord),
-            0, 1}; %  noMat, show
+            0, 1, num2cell(ones(1,nLayers))}; %  noMat, show, volume
 legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),['Labels is expected '...
     'to be a cell array whose length equals the number of layers. Empty labels ',...
     'will result in no colorbar.']};
@@ -155,7 +155,7 @@ legalValues{4} = {@(x) (iscell(x) && length(x) == nLayers),['Colormaps is expect
     'by its index (scalar). Run ''colormaps'' in matalab command window '...
     'for a list of available colormaps.']};
 legalValues{5} = {@(x) (iscell(x) && length(x) == nLayers),['Alpha is ',...
-    'expected to be a cell array whose length equals the number of layers (.']};
+    'expected to be a cell array whose length equals the number of layers.']};
 legalValues{6} = {'best','south','east'};
 legalValues{7} = {@(x) (~ischar(x) && numel(x)==4 && sum(x <= 1) == 4),['Margin is expected ',...
     'to be a 4-element vector: [left right top bottom]. Margins are in percentage (0-1).']};
@@ -182,13 +182,16 @@ legalValues{20} = {@(x) (~ischar(x) && numel(x)==3 && all(x>0)),['FontSize is ex
         'to be a 3-element vector: [Title ColorbarLabel Coordinate]. Default is [12 10 6].']};
 legalValues{21} = [0 1]; %noMat
 legalValues{22} = [0 1]; %Show
+legalValues{23} = {@(x) (iscell(x) && length(x) == nLayers),['Volume is ',...
+    'expected to be a cell array whose length equals the number of layers.']};
 [labels,limits,minClusterSize,colorMaps,alpha,cbLocation,margins,...
     innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,...
-    showCoordinates,coordinateLocation,Title,output,...
-    fontSize,noMat,show] = ParseVarargin(params,defParms,legalValues,varargin,1);
+    showCoordinates,coordinateLocation,Title,output,fontSize,noMat,...
+    show,volume] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 %TODO add check for consistency between images
+%TODO volume must be positive integer
 
 %TODO allows for empty limits. Check here if there is such instance, in
 %that case guess automatic limits
@@ -196,6 +199,22 @@ legalValues{22} = [0 1]; %Show
 %get function name
 funcName = mfilename;
 fprintf('%s - welcome\n',funcName);
+
+%check if there are 4D volumes
+is4D = cellfun(@(x) numel(size(x)) > 3,img,'UniformOutput',1);
+if any(is4D)
+    indx = find(is4D);
+    fprintf('%s - warning: layer(s) %d has(have) multiple volumes\n',funcName,indx);
+    if sum(volume)/nLayers > 1
+        for l = 1:length(indx)
+            %TODO: add error checking
+            img{indx} = img{indx}(:,:,:,volume{indx});
+            fprintf('%s - selecting volume %d for layer %d\n',funcName,volume{indx},indx);
+        end
+    else
+        frpintf([repmat(' ',length([funcName,' - '])),'use ''volume'' to select volumes\n']); 
+    end
+end
 
 %check Matlab version, stop if version is older than:
 matlabVersion = version;
