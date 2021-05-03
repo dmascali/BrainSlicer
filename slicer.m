@@ -55,9 +55,14 @@ function slicer(img,varargin)
 %                            Default: [].
 %     alpha                - CellArray. Each cell indicates the layer's 
 %                            opacity level ( 0<=alpha<=1 ). Default = {1}
-%     colorBarLocation     - Char. Specify the location for the colorbars.
+%     cbLocation           - Char. Specify the location for the colorbars.
 %                            Available locations are:
 %                            'best','south','east'. Default = 'best'.
+%                            If the colorbar is not desired (i.e., labels
+%                            set to empty) but you still wish to get the 
+%                            same margins as if there were thecolorbar, you
+%                            can use the following cbLocation values: 
+%                           'void','southvoid','eastvoid'.
 %     fontsize             - 3-element vector specifying the fontsize of:
 %                            [Title, ColorBarLabel, Coordinates]. 
 %                            Default: [12,10,6].
@@ -91,35 +96,11 @@ function slicer(img,varargin)
 %     
 %   See also SLICERCOLLAGE, COLORMAPS
 
-if nargin == 0 %test mode
-    load ./exampleData/data_test;
-    underlay = bg.img;
-    overlay = ol.img;
-    img = {underlay,overlay};
-    %img = {'spmT_0001.nii'};
-%    limits = {[1000 10000], [3.16 5]};
-% %     minClusterSize = {[], 200};
-% %     colormaps = {'gray','hot'};
-%     alpha = {0 1};
-     %Title = 'Test p HC HC';
-%     fontsize.Title = 12; % in points (1 point is 1/72 inches)
-%     resolution = '500';  %pixels/inches
-%     labels = {[],'t-value'};
-%     cbLocation = 'best';
-%     margins = [0 0 0 0]; %left right top bottom
-%     
-%     mount = [3,5];
-%     view = 'ax';
-    
-    %optional
-    % background_suppression = 1;
-end
-
 nLayers = length(img);
 for l = 1:nLayers
     if ischar(img{l})  %in case data is a path to a nifti file
         %store image path
-        img_paths{l} = img{l};
+        imgPaths{l} = img{l};
         hdr = spm_vol(img{l});
         img{l} = spm_read_vols(hdr);       
     end
@@ -159,7 +140,7 @@ legalValues{4} = {@(x) (iscell(x) && length(x) == nLayers),['Colormaps is expect
     'for a list of available colormaps.']};
 legalValues{5} = {@(x) (iscell(x) && length(x) == nLayers),['Alpha is ',...
     'expected to be a cell array whose length equals the number of layers.']};
-legalValues{6} = {'best','south','east'};
+legalValues{6} = {'best','south','east','eastvoid','southvoid','void'};
 legalValues{7} = {@(x) (~ischar(x) && numel(x)==4 && sum(x <= 1) == 4),['Margin is expected ',...
     'to be a 4-element vector: [left right top bottom]. Margins are in percentage (0-1).']};
 legalValues{8} = {@(x) (~ischar(x) && numel(x)==2 && sum(x <= 1) == 2),['InnerMargins is expected ',...
@@ -328,7 +309,7 @@ img = threshold_images(img,limits,minClusterSize,nLayers);
 %empty labels will not have colorbars
 colorbarIndex = find(cellfun(@(x) ~isempty(x),labels));
 colorbarN = length(colorbarIndex);
-if colorbarN == 0
+if colorbarN == 0 && sum(strcmpi(cbLocation,{'eastvoid','southvoid','void'})) == 0
     cbLocation = 'none';
 end
 
@@ -422,7 +403,7 @@ if ~isempty(output)
     if ~noMat
         % Store parameters in a structure  
         opt.nLayers = nLayers;
-        paths = GetFullPath(img_paths);
+        paths = GetFullPath(imgPaths);
         for l = 1:nLayers; opt.(['img',num2str(l)]) = paths{l}; end
         opt.limits = limits;
         opt.minClusterSize = minClusterSize;

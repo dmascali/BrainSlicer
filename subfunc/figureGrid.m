@@ -14,28 +14,27 @@ figureHigh  = mount(1)*delta_y;
 % we need to locate where the colorbar will be so that we can increase
 % margins appropriately
 switch lower(colorbarLocation)
-    case {'best','auto'}
+    case {'best','auto','void'}
         if figureWidth > figureHigh
             colorbarLocation = 'south';
         else
             colorbarLocation = 'east';
         end
-    case {'east'} %do nothing
-    case {'south'} %do nothing
+    case {'east','south','none'} %do nothing
 end
 %increase margins to accomodate colorbars (these are defined in pixels) 
 % and covert margins from percentage to pixel %units
 margins(1) = margins(1)*figureWidth;
 switch lower(colorbarLocation)
-    case {'east'}
+    case {'east','eastvoid'}
         accomodateColorbar = delta_x*0.7; 
         margins(2) = margins(2)*figureWidth + accomodateColorbar;
         margins(4) = margins(4)*figureHigh;
-    case {'south'}
+    case {'south','southvoid'}
         accomodateColorbar = delta_y*0.5; 
         margins(4) = margins(4)*figureHigh + accomodateColorbar;
         margins(2) = margins(2)*figureWidth;
-    otherwise
+    case {'none'}
         margins(2) = margins(2)*figureWidth;
         margins(4) = margins(4)*figureHigh;
 end
