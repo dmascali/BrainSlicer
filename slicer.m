@@ -96,6 +96,13 @@ function slicer(img,varargin)
 %     
 %   See also SLICERCOLLAGE, COLORMAPS
 
+
+funcName = mfilename; %get function name
+if nargin == 0
+    help(funcName)
+    return
+end
+
 nLayers = length(img);
 for l = 1:nLayers
     if ischar(img{l})  %in case data is a path to a nifti file
@@ -182,8 +189,7 @@ legalValues{24} = {@(x) (iscell(x) && length(x) == nLayers),['P-map is ',...
 %TODO allows for empty limits. Check here if there is such instance, in
 %that case guess automatic limits
 
-%get function name
-funcName = mfilename;
+
 fprintf('%s - welcome\n',funcName);
 
 %check if there are 4D volumes
