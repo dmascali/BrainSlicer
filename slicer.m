@@ -8,9 +8,9 @@ function slicer(img,varargin)
 %   file, which stores info related to the printed figure, will be saved too. 
 %
 % Options can be specified using the following parameters (each parameter 
-%  must be followed by its value ie,'param1',value1,'param2',value2. 
-%  NB: when a cell array is required, its length needs to be equal to the
-%  number of layers):
+%   must be followed by its value ie,'param1',value1,'param2',value2. 
+%   NB: when a cell array is required, its length needs to be equal to the
+%   number of layers):
 %   
 %   BASIC:
 %     limits               - CellArray. Each cell is expected to be a 
@@ -96,7 +96,6 @@ function slicer(img,varargin)
 %     
 %   See also SLICERCOLLAGE, COLORMAPS
 
-
 funcName = mfilename; %get function name
 if nargin == 0
     help(funcName)
@@ -135,9 +134,9 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
 legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),['Labels is expected '...
     'to be a cell array whose length equals the number of layers. Empty labels ',...
     'will result in no colorbar.']};
-legalValues{2} = {@(x) (iscell(x) && length(x) == nLayers && sum(cellfun(@numel, x)/nLayers) == 2),...
+legalValues{2} = {@(x) (iscell(x) && length(x) == nLayers && all(cellfun(@(x) (isempty(x) || numel(x) == 2),x))),...
     ['Limits is expected to be a cell array whose length equals the number of layers. ',...
-    'Each cell is expected to be a 2-element vector. Empty vectors are not allowed.']};
+    'Each cell is expected to be either a 2-element vector or an empty vector (automatic limits).']};
 legalValues{3} = {@(x) (iscell(x) && length(x) == nLayers),['MinClusterSize is ',...
     'expected to be a cell array whose length equals the number of layers.']};
 legalValues{4} = {@(x) (iscell(x) && length(x) == nLayers),['Colormaps is expected '...
@@ -186,11 +185,16 @@ legalValues{24} = {@(x) (iscell(x) && length(x) == nLayers),['P-map is ',...
 %TODO add check for consistency between images
 %TODO volume must be positive integer
 
-%TODO allows for empty limits. Check here if there is such instance, in
-%that case guess automatic limits
-
 
 fprintf('%s - welcome\n',funcName);
+
+% Define default values that cannot be assigned by ParseVarargin (e.g.,
+% empty vectors within the cells).
+if any(cellfun(@isempty,limits))
+    indx = find(cellfun(@isempty,limits));
+    autoLimits = cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0);
+    limits{indx} = autoLimits{indx};
+end
 
 %check if there are 4D volumes
 is4D = cellfun(@(x) numel(size(x)) > 3,img,'UniformOutput',1);
@@ -217,7 +221,6 @@ if sum([pmap{:}]) >= 1
        img{indx}(indxMap) = 1 - img{indx}(indxMap);
    end   
 end
-
 
 %check Matlab version, stop if version is older than:
 matlabVersion = version;
@@ -304,7 +307,6 @@ else
     end
 end
 
-
 %zscore images if required
 img = zscore_images(img,zScore,nLayers);
 
@@ -371,7 +373,6 @@ for row = 1:mount(1)
     end
 end
 
-
 for l = 1:colorbarN
     cb = colorbar(h_ax(colorbarIndex(l)),'Location',cbConfig.location,'Position',cbConfig.colorbarPos{l},'Color','w');
     cb.Label.String = labels{colorbarIndex(l)};
@@ -383,7 +384,9 @@ end
 %remove any underscore present in the title
 if ~isempty(Title)
     Title(strfind(Title,'_')) = '';
-    text(firstAxe(1),0,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom','HorizontalAlignment','left','FontSize',fontSize(1),'FontUnits','points','Units','normalized','FontWeight','Bold');
+    text(firstAxe(1),0,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom',...
+        'HorizontalAlignment','left','FontSize',fontSize(1),'FontUnits','points',...
+        'Units','normalized','FontWeight','Bold');
 end
 
 % print figure if an output name is specified
@@ -443,7 +446,6 @@ return
 end
 
 function planeCordSettings = plane_coordinates(coordlocation)
-
 switch lower(coordlocation)
     case {'north','n'}
         planeCordSettings = {0.5,1,'center','top'};
@@ -462,7 +464,6 @@ switch lower(coordlocation)
     case {'southwest','sw'}
         planeCordSettings = {0,0,'left','bottom'};
 end
-
 return
 end
 
@@ -586,7 +587,6 @@ return
 end
 
 function mm = xyz2mm(xyz,mat,view)
-
 voxelSize = [mat(1,1), mat(2,2), mat(3,3)]';
 origin = round(mat(1:3,4)./voxelSize);
 if nargin == 2
@@ -604,6 +604,5 @@ else
             mm = voxelSize(2)*(xyz + origin(2));
     end
 end
-
 return
 end
