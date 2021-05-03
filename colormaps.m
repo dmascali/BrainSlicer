@@ -18,6 +18,12 @@ if nargin == 0 || printMaps% just plot colormaps and return help
     % print help 
     help(mfilename);
     
+    if exist('colormapList.png','file') && ~printMaps
+        figure('MenuBar', 'None','Name','Slicer - Colormap List','NumberTitle','off');
+        imshow('colormapList.png','border','tight');
+        return
+    end
+    
     % prepare figure and find axe locations
     mount = [27,4];
     [hFig,axesPos,~,figPos] = figureGrid(mount,[155,25],[0.01 0.24 0.01 0.01],[0.32 0.005],0,'none',0,1);
@@ -50,7 +56,7 @@ if nargin == 0 || printMaps% just plot colormaps and return help
             countMap = countMap +1;
         end
     end    
-    set(hFig,'Name','Colormap List','NumberTitle','off');
+    set(hFig,'Name','Slicer - Colormap List','NumberTitle','off');
     set(gcf,'Position',figPos);
     if printMaps
         set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
