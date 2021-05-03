@@ -413,9 +413,9 @@ if ~isempty(output)
     %preappend function name
     output = [fp,funcName,'_',nm,ext];
     
-    set(gcf, 'InvertHardcopy', 'off','PaperPositionMode','auto');
+    set(hFig, 'InvertHardcopy', 'off','PaperPositionMode','auto');
     %force again the position
-    set(gcf,'Position',figPos);
+    set(hFig,'Position',figPos);
     if ~ischar(resolution); resolution=num2str(resolution); end
     print([output,'.png'],'-dpng',['-r',resolution])
 
@@ -442,6 +442,7 @@ if ~isempty(output)
         opt.appearance.showCoordinates = showCoordinates;
         opt.appearance.coordinateLocation = coordinateLocation;
         opt.appearance.resolution = resolution;
+        opt.figurePos = figPos;
 
         save([output,'.mat'],'opt');
     end
