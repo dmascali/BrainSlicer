@@ -39,7 +39,10 @@ function slicer(img,varargin)
 %                            temporal volumes, this option allows you to 
 %                            specify which volume needs to be plotted. 
 %                            Default: {1} 
-%     p-map                - CellArray
+%     p-map                - CellArray of boolean values. If you are plotting
+%                            a p-value map use this flag to create a 1-p map,
+%                            so that the image can be thresholded appropriately
+%                            (e.g, [0.95 1]). Default: {false}
 %
 %   MONTAGE:
 %     view                 - Char. Choose between one of the three planes:
@@ -179,7 +182,8 @@ legalValues{23} = {@(x) (iscell(x) && length(x) == nLayers && all(cellfun(@(x) (
     'expected to be a cell array whose length equals the number of layers. For 4-D images, this option ',...
     'allows you to select the temporal volume to be consider. Positive integers are allowed.']};
 legalValues{24} = {@(x) (iscell(x) && length(x) == nLayers),['P-map is ',...
-    'expected to be a cell array whose length equals the number of layers.']};
+    'expected to be a cell array whose length equals the number of layers. If you are plotting ',...
+    'a p-value map this option will create a 1-p map, so that you can threshold it appropriately.']};
 [labels,limits,minClusterSize,colorMaps,alpha,cbLocation,margins,...
     innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,...
     showCoordinates,coordinateLocation,Title,output,fontSize,noMat,...
@@ -187,8 +191,6 @@ legalValues{24} = {@(x) (iscell(x) && length(x) == nLayers),['P-map is ',...
 %--------------------------------------------------------------------------
 
 %TODO add check for consistency between images
-%TODO volume must be positive integer
-
 
 fprintf('%s - welcome\n',funcName);
 
