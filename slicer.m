@@ -17,7 +17,7 @@ function slicer(img,varargin)
 %                            2-element vector indicating minimum and maximum
 %                            values to be displayed for that layer. For 
 %                            empty vectors the min and max value across the
-%                            volume is used (TODO). Default: {[]}.
+%                            volume is used. Default: {[]}.
 %     minClusterSize       - CellArray. Each cell contains the minimum 
 %                            cluster size that is allowed (in voxels) for 
 %                            that layer. Default: {[]}.
@@ -25,7 +25,7 @@ function slicer(img,varargin)
 %                            which can be selected either by its name (char)
 %                            or by its index (scalar). Run 'colormaps' 
 %                            in matalab command window for a list of 
-%                            available colormaps.
+%                            available maps.
 %     labels               - CellArray. Each layer is associated with a
 %                            colorbar, this option allows you to specify
 %                            the label on each colorbar. Empty cell will
@@ -35,7 +35,10 @@ function slicer(img,varargin)
 %     output               - Char. Export the figure as PNG using the 
 %                            specified ouptut name. Without this option,
 %                            no figure will be printed. Default: [].
-%     volume               - CellArray
+%     volume               - CellArray. In case IMG contains multiple
+%                            temporal volumes, this option allows you to 
+%                            specify which volume needs to be plotted. 
+%                            Default: {1} 
 %     p-map                - CellArray
 %
 %   MONTAGE:
@@ -60,7 +63,7 @@ function slicer(img,varargin)
 %                            'best','south','east'. Default = 'best'.
 %                            If the colorbar is not desired (i.e., labels
 %                            set to empty) but you still wish to get the 
-%                            same margins as if there were thecolorbar, you
+%                            same margins as if there were the colorbar, you
 %                            can use the following cbLocation values: 
 %                           'void','southvoid','eastvoid'.
 %     fontsize             - 3-element vector specifying the fontsize of:
@@ -172,8 +175,9 @@ legalValues{20} = {@(x) (~ischar(x) && numel(x)==3 && all(x>0)),['FontSize is ex
         'to be a 3-element vector: [Title ColorbarLabel Coordinate]. Default is [12 10 6].']};
 legalValues{21} = [0 1]; %noMat
 legalValues{22} = [0 1]; %Show
-legalValues{23} = {@(x) (iscell(x) && length(x) == nLayers),['Volume is ',...
-    'expected to be a cell array whose length equals the number of layers.']};
+legalValues{23} = {@(x) (iscell(x) && length(x) == nLayers && all(cellfun(@(x) (mod(x,1)==0 && x > 0),x)) ),['Volume is ',...
+    'expected to be a cell array whose length equals the number of layers. For 4-D images, this option ',...
+    'allows you to select the temporal volume to be consider. Positive integers are allowed.']};
 legalValues{24} = {@(x) (iscell(x) && length(x) == nLayers),['P-map is ',...
     'expected to be a cell array whose length equals the number of layers.']};
 [labels,limits,minClusterSize,colorMaps,alpha,cbLocation,margins,...
@@ -368,7 +372,9 @@ for row = 1:mount(1)
             firstAxe = h_ax;
         end
         if showCoordinates
-            text(planeCord{1},planeCord{2},num2str(coordinates(count)),'Color',colorSet.fonts,'verticalAlignment',planeCord{4},'HorizontalAlignment',planeCord{3},'FontSize',fontSize(3),'FontUnits','points','Units','normalized','FontWeight','normal');
+            text(planeCord{1},planeCord{2},num2str(coordinates(count)),'Color',colorSet.fonts,...
+                'verticalAlignment',planeCord{4},'HorizontalAlignment',planeCord{3},...
+                'FontSize',fontSize(3),'FontUnits','points','Units','normalized','FontWeight','normal');
         end
     end
 end
