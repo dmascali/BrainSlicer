@@ -52,26 +52,53 @@ fprintf('%s - dime  = %d\n',funcName,dim);
 fprintf(['%s - order = ',repmat('%d ', 1, length(order)),'\n'],funcName,order);
 fprintf('%s - concatenating images:\n',funcName);
 
+count = 1;
+img = cell(length(order),1);
+sizeImg = nan(length(order),2);
+for l = order
+    img{count} = imread(list(l).name); 
+    s = size(img{count});
+    sizeImg(count,:) = [s(1) s(2)];   
+    count = count +1;
+end
+commonSize = min(sizeImg);
+
 IMG = [];
 count = 1;
 for l = order
-   img = imread(list(l).name); 
    fprintf('-> %d(%d) %s\n',count,l,list(l).name);
    if l > 1 %check size consistency
-      if any(size(img)~= s1)
-          %let's see if it is just one voxel. Sometimes this happens.
-          if sum((size(img) - s1)) <=2
-              img = img(1:s1(1),1:s1(2),:);
-              fprintf('One voxel mismatch found, the image has been cropped.');
-          else
+      if any(size(img{count})~= s1)
+          if abs(sum((size(img{count}) - s1))) > 2
             error('Images must have equal size.');
           end
       end
    end
-   IMG = cat(dim,IMG,img);
+   IMG = cat(dim,IMG,img{count}(1:commonSize(1),1:commonSize(2),:));
    count = count +1;
 end
 imwrite(IMG,[output,'.png']);
+
+% IMG = [];
+% count = 1;
+% for l = order
+%    img = imread(list(l).name); 
+%    fprintf('-> %d(%d) %s\n',count,l,list(l).name);
+%    if l > 1 %check size consistency
+%       if any(size(img)~= s1)
+%           %let's see if it is just one voxel. Sometimes this happens.
+%           if sum((size(img) - s1)) <=2
+%               img = img(1:s1(1),1:s1(2),:);
+%               fprintf('One voxel mismatch found, the image has been cropped.');
+%           else
+%             error('Images must have equal size.');
+%           end
+%       end
+%    end
+%    IMG = cat(dim,IMG,img);
+%    count = count +1;
+% end
+% imwrite(IMG,[output,'.png']);
 
 if showFigure
     figure('Name','SlicerCollage','MenuBar', 'None');
