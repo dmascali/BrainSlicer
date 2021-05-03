@@ -59,7 +59,13 @@ for l = order
    fprintf('-> %d(%d) %s\n',count,l,list(l).name);
    if l > 1 %check size consistency
       if any(size(img)~= s1)
-          error('Images must have equal size.');
+          %let's see if it is just one voxel. Sometimes this happens.
+          if sum((size(img) - s1)) <=2
+              img = img(1:s1(1),1:s1(2),:);
+              fprintf('One voxel mismatch found, the image has been cropped.');
+          else
+            error('Images must have equal size.');
+          end
       end
    end
    IMG = cat(dim,IMG,img);
