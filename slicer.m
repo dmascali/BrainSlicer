@@ -323,6 +323,10 @@ img = threshold_images(img,limits,minClusterSize,nLayers);
 %empty labels will not have colorbars
 colorbarIndex = find(cellfun(@(x) ~isempty(x),labels));
 colorbarN = length(colorbarIndex);
+if sum(strcmpi(cbLocation,{'eastvoid','southvoid','void'})) > 0
+    % override any indication in labels by forcing colobarN to be zero
+    colorbarN = 0;
+end
 if colorbarN == 0 && sum(strcmpi(cbLocation,{'eastvoid','southvoid','void'})) == 0
     cbLocation = 'none';
 end
