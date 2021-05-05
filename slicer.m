@@ -396,6 +396,9 @@ end
 %remove any underscore present in the title
 if ~isempty(Title)
     Title(strfind(Title,'_')) = '';
+    %force again figure position. Sometimes pos changes and title is
+    %missplaced.
+    set(hFig,'Position',figPos);
     text(firstAxe(1),0,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom',...
         'HorizontalAlignment','left','FontSize',fontSize(1),'FontUnits','points',...
         'Units','normalized','FontWeight','Bold');
