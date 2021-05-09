@@ -6,7 +6,7 @@ function slicerCollage(varargin)
 %   concatenation. The collage is saved in the current folder as
 %   "slicerCollage.png" (a mat file with slicer info is saved as well).
 %
-%  The default beaviour can be modified using the following parameters 
+%  The default behaviour can be modified using the following parameters 
 %   (each parameter must be followed by its value ie, 'param1',value1, 
 %   'param2',value2):  
 %
@@ -17,7 +17,7 @@ function slicerCollage(varargin)
 %    output        - Output name. Default: 'slicerCollage'. 
 %    folder        - The path (relative or absolute) of the folder 
 %                    containing slicer images. Default: './' (i.e., the 
-%                    folder).
+%                    current folder).
 %    wildcard      - Char expression for matching slicer images (e.g.,:
 %                    'slicer_BOLD*.png'). Default: 'slicer_*.png'. 
 %    show          - Show combined image. Default: true. 
