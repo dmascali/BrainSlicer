@@ -54,16 +54,23 @@ fprintf('%s - welcome\n',funcName);
 if folder(end) ~= '/'; folder(end+1) = '/'; end
 pattern = [folder,wildcard];
 fprintf('%s - looking for images using the pattern:\n',funcName);
-fprintf('%s \n',pattern);
+fprintf('-> %s\n',pattern);
 list = dir(pattern);
+nImg = length(list);
 if isempty(list)
     disp('No slicer png found.');
     return
+elseif nImg == 1
+    disp('Only one image was found, not enough to create a collage.');
+    return
 end
-nImg = length(list);
 
 if isempty(order)
     order = 1:nImg;
+end
+
+if max(order) > nImg
+    error('Values in "order" exceed the number of images.');
 end
    
 if isempty(dim)
