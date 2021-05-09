@@ -30,19 +30,18 @@ function slicerCollage(varargin)
 % danielemascali@gmail.com
 
 % TODO:
-% change showfigure to show
 % concatenate opt variable if mat files are present
 
 %--------------VARARGIN----------------------------------------------------
-params  =  {'order','dim',       'output','showFigure','folder','wildcard'};
-defParms = {     [],   [],'slicerCollage',           1,    './','slicer_*.png'};
+params  =  {'order','dim',       'output','show','folder','wildcard'};
+defParms = {     [],   [],'slicerCollage',     1,    './','slicer_*.png'};
 legalValues{1} = [];
 legalValues{2} = [1,2];
 legalValues{3} = [];
 legalValues{4} = [0,1];
 legalValues{5} = [];
 legalValues{6} = [];
-[order,dim,output,showFigure,folder,...,
+[order,dim,output,show,folder,...,
     wildcard] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
  
@@ -110,7 +109,7 @@ for l = order
 end
 imwrite(IMG,[output,'.png']);
 
-if showFigure
+if show
     figure('Name','SlicerCollage','MenuBar', 'None');
     warning off
     imshow(IMG,'border','tight');
