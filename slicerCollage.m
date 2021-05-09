@@ -73,7 +73,7 @@ if max(order) > nImg
 end
    
 if isempty(dim)
-    img = imread(list(order(1)).name);
+    img = imread([folder,list(order(1)).name]);
     s1 = size(img); [~,dim] = min(s1(1:2));    
 end
   
@@ -86,7 +86,7 @@ count = 1;
 img = cell(length(order),1);
 sizeImg = nan(length(order),2);
 for l = order
-    img{count} = imread(list(l).name); 
+    img{count} = imread([folder,list(l).name]); 
     s = size(img{count});
     sizeImg(count,:) = [s(1) s(2)];   
     count = count +1;
