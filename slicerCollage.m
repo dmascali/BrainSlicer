@@ -1,15 +1,40 @@
 function slicerCollage(list,varargin)
+%SLICERCOLLAGE Combine multiple slicer's images into a single image.
+%  SLICERCOLLAGE() searches into the current folder for any slicer's image
+%   and concatenate them along the longest dimension. To be concatenated
+%   images must have the same number of pixels in the dimension used for
+%   concatenation. The collage is saved in the current folder as
+%   "slicerCollage.png".
+%
+%  The default beaviour can be modified using the following parameters 
+%   (each parameter must be followed by its value ie, 'param1',value1, 
+%   'param2',value2):  
+%
+%   COLORMAP('default') sets the current figure's colormap to
+%   the root's default, whose setting is PARULA.
+%
+%   See also SLICER, COLORMAPS
+
+%__________________________________________________________________________
+% Daniele Mascali
+% ITAB, UDA, Chieti - 2021
+% danielemascali@gmail.com
+
+% TODO:
+% change showfigure to show
+% concatenate opt variable if mat files are present
 
 if nargin == 0
     %if no input is provided. Try to guess every parameter. Look for slicer
     %images in the current folder. 
     list = dir('slicer_*.png');
     if isempty(list)
-        disp('No slicer png found.');
+        disp('No slicer images found.');
+        return
     end
     nImg = length(list);
     order = 1:nImg;
-    %determin the dimenion to concatenate.
+    %determin the dimenion along which to concatenate images
     %todo check dim compatibility
     img = imread(list(1).name);
     s1 = size(img); [~,dim] = min(s1(1:2));
@@ -35,6 +60,7 @@ if isempty(list)
     list = dir('slicer_*.png');
     if isempty(list)
         disp('No slicer png found.');
+        return
     end
 end
 nImg = length(list);
