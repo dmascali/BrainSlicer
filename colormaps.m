@@ -1,5 +1,20 @@
 function map = colormaps(arg,varargin)
-% help to be defined
+%COLORMAPS View or get Slicer's colormaps.
+%  COLORMAPS() shows the available colormaps, which include FSL colormaps
+%   (including the isoluminant Brain Colours maps) and the built-in Matlab's 
+%   colormaps. Each map is associated with a unique name and integer.  
+%  COLORMAPS(ARG) returns the selected colormap in matrix form (N-by-3)
+%   that can be fed to matlab's colormap function to modify the axes/figure
+%   map. ARG can be either a char/string or a positive integer, so that the 
+%   maps can be selected either by name or by number.
+%
+%   See also SLICER, SLICERCOLLAGE
+
+%__________________________________________________________________________
+% Daniele Mascali
+% ITAB, UDA, Chieti - 2021
+% danielemascali@gmail.com
+
 try 
     [p,~,~] = fileparts(which(mfilename));
     load([p,'/subfunc/cmaps.mat']);
