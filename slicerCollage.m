@@ -4,7 +4,7 @@ function slicerCollage(varargin)
 %   and concatenate them along the longest dimension. To be concatenated
 %   images must have the same number of pixels in the dimension used for
 %   concatenation. The collage is saved in the current folder as
-%   "slicerCollage.png".
+%   "slicerCollage.png" (a mat file with slicer info is saved as well).
 %
 %  The default beaviour can be modified using the following parameters 
 %   (each parameter must be followed by its value ie, 'param1',value1, 
@@ -28,9 +28,6 @@ function slicerCollage(varargin)
 % Daniele Mascali
 % ITAB, UDA, Chieti - 2021
 % danielemascali@gmail.com
-
-% TODO:
-% concatenate opt variable if mat files are present
 
 %--------------VARARGIN----------------------------------------------------
 params  =  {'order','dim',       'output','show','folder','wildcard'};
@@ -85,8 +82,12 @@ fprintf('%s - concatenating images:\n',funcName);
 count = 1;
 img = cell(length(order),1);
 sizeImg = nan(length(order),2);
+MAT = [];
 for l = order
     img{count} = imread([folder,list(l).name]); 
+    if exist([folder,list(l).name(1:end-3),'mat'],'file')
+        MAT = [MAT;load([folder,list(l).name(1:end-3),'mat'])];
+    end
     s = size(img{count});
     sizeImg(count,:) = [s(1) s(2)];   
     count = count +1;
@@ -108,6 +109,11 @@ for l = order
    count = count +1;
 end
 imwrite(IMG,[output,'.png']);
+%save also opt if present
+if ~isempty(MAT)
+    opt = [MAT.opt];
+    save([output,'.mat'],'opt');
+end
 
 if show
     figure('Name','SlicerCollage','MenuBar', 'None');
