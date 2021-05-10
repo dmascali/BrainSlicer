@@ -171,7 +171,7 @@ legalValues{14} ={@(x) (~ischar(x) && numel(x)==2),['Skip is expected to be a ',
 legalValues{15} = {'k','black','w','white'};
 legalValues{16} = [0 1]; %showCoordinates
 legalValues{17} = {'north','south','east','west','northeast','northwest',...
-    'southeast','southwest','ne','nw','se','sw'};
+    'southeast','southwest','n','s','e','o','ne','nw','se','sw'};
 legalValues{18} = []; %title
 legalValues{19} = []; %output
 legalValues{20} = {@(x) (~ischar(x) && numel(x)==3 && all(x>0)),['FontSize is expected ',...
