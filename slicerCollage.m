@@ -111,7 +111,7 @@ end
 imwrite(IMG,[output,'.png']);
 %save also opt if present
 if ~isempty(MAT)
-    opt = [MAT.opt];
+    opt = {MAT.opt};
     save([output,'.mat'],'opt');
 end
 
