@@ -210,8 +210,8 @@ if any(is4D)
     if sum([volume{:}])/nLayers > 1
         for l = 1:length(indx)
             %TODO: add error checking
-            img{indx} = img{indx}(:,:,:,volume{indx});
-            fprintf('%s - selecting volume %d for layer %d\n',funcName,volume{indx},indx);
+            img{indx(l)} = img{indx(l)}(:,:,:,volume{indx(l)});
+            fprintf('%s - selecting volume %d for layer %d\n',funcName,volume{indx(l)},indx(l));
         end
     else
         frpintf([repmat(' ',length([funcName,' - '])),'use ''volume'' to select volumes\n']); 
