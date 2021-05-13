@@ -392,6 +392,27 @@ for l = 1:colorbarN
     cb.Label.FontSize = fontSize(2);
     cb.Label.Color = colorSet.fonts;
     cb.Color = colorSet.fonts;
+    ticksMode = 'mix';
+    switch ticksMode 
+        case 'matlab'
+            % do nothing
+        case  2
+            set(cb,'Ticks',cb.Limits);
+        case 'mix'
+            limitsIncluded = ismember(cb.Limits,cb.Ticks);
+            a = cb.Limits; b = cb.Ticks; delta = mean(diff(b));
+            if limitsIncluded(2); a(2) = []; end 
+            if limitsIncluded(1); a(1) = []; end
+            b = sort([a, b]);
+            %exclude ticks if to close to each others
+            if abs(b(end) - b(end-1)) <= 0.5*delta
+                b(end-1) = [];
+            end
+            if abs(b(2)-b(1)) <= 0.5*delta
+                b(2) = [];
+            end
+            set(cb, 'Ticks', b)
+    end
 end
 
 %remove any underscore present in the title
