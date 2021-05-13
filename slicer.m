@@ -77,7 +77,9 @@ function slicer(img,varargin)
 %                            percentage (0-1). Defalut = [0 0 0 0].
 %     innerMargins         - 2-element vector specifying the space between
 %                            slices: [x y].  InnerMargins are in 
-%                            percentage (0-1). Defalut = [0 0].
+%                            percentage (0-1) and can also be negative in
+%                            case you wish to crop the images (useful with
+%                            large bounding boxes). Defalut = [0 0].
 %     colorMode            - Char. Two colorMode are available: 'black' (or
 %                            'k') for a dark mode in which the background is
 %                            black, or a 'white' (or 'w') for a light mode
@@ -199,7 +201,7 @@ fprintf('%s - welcome\n',funcName);
 if any(cellfun(@isempty,limits))
     indx = find(cellfun(@isempty,limits));
     autoLimits = cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0);
-    limits{indx} = autoLimits{indx};
+    limits(indx) = autoLimits(indx);
 end
 
 %check if there are 4D volumes
@@ -392,7 +394,7 @@ for l = 1:colorbarN
     cb.Label.FontSize = fontSize(2);
     cb.Label.Color = colorSet.fonts;
     cb.Color = colorSet.fonts;
-    ticksMode = 'mix';
+    ticksMode = 'manual';
     switch ticksMode 
         case 'matlab'
             % do nothing
@@ -404,7 +406,7 @@ for l = 1:colorbarN
             if limitsIncluded(2); a(2) = []; end 
             if limitsIncluded(1); a(1) = []; end
             b = sort([a, b]);
-            %exclude ticks if to close to each others
+            %exclude ticks if too close to each others
             if abs(b(end) - b(end-1)) <= 0.5*delta
                 b(end-1) = [];
             end
@@ -412,6 +414,13 @@ for l = 1:colorbarN
                 b(2) = [];
             end
             set(cb, 'Ticks', b)
+        case 'manual'
+            nTicks = length(cb.Ticks);
+            Ticks = linspace(cb.Limits(1),cb.Limits(2),nTicks);
+            Ticks(2:end-1) = round(Ticks(2:end-1),2,'significant');
+            set(cb,'Ticks',Ticks);
+%             TickLabels = arrayfun(@(x) sprintf('%1g',x),Ticks,'un',0);
+%             set(cb,'TickLabels',TickLabels);
     end
 end
 
