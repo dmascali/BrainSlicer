@@ -100,7 +100,7 @@ for l = order
    fprintf('-> %d(%d) %s\n',count,l,list(l).name);
    if l > 1 %check size consistency
       if any(size(img{count})~= s1)
-          if abs(sum((size(img{count}) - s1))) > 2
+          if abs(sum((size(img{count}) - s1))) > 3
             error('Images must have equal size.');
           end
       end
