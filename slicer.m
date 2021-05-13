@@ -228,7 +228,7 @@ if sum([pmap{:}]) >= 1
    end   
 end
 
-%check Matlab version, stop if version is older than:
+%check Matlab version, stop if version is older than TODO:
 matlabVersion = version;
 matlabVersion = str2num(matlabVersion(1:3));
 
@@ -319,7 +319,7 @@ img = zscore_images(img,zScore,nLayers);
 %threshold images
 img = threshold_images(img,limits,minClusterSize,nLayers);
 
-%determin the number of colorbars based on variable labels. Layers with
+%determin the number of colorbars based on labels. Layers with
 %empty labels will not have colorbars
 colorbarIndex = find(cellfun(@(x) ~isempty(x),labels));
 colorbarN = length(colorbarIndex);
@@ -351,6 +351,7 @@ else
     titleInPixels = [];
 end
 
+% define figure position, each axe position and colorbars
 [hFig,pos,cbConfig,figPos] = figureGrid(mount,sliceDim,margins,innerMargins,colorbarN,cbLocation,titleInPixels,show); %left right top bottom %x,y
 
 set(hFig,'color',colorSet.background);
@@ -398,7 +399,7 @@ if ~isempty(Title)
     Title(strfind(Title,'_')) = '';
     %force again figure position. Sometimes pos changes and title is
     %missplaced.
-    set(hFig,'Position',figPos);
+    set(hFig,'Position',figPos); pause(0.02); %the pause seems to be required on some systems to give time to Java to update 
     text(firstAxe(1),0,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom',...
         'HorizontalAlignment','left','FontSize',fontSize(1),'FontUnits','points',...
         'Units','normalized','FontWeight','Bold');
@@ -420,7 +421,7 @@ if ~isempty(output)
     
     set(hFig, 'InvertHardcopy', 'off','PaperPositionMode','auto');
     %force again the position
-    set(hFig,'Position',figPos);
+    set(hFig,'Position',figPos); pause(0.02);
     if ~ischar(resolution); resolution=num2str(resolution); end
     print([output,'.png'],'-dpng',['-r',resolution])
 
@@ -512,10 +513,10 @@ for l = 1:nLayers
     low = limits{l}(1);
     up  = limits{l}(2);
     %there are three limits cases:
-    % 1) + + -> threshold on min saturate on max
-    % 2) - - -> threshold on max saturate on min
-    % 3) - + -> threshold on min saturate on max (arbitrary choice. We might deal with the
-    %        opposite case in the future)
+    % 1) + + -> threshold on min, saturate on max
+    % 2) - - -> threshold on max, saturate on min
+    % 3) - + -> threshold on min, saturate on max (arbitrary choice. We might deal with the
+    %           opposite case in the future)
     if all(limits{l}>=0) %case 1 
         img{l}(img{l} <= low) = NaN;
     elseif all(limits{l}<=0)  %case 2
