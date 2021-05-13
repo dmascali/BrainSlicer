@@ -113,7 +113,7 @@ for l = 1:nLayers
     if ischar(img{l})  %in case data is a path to a nifti file
         %store image path
         imgPaths{l} = img{l};
-        hdr = spm_vol(img{l});
+        [~,hdr] = evalc('spm_vol(img{l});'); % to avoid an annoying messange in case of .gz
         img{l} = spm_read_vols(hdr);       
     end
 end
