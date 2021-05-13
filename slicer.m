@@ -206,7 +206,7 @@ end
 is4D = cellfun(@(x) numel(size(x)) > 3,img,'UniformOutput',1);
 if any(is4D)
     indx = find(is4D);
-    fprintf('%s - warning: layer(s) %d has(have) multiple volumes\n',funcName,indx);
+    fprintf('%s - warning: layer(s) %d has(have) multiple volumes\n',funcName,length(indx));
     if sum([volume{:}])/nLayers > 1
         for l = 1:length(indx)
             %TODO: add error checking
