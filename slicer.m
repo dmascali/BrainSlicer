@@ -1,7 +1,7 @@
 function slicer(img,varargin)
 % SLICER Visualize and print volumetric brain data. 
 %   SLICER(IMG) shows a bunch of slices from IMG. IMG is expected to be a 
-%   cell array containing either paths to NIfTI volumes or 3D matrices (TODO). 
+%   cell array containing either paths to NIfTI volumes or 3D matrices. 
 %   Each cell in IMG represents a layer, each layer is plotted on top of 
 %   previous layers.
 %   To print the figure as PNG use the "output" option (see below). A mat
@@ -365,7 +365,7 @@ if showCoordinates
         fprintf('%s - coordinates are in mm\n',mfilename);
     else
         coordinates = planes;
-        fprintf('%s - coordinates are in voxels\n',mfilename);
+        fprintf('%s - coordinates are in voxel units\n',mfilename);
     end
 end
 
@@ -458,8 +458,10 @@ if ~isempty(output)
     if ~noMat
         % Store parameters in a structure  
         opt.nLayers = nLayers;
-        paths = GetFullPath(imgPaths);
-        for l = 1:nLayers; opt.(['img',num2str(l)]) = paths{l}; end
+        if exist('imgPaths','var')
+            paths = GetFullPath(imgPaths);
+            for l = 1:nLayers; opt.(['img',num2str(l)]) = paths{l}; end
+        end
         opt.limits = limits;
         opt.minClusterSize = minClusterSize;
         opt.colorMaps = colorMapsInput;
