@@ -118,7 +118,18 @@ for l = 1:nLayers
         [~,hdr] = evalc('spm_vol(img{l});'); % to avoid an annoying messange in case of .gz
         img{l} = spm_read_vols(hdr);       
     end
+    %check consistency between images
+    if l == 1 
+        s = size(img{l});
+        if numel(s) < 3; error('Bad defined IMG: 3D or 4D images are required.'); end
+    end
+    if l > 1
+        if any(~logical(size(img{l}) == s(1:3)));
+            error('Image size mismatch for layer %d.',l);
+        end
+    end 
 end
+
 layerStrings = cellstr(num2str([1:nLayers]')); %this is used to construct default parameters
 colorbarDefaultList = {1,2,3,4,5};
 
@@ -191,8 +202,6 @@ legalValues{24} = {@(x) (iscell(x) && length(x) == nLayers),['P-map is ',...
     showCoordinates,coordinateLocation,Title,output,fontSize,noMat,...
     show,volume,pmap] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
-
-%TODO add check for consistency between images
 
 fprintf('%s - welcome\n',funcName);
 
