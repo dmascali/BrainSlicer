@@ -124,7 +124,7 @@ for l = 1:nLayers
         if numel(s) < 3; error('Bad defined IMG: 3D or 4D images are required.'); end
     end
     if l > 1
-        if any(~logical(size(img{l}) == s(1:3)));
+        if any(~logical(size(img{l},1:3) == s(1:3)))
             error('Image size mismatch for layer %d.',l);
         end
     end 
