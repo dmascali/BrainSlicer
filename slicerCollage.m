@@ -73,6 +73,13 @@ if isempty(dim)
     img = imread([folder,list(order(1)).name]);
     s1 = size(img); [~,dim] = min(s1(1:2));    
 end
+switch dim
+   % notDim is the dimension that has to have the same number of pixels across
+   % images
+   case 1; notDim = 2; 
+   case 2; notDim = 1; 
+end
+
   
 fprintf('%s - dime  = %d\n',funcName,dim);
 fprintf(['%s - order = ',repmat('%d ', 1, length(order)),'\n'],funcName,order);
@@ -99,13 +106,16 @@ count = 1;
 for l = order
    fprintf('-> %d(%d) %s\n',count,l,list(l).name);
    if l > 1 %check size consistency
-      if any(size(img{count})~= s1)
-          if abs(sum((size(img{count}) - s1))) > 3
+      if size(img{count},notDim)~= s1(notDim)
+          if abs(size(img{count},notDim) - s1(notDim)) > 3
             error('Images must have equal size.');
           end
       end
    end
-   IMG = cat(dim,IMG,img{count}(1:commonSize(1),1:commonSize(2),:));
+   switch dim
+       case 2; IMG = cat(dim,IMG,img{count}(1:commonSize(1),1:end,:)); 
+       case 1; IMG = cat(dim,IMG,img{count}(1:end,1:commonSize(2),:)); 
+   end
    count = count +1;
 end
 imwrite(IMG,[output,'.png']);
