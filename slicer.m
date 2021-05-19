@@ -87,6 +87,12 @@ function slicer(img,varargin)
 %                            'black'.
 %     resolution           - Scalar/char indicating the PNG resolution.
 %                            Default: 300. 
+%     size                 - Char. Define the size of the printed figure 
+%                            by specifing either the figure hight or
+%                            the figure width in mm. You cannot specify both
+%                            since the aspect ratio is dictated by the
+%                            number of slices. E.g.: 'w170' or 'h30' (i.e.,
+%                            width of 170 mm or hight of 30 mm).
 %     showCoordinates      - Boolean. Show plane coordinates. Default:
 %                            True.
 %     coordinateLocation   - Char. Location of plane coordinates. Available
@@ -124,7 +130,8 @@ for l = 1:nLayers
         if numel(s) < 3; error('Bad defined IMG: 3D or 4D images are required.'); end
     end
     if l > 1
-        if any(~logical(size(img{l},1:3) == s(1:3)))
+        sCurrent = size(img{l}); sCurrent = sCurrent(1:3);
+        if ~isequal(sCurrent,s(1:3)) 
             error('Image size mismatch for layer %d.',l);
         end
     end 
@@ -137,7 +144,7 @@ colorbarDefaultList = {1,2,3,4,5};
 params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation',...
             'margins', 'innerMargins','mount', 'view','resolution','zscore',...
             'slices','skip','colormode','showCoordinates','coordinateLocation',...
-            'title','output','fontsize','noMat','show','volume','p-map'};
+            'title','output','fontsize','noMat','show','volume','p-map','size'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % labels
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % limits: use min and max in each image as limits
             cell(1,nLayers),... % minClusterSize
@@ -149,7 +156,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
             [], [], [12 10 6],..., % title; output; fontsize(title,colorbar,coord),
             0, 1, num2cell(ones(1,nLayers)),...%  noMat, show, volume
-            num2cell(zeros(1,nLayers))}; 
+            num2cell(zeros(1,nLayers)),[]}; % p-map, size
 legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),['Labels is expected '...
     'to be a cell array whose length equals the number of layers. Empty labels ',...
     'will result in no colorbar.']};
@@ -197,10 +204,11 @@ legalValues{23} = {@(x) (iscell(x) && length(x) == nLayers && all(cellfun(@(x) (
 legalValues{24} = {@(x) (iscell(x) && length(x) == nLayers),['P-map is ',...
     'expected to be a cell array whose length equals the number of layers. If you are plotting ',...
     'a p-value map this option will create a 1-p map, so that you can threshold it appropriately.']};
+legalValues{25} = []; %todo check for size
 [labels,limits,minClusterSize,colorMaps,alpha,cbLocation,margins,...
     innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,...
     showCoordinates,coordinateLocation,Title,output,fontSize,noMat,...
-    show,volume,pmap] = ParseVarargin(params,defParms,legalValues,varargin,1);
+    show,volume,pmap,printSize] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 fprintf('%s - welcome\n',funcName);
@@ -458,10 +466,38 @@ if ~isempty(output)
     %preappend function name
     output = [fp,funcName,'_',nm,ext];
     
-    set(hFig, 'InvertHardcopy', 'off','PaperPositionMode','auto');
-    %force again the position
-    set(hFig,'Position',figPos); pause(0.02);
+    % --------------Set the size of the printed image----------------------
+    %determin the aspect ratio
+    aspectRatio = figPos(3)/figPos(4);
+    if isempty(printSize)
+        %set default value
+        fixSize = 17;
+        %determin the longest dimension
+        if aspectRatio >= 1
+            printSize = 'w';
+        else
+            printSize = 'h';
+        end
+    else
+        fixSize = str2double(printSize(2:end))/10; %converto to cm 
+    end
+    switch printSize(1)
+        case 'h'; PaperPosition = [0 0 fixSize*aspectRatio fixSize];
+        case 'w'; PaperPosition = [0 0 fixSize fixSize/aspectRatio];
+    end
     if ~ischar(resolution); resolution=num2str(resolution); end
+    set(hFig, 'InvertHardcopy', 'off','PaperPositionMode','auto',...
+        'PaperUnits','centimeters','PaperPosition',PaperPosition);
+    fprintf('%s - printing image:\n',funcName);
+    fprintf('- filename: \t%s\n',[output,'.png']);
+    fprintf('- resolution: \t%s dpi\n',resolution);
+    printSizePixel = round(str2double(resolution)*PaperPosition/2.54);
+    fprintf('- size: \t%.0f x %.0f pixels\n',printSizePixel(3),printSizePixel(4));
+    fprintf('- size: \t%.1f x %.1f cm\n',PaperPosition(3),PaperPosition(4));
+    % ---------------------------------------------------------------------
+    
+    %force again the position and finally print image
+    set(hFig,'Position',figPos); pause(0.02);
     print([output,'.png'],'-dpng',['-r',resolution])
 
     if ~noMat
@@ -488,8 +524,9 @@ if ~isempty(output)
         opt.appearance.colorBarLocation0 = cbLocation;
         opt.appearance.showCoordinates = showCoordinates;
         opt.appearance.coordinateLocation = coordinateLocation;
-        opt.appearance.resolution = resolution;
-        opt.figurePos = figPos;
+        opt.resolution = resolution;
+        opt.sizePixels = [printSizePixel(3),printSizePixel(4)];
+        opt.sizeCm = [PaperPosition(3),PaperPosition(4)];
 
         save([output,'.mat'],'opt');
     end
