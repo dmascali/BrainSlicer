@@ -59,6 +59,8 @@ function slicer(img,varargin)
 %   APPEARANCE:
 %     title                - Char. Show a title on the top-left corner. 
 %                            Default: [].
+%     titleLocation        - Char. Title location. Valid values are:
+%                            'left','center','right'. Default: 'left'                                               
 %     alpha                - CellArray. Each cell indicates the layer's 
 %                            opacity level ( 0<=alpha<=1 ). Default = {1}
 %     cbLocation           - Char. Specify the location for the colorbars.
@@ -144,7 +146,8 @@ colorbarDefaultList = {1,2,3,4,5};
 params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation',...
             'margins', 'innerMargins','mount', 'view','resolution','zscore',...
             'slices','skip','colormode','showCoordinates','coordinateLocation',...
-            'title','output','fontsize','noMat','show','volume','p-map','size'};
+            'title','output','fontsize','noMat','show','volume','p-map','size',...
+            'titleLocation'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % labels
             cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0),... % limits: use min and max in each image as limits
             cell(1,nLayers),... % minClusterSize
@@ -156,7 +159,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
             [], [], [8 6 4],..., % title; output; fontsize(title,colorbar,coord),
             0, 1, num2cell(ones(1,nLayers)),...%  noMat, show, volume
-            num2cell(zeros(1,nLayers)),[]}; % p-map, size
+            num2cell(zeros(1,nLayers)),[],'left'}; % p-map, size, titlelocation
 legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),['Labels is expected '...
     'to be a cell array whose length equals the number of layers. Empty labels ',...
     'will result in no colorbar.']};
@@ -205,10 +208,11 @@ legalValues{24} = {@(x) (iscell(x) && length(x) == nLayers),['P-map is ',...
     'expected to be a cell array whose length equals the number of layers. If you are plotting ',...
     'a p-value map this option will create a 1-p map, so that you can threshold it appropriately.']};
 legalValues{25} = []; %todo check for size
+legalValues{26} = {'left','center','centre','right'}; %titleLocation
 [labels,limits,minClusterSize,colorMaps,alpha,cbLocation,margins,...
     innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,...
     showCoordinates,coordinateLocation,Title,output,fontSize,noMat,...
-    show,volume,pmap,printSize] = ParseVarargin(params,defParms,legalValues,varargin,1);
+    show,volume,pmap,printSize,titleLocation] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
 fprintf('%s - welcome\n',funcName);
@@ -387,6 +391,7 @@ if showCoordinates
 end
 
 count = 0;
+firstRowAxes = cell(mount(2),1);
 for row = 1:mount(1)
     for col = 1:mount(2)
         count = count +1;
@@ -394,8 +399,8 @@ for row = 1:mount(1)
             break
         end
         h_ax = plot_slice(pos{row,col},img,view,planes(count),limits,colorMaps,alpha);
-        if count == 1
-            firstAxe = h_ax;
+        if row == 1
+            firstRowAxes{col} = h_ax;
         end
         if showCoordinates
             text(planeCord{1},planeCord{2},num2str(coordinates(count)),'Color',colorSet.fonts,...
@@ -445,11 +450,30 @@ end
 %remove any underscore present in the title
 if ~isempty(Title)
     Title(strfind(Title,'_')) = '';
+    switch titleLocation
+        case 'left'
+            titleAxe = firstRowAxes{1}(1);
+            titleAlignment = 'left';
+            titleX = 0;
+        case 'right'
+            titleAxe = firstRowAxes{end}(1);
+            titleAlignment = 'right';
+            titleX = 1;
+        case {'center','centre'}
+            middleAxe = max([1,ceil(mount(2)/2)]);
+            titleAxe = firstRowAxes{middleAxe}(1);
+            if rem(mount(2),2) == 0
+                titleX = 1;
+            else
+                titleX = 0.5;
+            end
+            titleAlignment = 'center';
+    end
     %force again figure position. Sometimes pos changes and title is
     %missplaced.
     set(hFig,'Position',figPos); pause(0.02); %the pause seems to be required on some systems to give time to Java to update 
-    text(firstAxe(1),0,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom',...
-        'HorizontalAlignment','left','FontSize',fontSize(1),'FontUnits','points',...
+    text(titleAxe,titleX,1,Title,'Color',colorSet.fonts,'verticalAlignment','bottom',...
+        'HorizontalAlignment',titleAlignment,'FontSize',fontSize(1),'FontUnits','points',...
         'Units','normalized','FontWeight','Bold');
 end
 
