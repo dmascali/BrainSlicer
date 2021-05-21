@@ -154,7 +154,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             [2 6],   'ax', '300',... % mount; view; resolution
             cell(1,nLayers), 'auto', [0.2 0.2],... %zscore; slice; skip
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
-            [], [], [12 10 6],..., % title; output; fontsize(title,colorbar,coord),
+            [], [], [8 6 4],..., % title; output; fontsize(title,colorbar,coord),
             0, 1, num2cell(ones(1,nLayers)),...%  noMat, show, volume
             num2cell(zeros(1,nLayers)),[]}; % p-map, size
 legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),['Labels is expected '...
@@ -409,9 +409,10 @@ for l = 1:colorbarN
     cb = colorbar(h_ax(colorbarIndex(l)),'Location',cbConfig.location,'Position',cbConfig.colorbarPos{l},'Color','w');
     cb.Label.String = labels{colorbarIndex(l)};
     cb.Label.FontSize = fontSize(2);
+    cb.FontSize = fontSize(2);
     cb.Label.Color = colorSet.fonts;
     cb.Color = colorSet.fonts;
-    ticksMode = 'manual';
+    ticksMode = 'matlab';
     switch ticksMode 
         case 'matlab'
             % do nothing
@@ -495,7 +496,7 @@ if ~isempty(output)
     fprintf('- size: \t%.0f x %.0f pixels\n',printSizePixel(3),printSizePixel(4));
     fprintf('- size: \t%.1f x %.1f cm\n',PaperPosition(3),PaperPosition(4));
     % ---------------------------------------------------------------------
-    
+
     %force again the position and finally print image
     set(hFig,'Position',figPos); pause(0.02);
     print([output,'.png'],'-dpng',['-r',resolution])
