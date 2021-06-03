@@ -148,6 +148,7 @@ for l = 1:nLayers
        % decompress image        
         img{l} = zeros(standard.size);
         img{l}(standard.indices) = standard.img;
+        hdr = standard.hdr;
     end
     %check consistency between images
     if l == 1 
