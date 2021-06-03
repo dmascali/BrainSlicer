@@ -118,6 +118,10 @@ if nargin == 0
     return
 end
 
+if ~iscell(img)
+    error(['IMG is expected to be a cell array containing either paths to ',...
+        'NIfTI volumes or 3D matrices']);
+end
 nLayers = length(img);
 for l = 1:nLayers
     if ischar(img{l})  %in case data is a path to a nifti file
