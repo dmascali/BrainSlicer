@@ -129,6 +129,25 @@ for l = 1:nLayers
         imgPaths{l} = img{l};
         [~,hdr] = evalc('spm_vol(img{l});'); % to avoid an annoying messange in case of .gz
         img{l} = spm_read_vols(hdr);       
+    elseif numel(img{l}) == 1
+       % A standard image is required
+       [p,~,~] = fileparts(which(funcName));
+       pathStandard = [p,'/MNI/'];
+       switch img{l}
+           % with skull (cleaned i.e, from outside skull voxels)
+           case 0; load([pathStandard,'MNI152_T1_0.5mm_clean.mat'])
+           case 1; load([pathStandard,'MNI152_T1_1mm_clean.mat'])
+           case 2; load([pathStandard,'MNI152_T1_2mm_clean.mat'])
+            %brain (no skull)
+           case 3; load([pathStandard,'MNI152_T1_0.5mm_brain.mat'])
+           case 4; load([pathStandard,'MNI152_T1_1mm_brain.mat'])
+           case 5; load([pathStandard,'MNI152_T1_2mm_brain.mat'])
+           otherwise
+               error('MNI standard images go from 0 to 5.');
+       end
+       % decompress image        
+        img{l} = zeros(standard.size);
+        img{l}(standard.indices) = standard.img;
     end
     %check consistency between images
     if l == 1 
