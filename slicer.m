@@ -241,14 +241,25 @@ legalValues{26} = {'left','center','centre','right'}; %titleLocation
     show,volume,pmap,printSize,titleLocation] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
-
-
 % Define default values that cannot be assigned by ParseVarargin (e.g.,
 % empty vectors within the cells).
-if any(cellfun(@isempty,limits))
-    indx = find(cellfun(@isempty,limits));
+indx = find(cellfun(@isempty,limits));
+if any(indx)
     autoLimits = cellfun(@(x) [min(x(:)) max(x(:))],img,'UniformOutput',0);
     limits(indx) = autoLimits(indx);
+end
+
+%If we have a constant image, the automatic limit method will result in
+%equal Clim, which will result in an error. Let's handle this case
+indx = find(cellfun(@(x) not(logical(diff(x))),limits));
+for l = indx
+    if limits{l}(1) == 0
+        limits{l}(2) = limits{l}(1) + 1;
+        fprintf('%s - warning: layer %d might be empty\n',funcName,l);
+    else
+        limits{l}(1) = limits{l}(2) - 1;
+        fprintf('%s - warning: layer %d might be constant\n',funcName,l);
+    end
 end
 
 %check if there are 4D volumes
@@ -582,7 +593,7 @@ if ~isempty(output)
         save([output,'.mat'],'opt');
     end
 else
-    fprintf('%s - no figure will be printed. Use ''output'' to save the figure.\n',funcName);
+    fprintf('%s - no figure will be printed. Use ''output'' to save the figure\n',funcName);
 end
 
 fprintf('%s - end\n',funcName);
