@@ -118,6 +118,8 @@ if nargin == 0
     return
 end
 
+fprintf('%s - welcome\n',funcName);
+
 if ~iscell(img)
     error(['IMG is expected to be a cell array containing either paths to ',...
         'NIfTI volumes or 3D matrices']);
@@ -239,7 +241,7 @@ legalValues{26} = {'left','center','centre','right'}; %titleLocation
     show,volume,pmap,printSize,titleLocation] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
-fprintf('%s - welcome\n',funcName);
+
 
 % Define default values that cannot be assigned by ParseVarargin (e.g.,
 % empty vectors within the cells).
