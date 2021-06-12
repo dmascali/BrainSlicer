@@ -4,6 +4,16 @@ function slicer(img,varargin)
 %   cell array containing either paths to NIfTI volumes or 3D matrices. 
 %   Each cell in IMG represents a layer, each layer is plotted on top of 
 %   previous layers.
+%   The following standard MNI images can be handily selected using an
+%   integer inside the cell of IMG (e.g, SLICER({2}) ):
+%       0 -> MNI152_T1_0.5mm
+%       1 -> MNI152_T1_1mm
+%       2 -> MNI152_T1_2mm
+%       MNI only brain:
+%       3 -> MNI152_T1_0.5mm_brain
+%       4 -> MNI152_T1_1mm_brain
+%       5 -> MNI152_T1_2mm_brain  
+%   
 %   To print the figure as PNG use the "output" option (see below). A mat
 %   file, which stores info related to the printed figure, will be saved too. 
 %
@@ -25,7 +35,7 @@ function slicer(img,varargin)
 %                            which can be selected either by its name (char)
 %                            or by its index (scalar). Run 'colormaps' 
 %                            in matalab command window for a list of 
-%                            available maps.
+%                            available color maps.
 %     labels               - CellArray. Each layer is associated with a
 %                            colorbar, this option allows you to specify
 %                            the label on each colorbar. Empty cell will
@@ -47,8 +57,18 @@ function slicer(img,varargin)
 %   MONTAGE:
 %     view                 - Char. Choose between one of the three planes:
 %                            'ax','sag','cor'. Default: 'ax'. 
-%     mount                -
-%     slices               - Char/Vector. 
+%     mount                - 2-element integer vector: [row,col]. Mount
+%                            divides the figure into an row-by-col grid 
+%                            where to plot the slices. If 'slices' (see
+%                            below) is set to 'auto', you can adjust the
+%                            number of slices changing mount. If 'slices'
+%                            is a vector, mount will be automatically
+%                            adjusted to optimally cover all the slices. 
+%     slices               - Char/Vector. If set to 'auto', slicer will
+%                            evenly select the slices to be plotted so to
+%                            cover the grid defined by mount. Alternatively,
+%                            'slices' can be an integer vector that specifies
+%                            the slices to be selected.
 %     skip                 - 2-element vector. When 'slices' is set to 'auto',
 %                            you can specify how many slices to skip from
 %                            the beginning and end of the series. If values
@@ -106,9 +126,7 @@ function slicer(img,varargin)
 %     show                 - Boolean. Show figure. Default: True. 
 %     noMat                - Boolean. Do not output the mat file containing
 %                            info related to the printed figure. Default:
-%                            False.
-%     
-%     
+%                            False.      
 %     
 %   See also SLICERCOLLAGE, COLORMAPS
 
