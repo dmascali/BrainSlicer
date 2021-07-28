@@ -201,7 +201,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             [2 6],   'ax', '300',... % mount; view; resolution
             cell(1,nLayers), 'auto', [0.2 0.2],... %zscore; slice; skip
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
-            [], [], [8 6 4],..., % title; output; fontsize(title,colorbar,coord),
+            [], [], [10 7 6],..., % title; output; fontsize(title,colorbar,coord),
             0, 1, num2cell(ones(1,nLayers)),...%  noMat, show, volume
             num2cell(zeros(1,nLayers)),[],'left'}; % p-map, size, titlelocation
 legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),['Labels is expected '...
