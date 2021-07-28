@@ -203,7 +203,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
             [], [], [10 7 6],..., % title; output; fontsize(title,colorbar,coord),
             0, 1, num2cell(ones(1,nLayers)),...%  noMat, show, volume
-            num2cell(zeros(1,nLayers)),[],'left'}; % p-map, size, titlelocation
+            num2cell(zeros(1,nLayers)), 'w170', 'left'}; % p-map, size, titlelocation
 legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),['Labels is expected '...
     'to be a cell array whose length equals the number of layers. Empty labels ',...
     'will result in no colorbar.']};
@@ -251,8 +251,9 @@ legalValues{23} = {@(x) (iscell(x) && length(x) == nLayers && all(cellfun(@(x) (
 legalValues{24} = {@(x) (iscell(x) && length(x) == nLayers),['P-map is ',...
     'expected to be a cell array whose length equals the number of layers. If you are plotting ',...
     'a p-value map this option will create a 1-p map, so that you can threshold it appropriately.']};
-legalValues{25} = []; %todo check for size
-legalValues{26} = {'left','center','centre','right'}; %titleLocation
+legalValues{25} = {@(x) (ischar(x) && (x(1) == 'w' || x(1) == 'h')), ['Size is expected ',...
+        'to be a char vector indicating the length in cm of one of the two dimensions, e.g.: ''w180'' or ''h70''.']};
+legalValues{26} = {'left','center','centre','right'}; %titleLocation 
 [labels,limits,minClusterSize,colorMaps,alpha,cbLocation,margins,...
     innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,...
     showCoordinates,coordinateLocation,Title,output,fontSize,noMat,...
@@ -764,18 +765,7 @@ return
 end
 
 function PaperPosition = getPaperPostion(printSize,aspectRatio)
-if isempty(printSize)
-    %set default value
-    fixSize = 17;
-    %determin the longest dimension
-    if aspectRatio >= 1
-        printSize = 'w';
-    else
-        printSize = 'h';
-    end
-else
-    fixSize = str2double(printSize(2:end))/10; %converto to cm 
-end
+fixSize = str2double(printSize(2:end))/10; %converto to cm 
 switch printSize(1)
     case 'h'; PaperPosition = [0 0 fixSize*aspectRatio fixSize];
     case 'w'; PaperPosition = [0 0 fixSize fixSize/aspectRatio];
