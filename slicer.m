@@ -409,9 +409,13 @@ if colorbarN == 0 && sum(strcmpi(cbLocation,{'eastvoid','southvoid','void'})) ==
     cbLocation = 'none';
 end
 
+%In case the figure needs to be printed, determine now the final resolution
+%so that the correct number of pixels are reserved for the title
+
+
 if ~isempty(Title)
     %Defines how many pixels the title occupies
-    titleInInches = (fontSize(1)+1) *1/72; %add one points to increase top space and convert points to inches
+    titleInInches = (fontSize(1)) *1/72; %add one points to increase top space and convert points to inches
     % now convert inches to pixels
     %this needs at least matlab 8.6 (R2015b).
     if matlabVersion >= 8.6 && (ispc || ismac)
@@ -424,7 +428,20 @@ if ~isempty(Title)
         % in case of unix or older versions
         ScreenPixelsPerInch = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
     end
-    titleInPixels = titleInInches*ScreenPixelsPerInch;
+    titleInPixels = titleInInches*ScreenPixelsPerInch; 
+    % when the figure is printed to differnt paper dimension the title
+    % reserved space gets messed up. To solve this, we have to create fake
+    % figure just to get the final size proportion. Then, we can correct
+    % the space for the title:
+    if ~isempty(output)
+        [hFig,~,~,figPos] = figureGrid(mount,sliceDim,margins,innerMargins,colorbarN,cbLocation,titleInPixels,show); %left right top bottom %x,y
+        set(hFig,'PaperUnits','centimeters');
+        paperPosition_old = get(hFig,'PaperPosition');
+        PaperPosition = getPaperPostion(printSize,figPos(3)/figPos(4));
+        correctionFactor = paperPosition_old(4)/PaperPosition(4);
+        titleInPixels = titleInInches*ScreenPixelsPerInch * correctionFactor;
+        close(hFig); clear figPos hFig;
+    end
 else
     titleInPixels = [];
 end
@@ -547,23 +564,9 @@ if ~isempty(output)
     output = [fp,funcName,'_',nm,ext];
     
     % --------------Set the size of the printed image----------------------
-    %determin the aspect ratio
-    aspectRatio = figPos(3)/figPos(4);
-    if isempty(printSize)
-        %set default value
-        fixSize = 17;
-        %determin the longest dimension
-        if aspectRatio >= 1
-            printSize = 'w';
-        else
-            printSize = 'h';
-        end
-    else
-        fixSize = str2double(printSize(2:end))/10; %converto to cm 
-    end
-    switch printSize(1)
-        case 'h'; PaperPosition = [0 0 fixSize*aspectRatio fixSize];
-        case 'w'; PaperPosition = [0 0 fixSize fixSize/aspectRatio];
+    if ~exist('PaperPosition','var')
+        %this might be already calculated during the title allocation step
+        PaperPosition = getPaperPostion(printSize,figPos(3)/figPos(4));
     end
     if ~ischar(resolution); resolution=num2str(resolution); end
     set(hFig, 'InvertHardcopy', 'off','PaperPositionMode','auto',...
@@ -757,6 +760,26 @@ AXIS = [1 size(img,2) 1 size(img,1)];
 axis(AXIS);
 
 set(gca,'Visible','off');
+return
+end
+
+function PaperPosition = getPaperPostion(printSize,aspectRatio)
+if isempty(printSize)
+    %set default value
+    fixSize = 17;
+    %determin the longest dimension
+    if aspectRatio >= 1
+        printSize = 'w';
+    else
+        printSize = 'h';
+    end
+else
+    fixSize = str2double(printSize(2:end))/10; %converto to cm 
+end
+switch printSize(1)
+    case 'h'; PaperPosition = [0 0 fixSize*aspectRatio fixSize];
+    case 'w'; PaperPosition = [0 0 fixSize fixSize/aspectRatio];
+end
 return
 end
 
