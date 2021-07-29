@@ -1,5 +1,5 @@
 # Brain Slicer
-Brain Slicer is a MATLAB-based visualization tool for volumetric brain data. Its main puropese is to produce publication-level figure.
+Brain Slicer is a MATLAB-based visualization tool for volumetric brain data. Its main purpose is to produce publication-level figure.
 
 Brain Slicer main functionalities include:
 - possibility of overlaying multiple images with tunable opacity.
@@ -16,4 +16,8 @@ Brain Slicer is composed of three main programs:
 
 ## INSTALLATION
    Brain Slicer needs to be added to the matlab path. 
-   It also requires SPM to be installed. 
+
+## REQUIREMENTS
+Brain Slicer requires:
+- SPM to be installed
+- MATLAB version >= R2014b 
