@@ -418,10 +418,6 @@ if colorbarN == 0 && sum(strcmpi(cbLocation,{'eastvoid','southvoid','void'})) ==
     cbLocation = 'none';
 end
 
-%In case the figure needs to be printed, determine now the final resolution
-%so that the correct number of pixels are reserved for the title
-
-
 if ~isempty(Title)
     %Defines how many pixels the title occupies
     titleInInches = (fontSize(1)) *1/72; %add one points to increase top space and convert points to inches
@@ -438,8 +434,8 @@ if ~isempty(Title)
         ScreenPixelsPerInch = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
     end
     titleInPixels = titleInInches*ScreenPixelsPerInch; 
-    % when the figure is printed to differnt paper dimension the title
-    % reserved space gets messed up. To solve this, we have to create fake
+    % when the figure is printed to differnt paper dimensions the title
+    % reserved space gets messed up. To solve this, we have to create a fake
     % figure just to get the final size proportion. Then, we can correct
     % the space for the title:
     if ~isempty(output)
