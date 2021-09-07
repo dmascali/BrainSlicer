@@ -130,6 +130,13 @@ function slicer(img,varargin)
 %     
 %   See also SLICERCOLLAGE, COLORMAPS
 
+%check Matlab version, stop if version is older than 8.4:
+matlabVersion_str = version;
+matlabVersion = str2num(matlabVersion_str(1:3));
+if matlabVersion < 8.4
+    error('BrainSlicer requires MATLAB >= R2014b (8.4).\nYour running matlab''s version is %s',matlabVersion_str);
+end
+
 funcName = mfilename; %get function name
 if nargin == 0
     help(funcName)
@@ -311,10 +318,6 @@ if sum([pmap{:}]) >= 1
        img{indx}(indxMap) = 1 - img{indx}(indxMap);
    end   
 end
-
-%check Matlab version, stop if version is older than TODO:
-matlabVersion = version;
-matlabVersion = str2num(matlabVersion(1:3));
 
 switch colorMode
     case {'k','black'}
