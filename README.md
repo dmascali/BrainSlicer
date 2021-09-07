@@ -1,5 +1,5 @@
 [![View BrainSlicer on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://it.mathworks.com/matlabcentral/fileexchange/96792-brainslicer)
-# Brain Slicer
+# BrainSlicer
 BrainSlicer is a MATLAB-based visualization tool for volumetric brain data. Its main purpose is to produce publication-level figures.
 
 BrainSlicer main functionalities include:
@@ -15,10 +15,7 @@ BrainSlicer is composed of three main programs:
 - `slicerCollage.m` - combines several images produced by `slicer.m` in a single figure.
 - `colormaps.m` - shows all the available colormaps and their code for ease of selection.   
 
-## INSTALLATION
-   BrainSlicer needs to be added to the matlab path. 
-
 ## REQUIREMENTS
 BrainSlicer requires:
-- SPM to be installed
+- SPM
 - MATLAB version >= R2014b 
