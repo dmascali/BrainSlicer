@@ -136,6 +136,11 @@ if nargin == 0
     return
 end
 
+% add all necessary files to matlab's path:
+slicerfolder = fileparts(which(funcName)); 
+% Add that folder plus all subfolders to the path.
+addpath(genpath(slicerfolder));
+
 fprintf('%s - welcome\n',funcName);
 
 if ~iscell(img)
