@@ -314,8 +314,8 @@ if sum([pmap{:}]) >= 1
    indx = find([pmap{:}]);
    for l = 1:length(indx)
        %find where image is greater than zero
-       indxMap = find(img{indx});
-       img{indx}(indxMap) = 1 - img{indx}(indxMap);
+       indxMap = find(img{indx(l)});
+       img{indx(l)}(indxMap) = 1 - img{indx(l)}(indxMap);
    end   
 end
 
