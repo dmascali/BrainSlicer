@@ -215,7 +215,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
             [], [], [10 7 6],..., % title; output; fontsize(title,colorbar,coord),
             0, 1, num2cell(ones(1,nLayers)),...%  noMat, show, volume
-            num2cell(zeros(1,nLayers)), 'w170', 'left'}; % p-map, size, titlelocation
+            num2cell(zeros(1,nLayers)), 'w170', 'center'}; % p-map, size, titlelocation
 legalValues{1} = {@(x) (iscell(x) && length(x) == nLayers),['Labels is expected '...
     'to be a cell array whose length equals the number of layers. Empty labels ',...
     'will result in no colorbar.']};
