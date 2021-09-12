@@ -12,6 +12,7 @@ close all
 %
 % TODO: 
 % negative values in t-map
+% two colorbars are cropped
 
 
 %% Example 1: standard + one-side t-map
@@ -155,6 +156,21 @@ slicer({2,[data_folder,'p-map.nii'],[data_folder,'atlas_edges_120.nii']},...
 %%
 % We have produced two figures (ecample_3_01.png and example_3_02.png) one
 % for the t map and one for the p map. To concatenate them in a single
-% figure we can call slicerCollage
+% figure we can call slicerCollage. If you call slicerCollage without input
+% arguments, it will try to concatenate any slicer_* figure present in the current
+% folder. However, since we have produced quite a few figures we will call
+% slicerCollage with an option specifying the string pattern of the figures
+% we wish to combine:
 
-slicerCollage
+slicerCollage('wildcard','slicer_example_3_*',...
+              'output','example_3_combined')
+%% The .mat file
+% You might have noticed that each printed figure is accompanied by a
+% slicer*.mat file. The file contains a variable storing all the info
+% necessary to construct the figure, including the path to each image file,
+% limits and minimum cluster sizes. [todo] Such info are particularly usefull many
+% days from now, when you puzzle to rember 
+% Here is an example of a mat file:
+load('slicer_example_3_01.mat')
+opt
+
