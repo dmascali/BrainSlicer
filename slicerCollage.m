@@ -48,6 +48,10 @@ fprintf('%s - welcome\n',funcName);
 
 %get list of slicer images
 if folder(end) ~= '/'; folder(end+1) = '/'; end
+%check if extension is present, otherwise add it:
+if ~strcmpi(wildcard(end-3:end),'.png')
+    wildcard = [wildcard,'.png'];
+end
 pattern = [folder,wildcard];
 fprintf('%s - looking for images using the pattern:\n',funcName);
 fprintf('-> %s\n',pattern);
