@@ -23,7 +23,7 @@ switch lower(colorbarLocation)
     case {'east','south','none'} %do nothing
 end
 %increase margins to accomodate colorbars (these are defined in pixels) 
-% and covert margins from percentage to pixel %units
+% and covert margins from percentage to pixel units
 margins(1) = margins(1)*figureWidth;
 switch lower(colorbarLocation)
     case {'east','eastvoid'}
@@ -92,9 +92,9 @@ switch colorbarLocation
     case {'east'}
         %------------------define fix sizes--------------------------------
         fracOfWidth        = 0.12; %defines cbWidth
-        fracOfHigh_r1      = 0.85; %defines cbHigh in case single row
+        fracOfHigh_r1      = 0.79; %defines cbHigh in case single row
         fracOfHigh_rm      = 0.60; %defines cbHigh in case of multiple rows
-        fracOfSpaceBetween = 0.10; %defines space between colorbars
+        fracOfSpaceBetween = 0.09; %defines space between colorbars
         fracOfDistanceX    = 0.05; %defines X distance from slices
         %------------------------------------------------------------------
         cbWidth = fracOfWidth*delta_x;  
