@@ -64,12 +64,13 @@ dy = delta_y./figureHigh;
 
 %pos = [x,y,deltax,deltay]
 figPos = [100 100 figureWidth figureHigh];
-hFig = figure('Position',figPos,'MenuBar', 'None','visible','off');
+hFig = figure('Position',figPos,'MenuBar', 'None','visible','off','resize','off');
 movegui(hFig,'center');
 %update figPos
 figPos = get(hFig,'Position');
+figPos(3:4) = [figureWidth, figureHigh];
 %make it visible
-set(hFig,'visible',visible);
+set(hFig,'Position',figPos,'visible',visible);
 
 count = 0;
 row_offset = margins(4)./figureHigh;
@@ -94,19 +95,21 @@ switch colorbarLocation
         fracOfWidth        = 0.12; %defines cbWidth
         fracOfHigh_r1      = 0.79; %defines cbHigh in case single row
         fracOfHigh_rm      = 0.60; %defines cbHigh in case of multiple rows
-        fracOfSpaceBetween = 0.09; %defines space between colorbars
+        fracOfSpaceBetween = 0.10; %defines space between colorbars
         fracOfDistanceX    = 0.05; %defines X distance from slices
         %------------------------------------------------------------------
         cbWidth = fracOfWidth*delta_x;  
         if mount(1) == 1 %just one row
             cbHigh = fracOfHigh_r1*delta_y/colorbarN;
+            spaceBetweenBars = fracOfSpaceBetween*delta_y;
         else
             cbHigh = fracOfHigh_rm*figureHighNoMargins/colorbarN;
+            spaceBetweenBars = fracOfSpaceBetween*figureHighNoMargins/colorbarN;
         end
         cbX = (figureWidth - margins(2)) + fracOfDistanceX*delta_x;
         %calculate the total space occupied by the colorbars so that we can
         %center them.
-        spaceBetweenBars = fracOfSpaceBetween*delta_y;
+        %spaceBetweenBars = fracOfSpaceBetween*delta_y;
         cbTotalLength = colorbarN*cbHigh + (colorbarN-1)*spaceBetweenBars;
         discardedSpace = (figureHighNoMargins - cbTotalLength)/2; %this value might be negative, pay attention
         cbYStarts = (margins(4)+discardedSpace):(cbHigh + spaceBetweenBars):figureHighNoMargins;
@@ -117,22 +120,24 @@ switch colorbarLocation
     case {'south'}
         %space_occupied_by_slices_y = figureWidth - (margins(1) + margins(2));
         %------------------define fix sizes--------------------------------
-        fracOfHigh         = 0.12; %defines cbWidth
-        fracOfWidth_r1     = 0.85; %defines cbHigh in case single row
+        fracOfHigh         = 0.096; %defines cbWidth
+        fracOfWidth_r1     = 0.79; %defines cbHigh in case single row
         fracOfWidth_rm     = 0.60; %defines cbHigh in case of multiple rows
         fracOfSpaceBetween = 0.10; %defines space between colorbars
         fracOfDistanceY    = 0.15; %defines Y distance from slices
-        %------------------------------------------------------------------
+        %----------------------------------------------------------------
         cbHigh = fracOfHigh*delta_y;  
         if mount(2) == 1 %just one column
             cbWidth = fracOfWidth_r1*delta_x/colorbarN;
+            spaceBetweenBars = fracOfSpaceBetween*delta_x;
         else
             cbWidth = fracOfWidth_rm*figureWidthNoMargins/colorbarN;
+            spaceBetweenBars = fracOfSpaceBetween*figureWidthNoMargins/colorbarN;
         end
         cbY = margins(4) - fracOfDistanceY*delta_y;
         %calculate the total space occupied by the colorbars so that we can
         %center them.
-        spaceBetweenBars = fracOfSpaceBetween*delta_x;
+        %spaceBetweenBars = fracOfSpaceBetween*delta_x;
         cbTotalLength = colorbarN*cbWidth + (colorbarN-1)*spaceBetweenBars;
         discardedSpace = (figureWidthNoMargins - cbTotalLength)/2; %this value might be negative, pay attention
         cbXStarts = (margins(1)+discardedSpace):(cbWidth + spaceBetweenBars):figureWidthNoMargins;
