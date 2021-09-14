@@ -31,7 +31,7 @@ switch lower(colorbarLocation)
         margins(2) = margins(2)*figureWidth + accomodateColorbar;
         margins(4) = margins(4)*figureHigh;
     case {'south','southvoid'}
-        accomodateColorbar = delta_y*0.4; 
+        accomodateColorbar = delta_y*0.5; 
         margins(4) = margins(4)*figureHigh + accomodateColorbar;
         margins(2) = margins(2)*figureWidth;
     case {'none'}
