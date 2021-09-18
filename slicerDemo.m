@@ -1,6 +1,6 @@
 %% BrainSlicer Demo
 %%
-%  This document will demostrate the major functionalities of slicer and slicerCollage using common usage examples. 
+%  This document demostrates the major functionalities of slicer and slicerCollage using common usage examples. 
 %  Before jumping into the examples, make sure _slicer_ is in your matlab's path. 
 %
 %  Next, we need to retrive the location where example data are stored:
@@ -12,7 +12,6 @@ close all
 %
 % TODO: 
 % negative values in t-map
-% two colorbars are cropped
 
 
 %% Example 1: standard + one-side t-map
@@ -123,7 +122,7 @@ slicer({2,[data_folder,'spmT_0001.nii'], [data_folder,'spmT_0001.nii']},...
 % generated using an atlas (AALv2 - 120 regions). Let's start from the two-side 
 % t-map figure:
 slicer({2,[data_folder,'t-map_1.66.nii'],[data_folder,'t-map_1.66.nii'],[data_folder,'atlas_edges_120.nii']},...
-    'limits',{[],[-4 -1.66],[1.66 4],[0 1]},...
+    'limits',{[],[-4 -1.66],[1.6 4],[0 1]},...
     'minClusterSize',{0,0,0,0},...
     'labels',{[],'T-value','T-value',[]},... % when a layer's label is empty no colorbar will be printed.
     'cbLocation','east',... % colorbar location can be south or east
@@ -150,7 +149,7 @@ slicer({2,[data_folder,'p-map.nii'],[data_folder,'atlas_edges_120.nii']},...
     'title','Just a Random P-map',...
     'titleLocation','center',...
     'mount', [1 8],... % print one row with 8 slices equally spaced
-    'colormaps',{1,3,64},...
+    'colormaps',{1,86,64},...
     'p-map',{0,1,0},... % specify that the 2nd layer is a p-map (slicer will show 1-p)
     'output','example_3_02')
 %%
