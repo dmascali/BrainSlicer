@@ -4,9 +4,11 @@ hdr = spm_vol(atlas);
 img = spm_read_vols(hdr);
 nROIs =length(unique(img(:)))-1;
 
-t = abs(trnd(nu,1,nROIs));
+t = trnd(nu,1,nROIs);
 thr = tinv(1-0.05,nu);
-p = 1-tcdf(t,nu-1);
+p = nan(size(t));
+p(t>=0) = 1-tcdf(t(t>=0),nu-1);
+p(t<0) = tcdf(t(t<0),nu-1);
 
 T = img;
 P = img;
