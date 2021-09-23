@@ -1,4 +1,10 @@
-function drawEdgeAtlas(atlas,goodROIs)
+function drawEdgeAtlas(atlas,goodROIs,output_str)
+
+if nargin < 3
+    output_str = '';
+else
+    output_str = [output_str,'_'];
+end
 
 hdr = spm_vol(atlas);
 img = spm_read_vols(hdr);
@@ -32,8 +38,8 @@ end
 
 
 HDR = hdr;
-HDR.fname = ['atlas_edges_',num2str(nROIs),'.nii'];
-HDR.private.dat.fname = ['atlas_edges_',num2str(nROIs),'.nii'];
+HDR.fname = ['atlas_edges_',output_str,num2str(nROIs),'.nii'];
+HDR.private.dat.fname = ['atlas_edges_',output_str,num2str(nROIs),'.nii'];
 spm_write_vol(HDR,OUT);
 
 
