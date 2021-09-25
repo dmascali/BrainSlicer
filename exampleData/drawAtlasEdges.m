@@ -1,4 +1,26 @@
 function drawAtlasEdges(atlas,varargin)
+%DRAWATLASEDGES Draw edges of an atlas volume.
+%  COLORMAPS(ATLAS) draws the edges of the ATLAS, where ATLAS is the path
+%  to a nifti file. Edges are drawn slice by slice. By default, edges are
+%  extracted for the axial view.
+%
+%  The default behaviour can be modified using the following parameters 
+%   (each parameter must be followed by its value ie, 'param1',value1, 
+%   'param2',value2):  
+%
+%   view        - ['ax','sag',cor'] Select the dimension along which
+%                 computing edges. Default = 'ax'
+%   selector    - If you want to exclude edges belonging to some ROIS you
+%                 can provide a logical vector indicating which edges to
+%                 draw.
+%   output      - output name. Default = 'edges_[view]_[atlas_name]'
+%
+%   See also SLICER, SLICERCOLLAGE
+
+%__________________________________________________________________________
+% Daniele Mascali
+% ITAB, UDA, Chieti - 2021
+% danielemascali@gmail.com
 
 %--------------VARARGIN----------------------------------------------------
 params  =  {'selector', 'output',   'view'};
