@@ -692,7 +692,7 @@ for l = 1:nLayers
     else %case 3
         img{l}(img{l} <= low) = NaN;
     end
-    if not(isempty(minClusterSize{l})) | (minClusterSize{l} > 1)
+    if minClusterSize{l} > 1
         %binarize img
         a = img{l}; a(isnan(a)) = 0; a(a~=0) = 1;
         %find connected clusters
