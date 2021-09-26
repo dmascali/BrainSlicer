@@ -297,15 +297,17 @@ end
 is4D = cellfun(@(x) numel(size(x)) > 3,img,'UniformOutput',1);
 if any(is4D)
     indx = find(is4D);
-    fprintf('%s - warning: layer(s) %d has(have) multiple volumes\n',funcName,length(indx));
+    for l = indx
+        fprintf('%s - warning: layer %d has multiple volumes\n',funcName,l);
+    end
     if sum([volume{:}])/nLayers > 1
-        for l = 1:length(indx)
+        for l = indx
             %TODO: add error checking
-            img{indx(l)} = img{indx(l)}(:,:,:,volume{indx(l)});
-            fprintf('%s - selecting volume %d for layer %d\n',funcName,volume{indx(l)},indx(l));
+            img{l} = img{l}(:,:,:,volume{l});
+            fprintf('%s - selecting volume %d for layer %d\n',funcName,volume{l},l);
         end
     else
-        frpintf([repmat(' ',length([funcName,' - '])),'use ''volume'' to select volumes\n']); 
+        fprintf([repmat(' ',[1,length([funcName,' - '])]),'use ''volume'' to select volumes\n']);
     end
 end
 
