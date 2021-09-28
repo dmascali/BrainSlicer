@@ -286,10 +286,10 @@ indx = find(cellfun(@(x) not(logical(diff(x))),limits));
 for l = indx
     if limits{l}(1) == 0
         limits{l}(2) = limits{l}(1) + 1;
-        fprintf('%s - warning: layer %d might be empty\n',funcName,l);
+        fprintf('%s - WARNING: layer %d might be empty\n',funcName,l);
     else
         limits{l}(1) = limits{l}(2) - 1;
-        fprintf('%s - warning: layer %d might be constant\n',funcName,l);
+        fprintf('%s - WARNING: layer %d might be constant\n',funcName,l);
     end
 end
 
@@ -298,7 +298,7 @@ is4D = cellfun(@(x) numel(size(x)) > 3,img,'UniformOutput',1);
 if any(is4D)
     indx = find(is4D);
     for l = indx
-        fprintf('%s - warning: layer %d has multiple volumes\n',funcName,l);
+        fprintf('%s - WARNING: layer %d has multiple volumes\n',funcName,l);
     end
     if sum([volume{:}])/nLayers > 1
         for l = indx
@@ -378,6 +378,12 @@ if ischar(slices) %it means is auto
         skip = [0 0];
     end
     planes = fix(linspace( 1+(skip(1)) , totalSlices-(skip(2)) ,mount(2)*mount(1)));
+    % handle the case of repeated slices:
+    if any(~(diff(planes)))
+        fprintf('%s - WARNING: not enough slices to cover the mountage (hint: adjust "skip")\n',funcName);
+        indx = [1,find(diff(planes))+1];
+        planes = planes(indx);
+    end
     nPlanes = length(planes);
 else
     skip = [];
