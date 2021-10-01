@@ -1,6 +1,6 @@
 function drawAtlasEdges(atlas,varargin)
 %DRAWATLASEDGES Draw edges of an atlas volume.
-%  COLORMAPS(ATLAS) draws the edges of the ATLAS, where ATLAS is the path
+%  DRAWATLASEDGES(ATLAS) draws the edges of the ATLAS, where ATLAS is the path
 %  to a nifti file. Edges are drawn slice by slice. By default, edges are
 %  extracted for the axial view.
 %
