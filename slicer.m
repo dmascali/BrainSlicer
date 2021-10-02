@@ -214,7 +214,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             'best', [0 0 0 0], [0 0], ... % cbLocation; margins; InnerMargins
             [2 6],   'ax', '300',... % mount; view; resolution
             cell(1,nLayers), 'auto', default_skip,... %zscore; slice; skip
-            'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
+            'k',  1, [],... % colorMode; showCoordinates; coordinateLocation
             [], [], [10 7 6],..., % title; output; fontsize(title,colorbar,coord),
             0, 1, num2cell(ones(1,nLayers)),...%  noMat, show, volume
             num2cell(zeros(1,nLayers)), 'w170', 'center'}; % p-map, size, titlelocation
@@ -359,18 +359,22 @@ img = zscore_images(img,zScore,nLayers);
 %threshold images
 img = threshold_images(img,limits,minClusterSize,nLayers);
 
-%get info specific to the type of view
+%get info specific to the type of view.
+% Set also coordinate locations (if empty)
 s =  size(img{1});
 switch view
     case {'ax'}
         for l = 1:nLayers
             img{l} = flipdim(img{l},2);
         end
+        if isempty(coordinateLocation); coordinateLocation = 'sw'; end       
         sliceDim = [s(1) s(2)];
     case {'sag'} %this might be flipped
         sliceDim = [s(2) s(3)];
+        if isempty(coordinateLocation); coordinateLocation = 'nw'; end    
     case {'cor'} %this might be flipped
         sliceDim = [s(1) s(3)];
+        if isempty(coordinateLocation); coordinateLocation = 'nw'; end    
 end
 
 % if skip is set to a layer, we have to find out the starting and ending
