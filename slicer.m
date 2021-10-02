@@ -69,12 +69,19 @@ function slicer(img,varargin)
 %                            cover the grid defined by mount. Alternatively,
 %                            'slices' can be an integer vector that specifies
 %                            the slices to be selected.
-%     skip                 - 2-element vector. When 'slices' is set to 'auto',
-%                            you can specify how many slices to skip from
-%                            the beginning and end of the series. If values
-%                            are < 1, values are considered as percent
-%                            (i.e, skip as many slices corresponding to the
-%                            percentage value). Default: [0.2 0.2]
+%     skip                 - Char/Vector. When 'slices' is set to 'auto',
+%                            skip specifies how many slices to skip from
+%                            the beginning and end of the volume.
+%                            There are three working modalities:
+%                            - 2-element integer vector: skip the indicated
+%                              number of slices.
+%                            - 2-element vector < 1: values are considered 
+%                              as percent (i.e, skip as many slices 
+%                              corresponding to the percentage values)
+%                            - Char. Skip can be a char vector indicating 
+%                              the layer used to self-center the slices,
+%                              e.g.: '2'. 
+%                            Default: [0.2 0.2]
 %
 %   APPEARANCE:
 %     title                - Char. Show a title on the top-left corner. 
