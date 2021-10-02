@@ -826,7 +826,39 @@ switch view
             end
         end
     case {'sag'}
+         for l = 1:size(img,1)
+            img_tmp = flipdim(flipdim(squeeze(img(l,:,:)),2)',2);
+            notZero = find(~isnan(img_tmp),1);
+            if ~isempty(notZero)
+                bottom = l;
+                break
+            end
+        end
+        for l = size(img,1):-1:1
+            img_tmp = flipdim(flipdim(squeeze(img(l,:,:)),2)',2);
+            notZero = find(~isnan(img_tmp),1);
+            if ~isempty(notZero)
+                top = size(img,1)-l;
+                break
+            end
+        end
     case {'cor'}
+        for l = 1:size(img,2)
+            img_tmp = flipdim(squeeze(img(:,l,:))',1);
+            notZero = find(~isnan(img_tmp),1);
+            if ~isempty(notZero)
+                bottom = l;
+                break
+            end
+        end
+        for l = size(img,2):-1:1
+            img_tmp = flipdim(squeeze(img(:,l,:))',1);
+            notZero = find(~isnan(img_tmp),1);
+            if ~isempty(notZero)
+                top = size(img,2)-l;
+                break
+            end
+        end
 end
 skip = [bottom, top];
 return
