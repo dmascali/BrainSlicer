@@ -138,17 +138,18 @@ if matlabVersion < 8.4
 end
 
 funcName = mfilename; %get function name
-if nargin == 0
-    help(funcName)
-    return
-end
+fprintf('%s - welcome\n',funcName);
 
 % add all necessary files to matlab's path:
 slicerfolder = fileparts(which(funcName)); 
 % Add that folder plus all subfolders to the path.
 addpath(genpath(slicerfolder));
 
-fprintf('%s - welcome\n',funcName);
+
+if nargin == 0
+    help(funcName)
+    return
+end
 
 if ~iscell(img)
     error(['IMG is expected to be a cell array containing either paths to ',...
@@ -197,6 +198,7 @@ end
 
 layerStrings = cellstr(num2str([1:nLayers]')); %this is used to construct default parameters
 colorbarDefaultList = {1,2,3,4,5};
+default_skip = [0.2 0.2];
 
 %--------------VARARGIN----------------------------------------------------
 params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation',...
@@ -211,7 +213,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             num2cell(ones(1,nLayers)),...% alpha lelvel
             'best', [0 0 0 0], [0 0], ... % cbLocation; margins; InnerMargins
             [2 6],   'ax', '300',... % mount; view; resolution
-            cell(1,nLayers), 'auto', [0.2 0.2],... %zscore; slice; skip
+            cell(1,nLayers), 'auto', default_skip,... %zscore; slice; skip
             'k',  1, 'sw',... % colorMode; showCoordinates; coordinateLocation
             [], [], [10 7 6],..., % title; output; fontsize(title,colorbar,coord),
             0, 1, num2cell(ones(1,nLayers)),...%  noMat, show, volume
@@ -245,8 +247,8 @@ legalValues{11} ={@(x) (ischar(x) || numel(x) == 1),['Resolution is expected to 
 legalValues{12} =[]; %zscore
 legalValues{13} ={@(x) ( (ischar(x) && strcmpi(x,'auto')) || (isnumeric(x)) && all(mod(x,1)==0) && all(x>0)),['Slice is expected ',...
     'to be either ''auto'' or an integer vector indicating the slices to be plotted.']}; 
-legalValues{14} ={@(x) (~ischar(x) && numel(x)==2),['Skip is expected to be a ',...
-    'a 2-element vector: [bottom top].']};
+legalValues{14} ={@(x) ( ischar(x) && ismember(str2double(x),1:1:nLayers) || ~ischar(x) && numel(x)==2),['Skip is expected to be a ',...
+    'a 2-element vector: [bottom top]. Alternatively, Skip can be a char vector indicating the layer used to self-center the slices, e.g.: ''2''.']};
 legalValues{15} = {'k','black','w','white'};
 legalValues{16} = [0 1]; %showCoordinates
 legalValues{17} = {'north','south','east','west','northeast','northwest',...
@@ -351,6 +353,12 @@ for l = 1:nLayers
     colorMaps{l} = map;        
 end
 
+%zscore images if required
+img = zscore_images(img,zScore,nLayers);
+
+%threshold images
+img = threshold_images(img,limits,minClusterSize,nLayers);
+
 %get info specific to the type of view
 s =  size(img{1});
 switch view
@@ -364,6 +372,20 @@ switch view
     case {'cor'} %this might be flipped
         sliceDim = [s(1) s(3)];
 end
+
+% if skip is set to a layer, we have to find out the starting and ending
+% of not empty slices:
+if ischar(skip)
+    skipOnLayer = str2double(skip);
+    skip = get_autoSkip_onLayer(img{skipOnLayer},view);
+    %check if nothing was found, in this case throw a warning and restore
+    %default skip values
+    if isempty(skip(1))
+        fprintf('%s - WARNING: self-cetntering slices failed due to empty layer\n',funcName);
+        skip = default_skip;
+    end
+end
+
 if ischar(slices) %it means is auto
     slicesMode = 'auto';
     switch view
@@ -372,6 +394,7 @@ if ischar(slices) %it means is auto
         case 'cor',totalSlices = s(2);
     end
     if ~isempty(skip)
+        % percentage mode:
         if skip(1) < 1; skip(1) = skip(1)*totalSlices; end
         if skip(2) < 1; skip(2) = skip(2)*totalSlices; end
     else
@@ -408,11 +431,7 @@ else
     end
 end
 
-%zscore images if required
-img = zscore_images(img,zScore,nLayers);
 
-%threshold images
-img = threshold_images(img,limits,minClusterSize,nLayers);
 
 %determin the number of colorbars based on labels. Layers with
 %empty labels will not have colorbars
@@ -782,6 +801,34 @@ switch printSize(1)
     case 'h'; PaperPosition = [0 0 fixSize*aspectRatio fixSize];
     case 'w'; PaperPosition = [0 0 fixSize fixSize/aspectRatio];
 end
+return
+end
+
+function skip = get_autoSkip_onLayer(img,view)
+bottom = [];
+top = [];
+switch view
+    case {'ax'}
+        for l = 1:size(img,3)
+            img_tmp = squeeze(img(:,:,l))';
+            notZero = find(~isnan(img_tmp),1);
+            if ~isempty(notZero)
+                bottom = l;
+                break
+            end
+        end
+        for l = size(img,3):-1:1
+            img_tmp = squeeze(img(:,:,l))';
+            notZero = find(~isnan(img_tmp),1);
+            if ~isempty(notZero)
+                top = size(img,3)-l;
+                break
+            end
+        end
+    case {'sag'}
+    case {'cor'}
+end
+skip = [bottom, top];
 return
 end
 
