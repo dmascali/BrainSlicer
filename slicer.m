@@ -384,7 +384,7 @@ if ischar(skip)
     skip = get_autoSkip_onLayer(img{skipOnLayer},view);
     %check if nothing was found, in this case throw a warning and restore
     %default skip values
-    if isempty(skip(1))
+    if isempty(skip)
         fprintf('%s - WARNING: self-cetntering slices failed due to empty layer\n',funcName);
         skip = default_skip;
     end
@@ -811,20 +811,23 @@ end
 function skip = get_autoSkip_onLayer(img,view)
 bottom = [];
 top = [];
+total_voxels = sum(~isnan(img(:)));
+% Set a minium number of voxel that defines a not empty slice
+minimum_voxel_number = max(1,floor(0.005*total_voxels));
 switch view
     case {'ax'}
         for l = 1:size(img,3)
             img_tmp = squeeze(img(:,:,l))';
-            notZero = find(~isnan(img_tmp),1);
-            if ~isempty(notZero)
+            notZero = length(find(~isnan(img_tmp),minimum_voxel_number));
+            if notZero >= minimum_voxel_number
                 bottom = l;
                 break
             end
         end
         for l = size(img,3):-1:1
             img_tmp = squeeze(img(:,:,l))';
-            notZero = find(~isnan(img_tmp),1);
-            if ~isempty(notZero)
+            notZero = length(find(~isnan(img_tmp),minimum_voxel_number));
+            if notZero >= minimum_voxel_number
                 top = size(img,3)-l;
                 break
             end
@@ -832,16 +835,16 @@ switch view
     case {'sag'}
          for l = 1:size(img,1)
             img_tmp = flipdim(flipdim(squeeze(img(l,:,:)),2)',2);
-            notZero = find(~isnan(img_tmp),1);
-            if ~isempty(notZero)
+            notZero = length(find(~isnan(img_tmp),minimum_voxel_number));
+            if notZero >= minimum_voxel_number
                 bottom = l;
                 break
             end
         end
         for l = size(img,1):-1:1
             img_tmp = flipdim(flipdim(squeeze(img(l,:,:)),2)',2);
-            notZero = find(~isnan(img_tmp),1);
-            if ~isempty(notZero)
+            notZero = length(find(~isnan(img_tmp),minimum_voxel_number));
+            if notZero >= minimum_voxel_number
                 top = size(img,1)-l;
                 break
             end
@@ -849,16 +852,16 @@ switch view
     case {'cor'}
         for l = 1:size(img,2)
             img_tmp = flipdim(squeeze(img(:,l,:))',1);
-            notZero = find(~isnan(img_tmp),1);
-            if ~isempty(notZero)
+            notZero = length(find(~isnan(img_tmp),minimum_voxel_number));
+            if notZero >= minimum_voxel_number
                 bottom = l;
                 break
             end
         end
         for l = size(img,2):-1:1
             img_tmp = flipdim(squeeze(img(:,l,:))',1);
-            notZero = find(~isnan(img_tmp),1);
-            if ~isempty(notZero)
+            notZero = length(find(~isnan(img_tmp),minimum_voxel_number));
+            if notZero >= minimum_voxel_number
                 top = size(img,2)-l;
                 break
             end
