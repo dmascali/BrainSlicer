@@ -302,15 +302,15 @@ if any(is4D)
     for l = indx
         fprintf('%s - WARNING: layer %d has multiple volumes\n',funcName,l);
     end
-    if sum([volume{:}])/nLayers > 1
+    %if sum([volume{:}])/nLayers > 1
         for l = indx
             %TODO: add error checking
             img{l} = img{l}(:,:,:,volume{l});
             fprintf('%s - selecting volume %d for layer %d\n',funcName,volume{l},l);
         end
-    else
-        fprintf([repmat(' ',[1,length([funcName,' - '])]),'use ''volume'' to select volumes\n']);
-    end
+   % else
+   %     fprintf([repmat(' ',[1,length([funcName,' - '])]),'use ''volume'' to select volumes\n']);
+   % end
 end
 
 %check for p-maps
