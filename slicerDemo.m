@@ -41,7 +41,7 @@ slicer({2,[data_folder,'spmT_0001.nii']},...
     'minClusterSize',{0,50},....
     'output','example_1')
 %%
-% It's already a good starting point, but we can make the figure a little
+% It's already a good starting point, but we can make the figure a little bit
 % fancier. For instance, we don't need the colorbar for the standard image, so
 % we can modify the default behaviour using the property "labels". We can also move
 % the Tmap's colorbar to the east side and add a proper figure title:
@@ -51,7 +51,6 @@ slicer({2,[data_folder,'spmT_0001.nii']},...
     'labels',{[],'T-value'},... % when a layer's label is empty no colorbar will be printed.
     'cbLocation','east',... % colorbar location can be south or east
     'title','Just a Random T-map',...
-    'titleLocation','center',...
     'output','example_1')
 %%
 % Wow! We got a prety cool figure, and it's ready for publication!
@@ -95,7 +94,7 @@ slicer({2,[data_folder,'spmT_0001.nii'], [data_folder,'spmT_0001.nii']},...
 % Note that we put the negative layer before the positive layer, so to get 
 % the negative colorbar below the positive one.
 % We are close to the solution, yet you might have noticed that the default
-% colormaps looks odd (blue for positive values and red for negative values)
+% colormaps looks odd (blue for positive values and red for negative values).
 % It's time to tweak the property 'colormaps'. You can get the full list of
 % available colormaps (with associated labels and codes) by running the command:
 colormaps
@@ -134,7 +133,8 @@ slicer({2,[data_folder,'t-map_1.66.nii'],[data_folder,'t-map_1.66.nii'],[data_fo
 % Compared to example 2, we have added a fouth layer containing the edges
 % of the atlas. Since the edge volume is a binary mask, we set the limits
 % to [0 1] and selected one of the colormaps (the 64th) which saturated
-% to a black colour.
+% to a black colour (you can use the function drawAtlasEdges to get the edges
+% of your own atlas). 
 % Now, we can work on the second figure: the p-map. P-maps are difficult to
 % display since they range from 0 to 1, with smaller values being more
 % significant than greater values. To overcome this issue, we can set the 
@@ -147,7 +147,6 @@ slicer({2,[data_folder,'p-map.nii'],[data_folder,'edges_AX_aal2.nii']},...
     'labels',{[],'1 - P-value',[]},... % when a layer's label is empty no colorbar will be printed.
     'cbLocation','east',... % colorbar location can be south or east
     'title','Just a Random P-map',...
-    'titleLocation','center',...
     'mount', [1 8],... % print one row with 8 slices equally spaced
     'colormaps',{1,86,64},...
     'p-map',{0,1,0},... % specify that the 2nd layer is a p-map (slicer will show 1-p)
@@ -163,16 +162,65 @@ slicer({2,[data_folder,'p-map.nii'],[data_folder,'edges_AX_aal2.nii']},...
 
 slicerCollage('wildcard','slicer_example_3_*',...
               'output','example_3_combined')
+
+%% Example 4: Multi-volume nifti
+% In this example we will produce a figure displaying the 10 functional
+% networks from Smith2009 (todo:ref). The 10 networks are stacked in the 4th
+% dimension of the nifti file PNAS_Smith09_rsn10.nii. We will produce a slicer 
+% figure for each network using the 'volume' property for network selection.
+% We will also take advantage of the 'skip' property for automatically 
+% centering the slices around the network:
+
+for l = 1:10 % loop over volumes inside Smith09
+    slicer({2,'PNAS_Smith09_rsn10.nii'},...
+    'volume',{1,l},... % for the second layer at each iteration select a different volume
+    'limits',{[],[4 11]},...
+    'labels',{[],[]},... % when a layer's label is empty no colorbar will be printed.
+    'title',['Network ',num2str(l)],...
+    'skip','2',... % auto center the slices based on layer 2
+    'mount', [5 1],... % print one column with 5 slices equally spaced
+    'margins',[0.1 0 0 0],...% add 10% of left-margin to avoid clutter
+    'size','w22',... % set the width of the figure to 22 mm (2.2 cm)
+    'output',['example_4_0',num2str(l)])
+end
+
+%%
+% Now we can concatenate the 10 figures in single one using slicerCollage.
+% This time we will also specify the figure ordering, since the default
+% list of figure has the 10th network in the second position:
+
+slicerCollage('wildcard','slicer_example_4_*',...
+              'order',[1 3 4 5 6 7 8 9 10 2],... %change the ordering (otherwise the 10th network would be in 2nd position) 
+              'output','example_4_combined')
 %% The .mat file
 % You might have noticed that each printed figure is accompanied by a
 % slicer*.mat file. The file contains a variable storing all the info
 % necessary to construct the figure, including the path to each image file,
-% limits and minimum cluster sizes. [todo] Such info are particularly usefull many
-% days from now, when you puzzle to rember 
+% limits and minimum cluster sizes. 
 % Here is an example of a mat file:
 load('slicer_example_3_01.mat')
 opt
-%% The .mat file
-% List other property
-%% Figure size and resolution
-% List other property
+%% Figure size, resolution and fontsize
+% Two properties regulate the resolution and size of the output figure:
+
+% * 'resolution'           - Scalar/char indicating the PNG resolution.
+%                            Default: 300. 
+% * 'size'                 - Char. Define the size of the printed figure 
+%                            by specifing either the figure hight or
+%                            the figure width in mm. You cannot specify both
+%                            since the aspect ratio is dictated by the
+%                            number of slices. E.g.: 'w170' or 'h30' (i.e.,
+%                            width of 170 mm or hight of 30 mm).
+%%
+% Note that changing the figure size also affects the readability of
+% text elements. If you need to use a very large size (or very small)
+% you might end up with too small (or too large) characters. In this case
+% you can adjust the text fontsize via the following property:
+
+% * 'fontsize'             - 3-element vector specifying the fontsize of:
+%                            [Title, ColorBarLabel, Coordinates]. 
+%                            Default: [10 7 6]
+%%
+% There are many other tweakable properties that you can play with. These
+% are illustrated in the help of the slicer function. 
+

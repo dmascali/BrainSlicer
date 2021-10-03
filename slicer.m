@@ -87,7 +87,7 @@ function slicer(img,varargin)
 %     title                - Char. Show a title on the top-left corner. 
 %                            Default: [].
 %     titleLocation        - Char. Title location. Valid values are:
-%                            'left','center','right'. Default: 'left'                                               
+%                            'left','center','right'. Default: 'center'                                               
 %     alpha                - CellArray. Each cell indicates the layer's 
 %                            opacity level ( 0<=alpha<=1 ). Default = {1}
 %     cbLocation           - Char. Specify the location for the colorbars.
@@ -100,7 +100,7 @@ function slicer(img,varargin)
 %                           'void','southvoid','eastvoid'.
 %     fontsize             - 3-element vector specifying the fontsize of:
 %                            [Title, ColorBarLabel, Coordinates]. 
-%                            Default: [12,10,6].
+%                            Default: [10 7 6].
 %     margins              - 4-element vector specifying figure margins:
 %                            [left right top bottom]. Margins are in 
 %                            percentage (0-1). Defalut = [0 0 0 0].
