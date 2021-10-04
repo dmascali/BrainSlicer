@@ -9,10 +9,6 @@ data_folder = [fileparts(which('slicer')),'/examples/data/'];
 close all
 %%
 %  Now, we are ready to start!
-%
-% TODO: 
-% negative values in t-map
-
 
 %% Example 1: standard + one-side t-map
 % Let's start with a very simple figure: just one layer occupied by a standard brain.
