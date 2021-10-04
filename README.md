@@ -19,3 +19,10 @@ BrainSlicer is composed of three main programs:
 BrainSlicer requires:
 - SPM
 - MATLAB version >= R2014b 
+
+## EXAMPLES
+[SlicerDemo.m](examples/SlicerDemo.m) demostrates the major functionalities of the toolbox using common usage examples. Below some examples:
+![Example 1](examples/higRes/slicer_example_2.png)
+![Example 2](examples/higRes/example_3_combined.png)
+![Example 3](examples/higRes/example_4_combined.png)
+![Example 3](examples/higRes/example_5.png)
