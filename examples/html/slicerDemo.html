@@ -1,0 +1,640 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>BrainSlicer Demo</title><meta name="generator" content="MATLAB 9.10"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-10-04"><meta name="DC.source" content="slicerDemo.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>BrainSlicer Demo</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Example 1: standard + one-side t-map</a></li><li><a href="#9">Example 2: standard + two-side t-map</a></li><li><a href="#12">Example 3: slicerCollage</a></li><li><a href="#15">Example 4: Multi-volume nifti</a></li><li><a href="#17">The .mat file</a></li><li><a href="#18">Figure size, resolution and fontsize</a></li></ul></div><pre>This document demostrates the major functionalities of slicer and slicerCollage using common usage examples.
+Before jumping into the examples, make sure _slicer_ is in your matlab's path.</pre><pre>Next, we need to retrive the location where example data are stored:</pre><pre class="codeinput">data_folder = [fileparts(which(<span class="string">'slicer'</span>)),<span class="string">'/examples/data/'</span>];
+<span class="comment">% Also, close open figures, if any:</span>
+close <span class="string">all</span>
+</pre><pre>Now, we are ready to start!</pre><p>TODO: negative values in t-map</p><h2 id="3">Example 1: standard + one-side t-map</h2><p>Let's start with a very simple figure: just one layer occupied by a standard brain. Layers are specified in the first input to slicer as elements of a cell. You can specify the path to your favourite standard image. However, for your convinience, we have stored some popular FSL standard images (in MNI space) and reserved them handy aliases:</p><div><ul><li>0 -&gt; MNI152_T1_0.5mm</li><li>1 -&gt; MNI152_T1_1mm</li><li>2 -&gt; MNI152_T1_2mm</li><li>3 -&gt; MNI152_T1_0.5mm_brain</li><li>4 -&gt; MNI152_T1_1mm_brain</li><li>5 -&gt; MNI152_T1_2mm_brain</li></ul></div><p>Thus, to print the FSL's MNI152_T1_2mm image just run:</p><pre class="codeinput">slicer({2},<span class="string">'output'</span>,<span class="string">'example_1'</span>)
+</pre><pre class="codeoutput">slicer - welcome
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_1.png
+- resolution: 	300 dpi
+- size: 	2008 x 1002 pixels
+- size: 	17.0 x 8.5 cm
+slicer - end
+</pre><img vspace="5" hspace="5" src="slicerDemo_01.png" alt=""> <p>That's cool, but it's not very helpfull if we don't overlay something interesting. So, let's add a layer with a T-map. Default values won't probably work this time, so we manually specify the t-map limits and the t-map minimum cluster size:</p><pre class="codeinput">slicer({2,[data_folder,<span class="string">'spmT_0001.nii'</span>]},<span class="keyword">...</span>
+    <span class="string">'limits'</span>,{[],[3.5 6]},<span class="keyword">...</span><span class="comment"> % when a layer's limit is empty, limits will be adjusted automatically</span>
+    <span class="string">'minClusterSize'</span>,{0,50},<span class="keyword">...</span><span class="comment">.</span>
+    <span class="string">'output'</span>,<span class="string">'example_1'</span>)
+</pre><pre class="codeoutput">slicer - welcome
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_1.png
+- resolution: 	300 dpi
+- size: 	2008 x 1002 pixels
+- size: 	17.0 x 8.5 cm
+slicer - end
+</pre><img vspace="5" hspace="5" src="slicerDemo_02.png" alt=""> <p>It's already a good starting point, but we can make the figure a little bit fancier. For instance, we don't need the colorbar for the standard image, so we can modify the default behaviour using the property "labels". We can also move the Tmap's colorbar to the east side and add a proper figure title:</p><pre class="codeinput">slicer({2,[data_folder,<span class="string">'spmT_0001.nii'</span>]},<span class="keyword">...</span>
+    <span class="string">'limits'</span>,{[],[3.5 6]},<span class="keyword">...</span>
+    <span class="string">'minClusterSize'</span>,{0,50},<span class="keyword">...</span>
+    <span class="string">'labels'</span>,{[],<span class="string">'T-value'</span>},<span class="keyword">...</span><span class="comment"> % when a layer's label is empty no colorbar will be printed.</span>
+    <span class="string">'cbLocation'</span>,<span class="string">'east'</span>,<span class="keyword">...</span><span class="comment"> % colorbar location can be south or east</span>
+    <span class="string">'title'</span>,<span class="string">'Just a Random T-map'</span>,<span class="keyword">...</span>
+    <span class="string">'output'</span>,<span class="string">'example_1'</span>)
+</pre><pre class="codeoutput">slicer - welcome
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_1.png
+- resolution: 	300 dpi
+- size: 	2008 x 762 pixels
+- size: 	17.0 x 6.5 cm
+slicer - end
+</pre><img vspace="5" hspace="5" src="slicerDemo_03.png" alt=""> <p>Wow! We got a prety cool figure, and it's ready for publication! However, depending on your taste you might want to experiment a bit with other options, such as the number of slices:</p><pre class="codeinput">slicer({2,[data_folder,<span class="string">'spmT_0001.nii'</span>]},<span class="keyword">...</span>
+    <span class="string">'limits'</span>,{[],[3.5 6]},<span class="keyword">...</span>
+    <span class="string">'minClusterSize'</span>,{0,50},<span class="keyword">...</span>
+    <span class="string">'labels'</span>,{[],<span class="string">'T-value'</span>},<span class="keyword">...</span><span class="comment"> % when a layer's label is empty no colorbar will be printed.</span>
+    <span class="string">'cbLocation'</span>,<span class="string">'east'</span>,<span class="keyword">...</span><span class="comment"> % colorbar location can be south or east</span>
+    <span class="string">'title'</span>,<span class="string">'Just a Random one-side T-map'</span>,<span class="keyword">...</span>
+    <span class="string">'mount'</span>, [1 8],<span class="keyword">...</span><span class="comment"> % print one row with 8 slices equally spaced</span>
+    <span class="string">'output'</span>,<span class="string">'example_1_fancier'</span>)
+</pre><pre class="codeoutput">slicer - welcome
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_1_fancier.png
+- resolution: 	300 dpi
+- size: 	2008 x 310 pixels
+- size: 	17.0 x 2.6 cm
+slicer - end
+</pre><img vspace="5" hspace="5" src="slicerDemo_04.png" alt=""> <p>Or the background color:</p><pre class="codeinput">slicer({2,[data_folder,<span class="string">'spmT_0001.nii'</span>]},<span class="keyword">...</span>
+    <span class="string">'limits'</span>,{[],[3.5 6]},<span class="keyword">...</span>
+    <span class="string">'minClusterSize'</span>,{0,50},<span class="keyword">...</span>
+    <span class="string">'labels'</span>,{[],<span class="string">'T-value'</span>},<span class="keyword">...</span><span class="comment"> % when a layer's label is empty no colorbar will be printed.</span>
+    <span class="string">'cbLocation'</span>,<span class="string">'east'</span>,<span class="keyword">...</span><span class="comment"> % colorbar location can be south or east</span>
+    <span class="string">'title'</span>,<span class="string">'Just a Random one-side T-map'</span>,<span class="keyword">...</span>
+    <span class="string">'mount'</span>, [1 8],<span class="keyword">...</span><span class="comment"> % print one row with 8 slices equally spaced</span>
+    <span class="string">'colorMode'</span>,<span class="string">'w'</span>,<span class="keyword">...</span><span class="comment"> % two background modalities: black ('k') or white ('w')</span>
+    <span class="string">'output'</span>,<span class="string">'example_1_fancier_white'</span>)
+</pre><pre class="codeoutput">slicer - welcome
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_1_fancier_white.png
+- resolution: 	300 dpi
+- size: 	2008 x 310 pixels
+- size: 	17.0 x 2.6 cm
+slicer - end
+</pre><img vspace="5" hspace="5" src="slicerDemo_05.png" alt=""> <h2 id="9">Example 2: standard + two-side t-map</h2><p>The previous example printed a one-side t-map on top of a standard image. In the following example we will make a couple of adjustments to print a two-side t-map. The trick consists in adding a third layer with the same t-map but this time with limits for the negative tail.</p><pre class="codeinput">slicer({2,[data_folder,<span class="string">'spmT_0001.nii'</span>], [data_folder,<span class="string">'spmT_0001.nii'</span>]},<span class="keyword">...</span>
+    <span class="string">'limits'</span>,{[],[-6 -3.5], [3.5 6]},<span class="keyword">...</span>
+    <span class="string">'minClusterSize'</span>,{0,50,0},<span class="keyword">...</span>
+    <span class="string">'labels'</span>,{[],<span class="string">'T-value'</span>,<span class="string">'T-value'</span>},<span class="keyword">...</span><span class="comment"> % when a layer's label is empty no colorbar will be printed.</span>
+    <span class="string">'cbLocation'</span>,<span class="string">'east'</span>,<span class="keyword">...</span><span class="comment"> % colorbar location can be south or east</span>
+    <span class="string">'title'</span>,<span class="string">'Just a Random two-side T-map'</span>,<span class="keyword">...</span>
+    <span class="string">'mount'</span>, [1 8],<span class="keyword">...</span><span class="comment"> % print one row with 8 slices equally spaced</span>
+    <span class="string">'output'</span>,<span class="string">'example_2'</span>)
+</pre><pre class="codeoutput">slicer - welcome
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_2.png
+- resolution: 	300 dpi
+- size: 	2008 x 310 pixels
+- size: 	17.0 x 2.6 cm
+slicer - end
+</pre><img vspace="5" hspace="5" src="slicerDemo_06.png" alt=""> <p>Note that we put the negative layer before the positive layer, so to get the negative colorbar below the positive one. We are close to the solution, yet you might have noticed that the default colormaps looks odd (blue for positive values and red for negative values). It's time to tweak the property 'colormaps'. You can get the full list of available colormaps (with associated labels and codes) by running the command:</p><pre class="codeinput">colormaps
+</pre><pre class="codeoutput"> COLORMAPS View or get Slicer's colormaps.
+   COLORMAPS() shows the available colormaps, which include FSL colormaps
+    (including the isoluminant Brain Colours maps) and the built-in Matlab's 
+    colormaps. Each map is associated with a unique name and integer.  
+   COLORMAPS(ARG) returns the selected colormap in matrix form (N-by-3)
+    that can be fed to matlab's colormap function to modify the axes/figure
+    map. ARG can be either a char/string or a positive integer, so that the 
+    maps can be selected either by name or by number.
+ 
+    See also SLICER, SLICERCOLLAGE
+
+</pre><img vspace="5" hspace="5" src="slicerDemo_07.png" alt=""> <p>By default, slicer uses 1,2,3 (i.e., grey, red-yellow and blue-lightblue) as the colormaps for the first, seond and third layer, respectively. To invert the color of the second and third layer we have to manually specify the colormaps using the property 'colormaps':</p><pre class="codeinput">slicer({2,[data_folder,<span class="string">'spmT_0001.nii'</span>], [data_folder,<span class="string">'spmT_0001.nii'</span>]},<span class="keyword">...</span>
+    <span class="string">'limits'</span>,{[],[-6 -3.5], [3.5 6]},<span class="keyword">...</span>
+    <span class="string">'minClusterSize'</span>,{0,50,0},<span class="keyword">...</span>
+    <span class="string">'labels'</span>,{[],<span class="string">'T-value'</span>,<span class="string">'T-value'</span>},<span class="keyword">...</span><span class="comment"> % when a layer's label is empty no colorbar will be printed.</span>
+    <span class="string">'cbLocation'</span>,<span class="string">'east'</span>,<span class="keyword">...</span><span class="comment"> % colorbar location can be south or east</span>
+    <span class="string">'title'</span>,<span class="string">'Just a Random two-side T-map'</span>,<span class="keyword">...</span>
+    <span class="string">'mount'</span>, [1 8],<span class="keyword">...</span><span class="comment"> % print one row with 8 slices equally spaced</span>
+    <span class="string">'colormaps'</span>,{1,3,2},<span class="keyword">...</span>
+    <span class="string">'output'</span>,<span class="string">'example_2'</span>)
+</pre><pre class="codeoutput">slicer - welcome
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_2.png
+- resolution: 	300 dpi
+- size: 	2008 x 310 pixels
+- size: 	17.0 x 2.6 cm
+slicer - end
+</pre><img vspace="5" hspace="5" src="slicerDemo_08.png" alt=""> <h2 id="12">Example 3: slicerCollage</h2><p>In this example, we will show you how to combine different figures into a single one using slicerCollage. We will start from scratch combining a two-side t-map with a p-map. This time we will pretend our results were generated using an atlas (AALv2 - 120 regions). Let's start from the two-side t-map figure:</p><pre class="codeinput">slicer({2,[data_folder,<span class="string">'t-map_1.66.nii'</span>],[data_folder,<span class="string">'t-map_1.66.nii'</span>],[data_folder,<span class="string">'edges_AX_aal2.nii'</span>]},<span class="keyword">...</span>
+    <span class="string">'limits'</span>,{[],[-4 -1.66],[1.6 4],[0 1]},<span class="keyword">...</span>
+    <span class="string">'minClusterSize'</span>,{0,0,0,0},<span class="keyword">...</span>
+    <span class="string">'labels'</span>,{[],<span class="string">'T-value'</span>,<span class="string">'T-value'</span>,[]},<span class="keyword">...</span><span class="comment"> % when a layer's label is empty no colorbar will be printed.</span>
+    <span class="string">'cbLocation'</span>,<span class="string">'east'</span>,<span class="keyword">...</span><span class="comment"> % colorbar location can be south or east</span>
+    <span class="string">'title'</span>,<span class="string">'Just a Random T-map'</span>,<span class="keyword">...</span>
+    <span class="string">'mount'</span>, [1 8],<span class="keyword">...</span><span class="comment"> % print one row with 8 slices equally spaced</span>
+    <span class="string">'colormaps'</span>,{1,3,2,64},<span class="keyword">...</span>
+    <span class="string">'output'</span>,<span class="string">'example_3_01'</span>)
+</pre><pre class="codeoutput">slicer - welcome
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_3_01.png
+- resolution: 	300 dpi
+- size: 	2008 x 310 pixels
+- size: 	17.0 x 2.6 cm
+slicer - end
+</pre><img vspace="5" hspace="5" src="slicerDemo_09.png" alt=""> <p>Compared to example 2, we have added a fouth layer containing the edges of the atlas. Since the edge volume is a binary mask, we set the limits to [0 1] and selected one of the colormaps (the 64th) which saturated to a black colour (you can use the function drawAtlasEdges to get the edges of your own atlas). Now, we can work on the second figure: the p-map. P-maps are difficult to display since they range from 0 to 1, with smaller values being more significant than greater values. To overcome this issue, we can set the property 'p-map' to 1. This property will force slicer to display 1-p, so that we can set the limits to something like [0.95 1]:</p><pre class="codeinput">slicer({2,[data_folder,<span class="string">'p-map.nii'</span>],[data_folder,<span class="string">'edges_AX_aal2.nii'</span>]},<span class="keyword">...</span>
+    <span class="string">'limits'</span>,{[],[0.95 1],[0 1]},<span class="keyword">...</span>
+    <span class="string">'minClusterSize'</span>,{0,0,0},<span class="keyword">...</span>
+    <span class="string">'labels'</span>,{[],<span class="string">'1 - P-value'</span>,[]},<span class="keyword">...</span><span class="comment"> % when a layer's label is empty no colorbar will be printed.</span>
+    <span class="string">'cbLocation'</span>,<span class="string">'east'</span>,<span class="keyword">...</span><span class="comment"> % colorbar location can be south or east</span>
+    <span class="string">'title'</span>,<span class="string">'Just a Random P-map'</span>,<span class="keyword">...</span>
+    <span class="string">'mount'</span>, [1 8],<span class="keyword">...</span><span class="comment"> % print one row with 8 slices equally spaced</span>
+    <span class="string">'colormaps'</span>,{1,86,64},<span class="keyword">...</span>
+    <span class="string">'p-map'</span>,{0,1,0},<span class="keyword">...</span><span class="comment"> % specify that the 2nd layer is a p-map (slicer will show 1-p)</span>
+    <span class="string">'output'</span>,<span class="string">'example_3_02'</span>)
+</pre><pre class="codeoutput">slicer - welcome
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_3_02.png
+- resolution: 	300 dpi
+- size: 	2008 x 310 pixels
+- size: 	17.0 x 2.6 cm
+slicer - end
+</pre><img vspace="5" hspace="5" src="slicerDemo_10.png" alt=""> <p>We have produced two figures (example_3_01.png and example_3_02.png) one for the t map and one for the p map. To concatenate them in a single figure we can call slicerCollage. If you call slicerCollage without input arguments, it will try to concatenate any slicer_* figure present in the current folder. However, since we have produced quite a few figures we will call slicerCollage with an option specifying the string pattern of the figures we wish to combine:</p><pre class="codeinput">slicerCollage(<span class="string">'wildcard'</span>,<span class="string">'slicer_example_3_*'</span>,<span class="keyword">...</span>
+              <span class="string">'output'</span>,<span class="string">'example_3_combined'</span>)
+</pre><pre class="codeoutput">slicerCollage - welcome
+slicerCollage - looking for images using the pattern:
+-&gt; ./slicer_example_3_*.png
+slicerCollage - dime  = 1
+slicerCollage - order = 1 2 
+slicerCollage - concatenating images:
+-&gt; 1(1) slicer_example_3_01.png
+-&gt; 2(2) slicer_example_3_02.png
+slicerCollage - end
+</pre><img vspace="5" hspace="5" src="slicerDemo_11.png" alt=""> <h2 id="15">Example 4: Multi-volume nifti</h2><p>In this example we will produce a figure displaying the 10 functional networks from Smith2009 (todo:ref). The 10 networks are stacked in the 4th dimension of the nifti file PNAS_Smith09_rsn10.nii. We will produce a slicer figure for each network using the 'volume' property for network selection. We will also take advantage of the 'skip' property for automatically centering the slices around the network:</p><pre class="codeinput"><span class="keyword">for</span> l = 1:10 <span class="comment">% loop over volumes inside Smith09</span>
+    slicer({2,[data_folder,<span class="string">'PNAS_Smith09_rsn10.nii'</span>]},<span class="keyword">...</span>
+    <span class="string">'volume'</span>,{1,l},<span class="keyword">...</span><span class="comment"> % for the second layer at each iteration select a different volume</span>
+    <span class="string">'limits'</span>,{[],[4 11]},<span class="keyword">...</span>
+    <span class="string">'labels'</span>,{[],[]},<span class="keyword">...</span><span class="comment"> % when a layer's label is empty no colorbar will be printed.</span>
+    <span class="string">'title'</span>,[<span class="string">'Network '</span>,num2str(l)],<span class="keyword">...</span>
+    <span class="string">'skip'</span>,<span class="string">'2'</span>,<span class="keyword">...</span><span class="comment"> % auto center the slices based on layer 2</span>
+    <span class="string">'mount'</span>, [5 1],<span class="keyword">...</span><span class="comment"> % print one column with 5 slices equally spaced</span>
+    <span class="string">'margins'</span>,[0.1 0 0 0],<span class="keyword">...</span><span class="comment">% add 10% of left-margin to avoid clutter</span>
+    <span class="string">'size'</span>,<span class="string">'w22'</span>,<span class="keyword">...</span><span class="comment"> % set the width of the figure to 22 mm (2.2 cm)</span>
+    <span class="string">'output'</span>,[<span class="string">'example_4_0'</span>,num2str(l)])
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">slicer - welcome
+slicer - WARNING: layer 2 has multiple volumes
+slicer - selecting volume 1 for layer 2
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_4_01.png
+- resolution: 	300 dpi
+- size: 	260 x 1449 pixels
+- size: 	2.2 x 12.3 cm
+slicer - end
+slicer - welcome
+slicer - WARNING: layer 2 has multiple volumes
+slicer - selecting volume 2 for layer 2
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_4_02.png
+- resolution: 	300 dpi
+- size: 	260 x 1449 pixels
+- size: 	2.2 x 12.3 cm
+slicer - end
+slicer - welcome
+slicer - WARNING: layer 2 has multiple volumes
+slicer - selecting volume 3 for layer 2
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_4_03.png
+- resolution: 	300 dpi
+- size: 	260 x 1449 pixels
+- size: 	2.2 x 12.3 cm
+slicer - end
+slicer - welcome
+slicer - WARNING: layer 2 has multiple volumes
+slicer - selecting volume 4 for layer 2
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_4_04.png
+- resolution: 	300 dpi
+- size: 	260 x 1449 pixels
+- size: 	2.2 x 12.3 cm
+slicer - end
+slicer - welcome
+slicer - WARNING: layer 2 has multiple volumes
+slicer - selecting volume 5 for layer 2
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_4_05.png
+- resolution: 	300 dpi
+- size: 	260 x 1449 pixels
+- size: 	2.2 x 12.3 cm
+slicer - end
+slicer - welcome
+slicer - WARNING: layer 2 has multiple volumes
+slicer - selecting volume 6 for layer 2
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_4_06.png
+- resolution: 	300 dpi
+- size: 	260 x 1449 pixels
+- size: 	2.2 x 12.3 cm
+slicer - end
+slicer - welcome
+slicer - WARNING: layer 2 has multiple volumes
+slicer - selecting volume 7 for layer 2
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_4_07.png
+- resolution: 	300 dpi
+- size: 	260 x 1449 pixels
+- size: 	2.2 x 12.3 cm
+slicer - end
+slicer - welcome
+slicer - WARNING: layer 2 has multiple volumes
+slicer - selecting volume 8 for layer 2
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_4_08.png
+- resolution: 	300 dpi
+- size: 	260 x 1449 pixels
+- size: 	2.2 x 12.3 cm
+slicer - end
+slicer - welcome
+slicer - WARNING: layer 2 has multiple volumes
+slicer - selecting volume 9 for layer 2
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_4_09.png
+- resolution: 	300 dpi
+- size: 	260 x 1449 pixels
+- size: 	2.2 x 12.3 cm
+slicer - end
+slicer - welcome
+slicer - WARNING: layer 2 has multiple volumes
+slicer - selecting volume 10 for layer 2
+slicer - coordinates are in mm
+slicer - printing image:
+- filename: 	slicer_example_4_010.png
+- resolution: 	300 dpi
+- size: 	260 x 1449 pixels
+- size: 	2.2 x 12.3 cm
+slicer - end
+</pre><img vspace="5" hspace="5" src="slicerDemo_12.png" alt=""> <img vspace="5" hspace="5" src="slicerDemo_13.png" alt=""> <img vspace="5" hspace="5" src="slicerDemo_14.png" alt=""> <img vspace="5" hspace="5" src="slicerDemo_15.png" alt=""> <img vspace="5" hspace="5" src="slicerDemo_16.png" alt=""> <img vspace="5" hspace="5" src="slicerDemo_17.png" alt=""> <img vspace="5" hspace="5" src="slicerDemo_18.png" alt=""> <img vspace="5" hspace="5" src="slicerDemo_19.png" alt=""> <img vspace="5" hspace="5" src="slicerDemo_20.png" alt=""> <img vspace="5" hspace="5" src="slicerDemo_21.png" alt=""> <p>Now we can concatenate the 10 figures in single one using slicerCollage. This time we will also specify the figure ordering, since the default list of figure has the 10th network in the second position:</p><pre class="codeinput">slicerCollage(<span class="string">'wildcard'</span>,<span class="string">'slicer_example_4_*'</span>,<span class="keyword">...</span>
+              <span class="string">'order'</span>,[1 3 4 5 6 7 8 9 10 2],<span class="keyword">...</span><span class="comment"> %change the ordering (otherwise the 10th network would be in 2nd position)</span>
+              <span class="string">'output'</span>,<span class="string">'example_4_combined'</span>)
+</pre><pre class="codeoutput">slicerCollage - welcome
+slicerCollage - looking for images using the pattern:
+-&gt; ./slicer_example_4_*.png
+slicerCollage - dime  = 2
+slicerCollage - order = 1 3 4 5 6 7 8 9 10 2 
+slicerCollage - concatenating images:
+-&gt; 1(1) slicer_example_4_01.png
+-&gt; 2(3) slicer_example_4_02.png
+-&gt; 3(4) slicer_example_4_03.png
+-&gt; 4(5) slicer_example_4_04.png
+-&gt; 5(6) slicer_example_4_05.png
+-&gt; 6(7) slicer_example_4_06.png
+-&gt; 7(8) slicer_example_4_07.png
+-&gt; 8(9) slicer_example_4_08.png
+-&gt; 9(10) slicer_example_4_09.png
+-&gt; 10(2) slicer_example_4_010.png
+slicerCollage - end
+</pre><img vspace="5" hspace="5" src="slicerDemo_22.png" alt=""> <h2 id="17">The .mat file</h2><p>You might have noticed that each printed figure is accompanied by a slicer*.mat file. The file contains a variable storing all the info necessary to construct the figure, including the path to each image file, limits and minimum cluster sizes. Here is an example of a mat file:</p><pre class="codeinput">load(<span class="string">'slicer_example_3_01.mat'</span>)
+opt
+</pre><pre class="codeoutput">
+opt = 
+
+  struct with fields:
+
+           nLayers: 4
+              img1: 'C:\Users\daniele\Documents\MATLAB\repos\BrainSlicer\examples'
+              img2: 'C:\Users\daniele\Documents\MATLAB\repos\BrainSlicer\examples\data\t-map_1.66.nii'
+              img3: 'C:\Users\daniele\Documents\MATLAB\repos\BrainSlicer\examples\data\t-map_1.66.nii'
+              img4: 'C:\Users\daniele\Documents\MATLAB\repos\BrainSlicer\examples\data\edges_AX_aal2.nii'
+            limits: {[0 9968]  [-4 -1.6600]  [1.6000 4]  [0 1]}
+    minClusterSize: {[0]  [0]  [0]  [0]}
+         colorMaps: {[1]  [3]  [2]  [64]}
+            labels: {[]  'T-value'  'T-value'  []}
+     opacityLevels: {[1]  [1]  [1]  [1]}
+           montage: [1&times;1 struct]
+        appearance: [1&times;1 struct]
+        resolution: '300'
+        sizePixels: [2008 310]
+            sizeCm: [17 2.6268]
+
+</pre><h2 id="18">Figure size, resolution and fontsize</h2><p>Two properties regulate the resolution and size of the output figure:</p><pre class="codeinput"><span class="comment">% * 'resolution'           - Scalar/char indicating the PNG resolution.</span>
+<span class="comment">%                            Default: 300.</span>
+<span class="comment">% * 'size'                 - Char. Define the size of the printed figure</span>
+<span class="comment">%                            by specifing either the figure hight or</span>
+<span class="comment">%                            the figure width in mm. You cannot specify both</span>
+<span class="comment">%                            since the aspect ratio is dictated by the</span>
+<span class="comment">%                            number of slices. E.g.: 'w170' or 'h30' (i.e.,</span>
+<span class="comment">%                            width of 170 mm or hight of 30 mm).</span>
+</pre><p>Note that changing the figure size also affects the readability of text elements. If you need to use a very large size (or very small) you might end up with too small (or too large) characters. In this case you can adjust the text fontsize via the following property:</p><pre class="codeinput"><span class="comment">% * 'fontsize'             - 3-element vector specifying the fontsize of:</span>
+<span class="comment">%                            [Title, ColorBarLabel, Coordinates].</span>
+<span class="comment">%                            Default: [10 7 6]</span>
+</pre><p>There are many other tweakable properties that you can play with. These are illustrated in the help of the slicer function.</p><p>cleanup the working directory form output files:</p><pre class="codeinput">delete(<span class="string">'slicer_example_*'</span>);
+delete(<span class="string">'example_*.mat'</span>);
+delete(<span class="string">'example_*.png'</span>);
+close <span class="string">all</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2021a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% BrainSlicer Demo
+%%
+%  This document demostrates the major functionalities of slicer and slicerCollage using common usage examples. 
+%  Before jumping into the examples, make sure _slicer_ is in your matlab's path. 
+%
+%  Next, we need to retrive the location where example data are stored:
+data_folder = [fileparts(which('slicer')),'/examples/data/'];
+% Also, close open figures, if any:
+close all
+%%
+%  Now, we are ready to start!
+%
+% TODO: 
+% negative values in t-map
+
+
+%% Example 1: standard + one-side t-map
+% Let's start with a very simple figure: just one layer occupied by a standard brain.
+% Layers are specified in the first input to slicer as elements of a cell. 
+% You can specify the path to your favourite standard image. However, for your
+% convinience, we have stored some popular FSL standard images (in MNI space)
+% and reserved them handy aliases:
+%%
+% 
+% * 0 -> MNI152_T1_0.5mm
+% * 1 -> MNI152_T1_1mm
+% * 2 -> MNI152_T1_2mm
+% * 3 -> MNI152_T1_0.5mm_brain
+% * 4 -> MNI152_T1_1mm_brain
+% * 5 -> MNI152_T1_2mm_brain
+%
+% Thus, to print the FSL's MNI152_T1_2mm image just run:
+slicer({2},'output','example_1')
+%%
+% That's cool, but it's not very helpfull if we don't overlay something 
+% interesting. So, let's add a layer with a T-map. Default values won't probably
+% work this time, so we manually specify the t-map limits and the t-map minimum 
+% cluster size:
+slicer({2,[data_folder,'spmT_0001.nii']},...
+    'limits',{[],[3.5 6]},... % when a layer's limit is empty, limits will be adjusted automatically
+    'minClusterSize',{0,50},....
+    'output','example_1')
+%%
+% It's already a good starting point, but we can make the figure a little bit
+% fancier. For instance, we don't need the colorbar for the standard image, so
+% we can modify the default behaviour using the property "labels". We can also move
+% the Tmap's colorbar to the east side and add a proper figure title:
+slicer({2,[data_folder,'spmT_0001.nii']},...
+    'limits',{[],[3.5 6]},...
+    'minClusterSize',{0,50},...
+    'labels',{[],'T-value'},... % when a layer's label is empty no colorbar will be printed.
+    'cbLocation','east',... % colorbar location can be south or east
+    'title','Just a Random T-map',...
+    'output','example_1')
+%%
+% Wow! We got a prety cool figure, and it's ready for publication!
+% However, depending on your taste you might want to experiment a bit with
+% other options, such as the number of slices:
+slicer({2,[data_folder,'spmT_0001.nii']},...
+    'limits',{[],[3.5 6]},...
+    'minClusterSize',{0,50},...
+    'labels',{[],'T-value'},... % when a layer's label is empty no colorbar will be printed.
+    'cbLocation','east',... % colorbar location can be south or east
+    'title','Just a Random one-side T-map',...
+    'mount', [1 8],... % print one row with 8 slices equally spaced
+    'output','example_1_fancier')
+
+%% 
+% Or the background color:
+slicer({2,[data_folder,'spmT_0001.nii']},...
+    'limits',{[],[3.5 6]},...
+    'minClusterSize',{0,50},...
+    'labels',{[],'T-value'},... % when a layer's label is empty no colorbar will be printed.
+    'cbLocation','east',... % colorbar location can be south or east
+    'title','Just a Random one-side T-map',...
+    'mount', [1 8],... % print one row with 8 slices equally spaced
+    'colorMode','w',... % two background modalities: black ('k') or white ('w') 
+    'output','example_1_fancier_white')
+
+%% Example 2: standard + two-side t-map
+% The previous example printed a one-side t-map on top of a standard image.
+% In the following example we will make a couple of adjustments to print a
+% two-side t-map. The trick consists in adding a third layer with the same
+% t-map but this time with limits for the negative tail.
+slicer({2,[data_folder,'spmT_0001.nii'], [data_folder,'spmT_0001.nii']},...
+    'limits',{[],[-6 -3.5], [3.5 6]},...
+    'minClusterSize',{0,50,0},...
+    'labels',{[],'T-value','T-value'},... % when a layer's label is empty no colorbar will be printed.
+    'cbLocation','east',... % colorbar location can be south or east
+    'title','Just a Random two-side T-map',...
+    'mount', [1 8],... % print one row with 8 slices equally spaced
+    'output','example_2')
+%%
+% Note that we put the negative layer before the positive layer, so to get 
+% the negative colorbar below the positive one.
+% We are close to the solution, yet you might have noticed that the default
+% colormaps looks odd (blue for positive values and red for negative values).
+% It's time to tweak the property 'colormaps'. You can get the full list of
+% available colormaps (with associated labels and codes) by running the command:
+colormaps
+
+%% 
+% By default, slicer uses 1,2,3 (i.e., grey, red-yellow and blue-lightblue)
+% as the colormaps for the first, seond and third layer, respectively. 
+% To invert the color of the second and third layer we have to manually
+% specify the colormaps using the property 'colormaps':
+slicer({2,[data_folder,'spmT_0001.nii'], [data_folder,'spmT_0001.nii']},...
+    'limits',{[],[-6 -3.5], [3.5 6]},...
+    'minClusterSize',{0,50,0},...
+    'labels',{[],'T-value','T-value'},... % when a layer's label is empty no colorbar will be printed.
+    'cbLocation','east',... % colorbar location can be south or east
+    'title','Just a Random two-side T-map',...
+    'mount', [1 8],... % print one row with 8 slices equally spaced
+    'colormaps',{1,3,2},...
+    'output','example_2')
+ 
+%% Example 3: slicerCollage
+% In this example, we will show you how to combine different figures into a
+% single one using slicerCollage. We will start from scratch combining a
+% two-side t-map with a p-map. This time we will pretend our results were
+% generated using an atlas (AALv2 - 120 regions). Let's start from the two-side 
+% t-map figure:
+slicer({2,[data_folder,'t-map_1.66.nii'],[data_folder,'t-map_1.66.nii'],[data_folder,'edges_AX_aal2.nii']},...
+    'limits',{[],[-4 -1.66],[1.6 4],[0 1]},...
+    'minClusterSize',{0,0,0,0},...
+    'labels',{[],'T-value','T-value',[]},... % when a layer's label is empty no colorbar will be printed.
+    'cbLocation','east',... % colorbar location can be south or east
+    'title','Just a Random T-map',...
+    'mount', [1 8],... % print one row with 8 slices equally spaced
+    'colormaps',{1,3,2,64},...
+    'output','example_3_01')
+%%
+% Compared to example 2, we have added a fouth layer containing the edges
+% of the atlas. Since the edge volume is a binary mask, we set the limits
+% to [0 1] and selected one of the colormaps (the 64th) which saturated
+% to a black colour (you can use the function drawAtlasEdges to get the edges
+% of your own atlas). 
+% Now, we can work on the second figure: the p-map. P-maps are difficult to
+% display since they range from 0 to 1, with smaller values being more
+% significant than greater values. To overcome this issue, we can set the 
+% property 'p-map' to 1. This property will force slicer to display 1-p, so
+% that we can set the limits to something like [0.95 1]:
+
+slicer({2,[data_folder,'p-map.nii'],[data_folder,'edges_AX_aal2.nii']},...
+    'limits',{[],[0.95 1],[0 1]},...
+    'minClusterSize',{0,0,0},...
+    'labels',{[],'1 - P-value',[]},... % when a layer's label is empty no colorbar will be printed.
+    'cbLocation','east',... % colorbar location can be south or east
+    'title','Just a Random P-map',...
+    'mount', [1 8],... % print one row with 8 slices equally spaced
+    'colormaps',{1,86,64},...
+    'p-map',{0,1,0},... % specify that the 2nd layer is a p-map (slicer will show 1-p)
+    'output','example_3_02')
+%%
+% We have produced two figures (example_3_01.png and example_3_02.png) one
+% for the t map and one for the p map. To concatenate them in a single
+% figure we can call slicerCollage. If you call slicerCollage without input
+% arguments, it will try to concatenate any slicer_* figure present in the current
+% folder. However, since we have produced quite a few figures we will call
+% slicerCollage with an option specifying the string pattern of the figures
+% we wish to combine:
+
+slicerCollage('wildcard','slicer_example_3_*',...
+              'output','example_3_combined')
+
+%% Example 4: Multi-volume nifti
+% In this example we will produce a figure displaying the 10 functional
+% networks from Smith2009 (todo:ref). The 10 networks are stacked in the 4th
+% dimension of the nifti file PNAS_Smith09_rsn10.nii. We will produce a slicer 
+% figure for each network using the 'volume' property for network selection.
+% We will also take advantage of the 'skip' property for automatically 
+% centering the slices around the network:
+
+for l = 1:10 % loop over volumes inside Smith09
+    slicer({2,[data_folder,'PNAS_Smith09_rsn10.nii']},...
+    'volume',{1,l},... % for the second layer at each iteration select a different volume
+    'limits',{[],[4 11]},...
+    'labels',{[],[]},... % when a layer's label is empty no colorbar will be printed.
+    'title',['Network ',num2str(l)],...
+    'skip','2',... % auto center the slices based on layer 2
+    'mount', [5 1],... % print one column with 5 slices equally spaced
+    'margins',[0.1 0 0 0],...% add 10% of left-margin to avoid clutter
+    'size','w22',... % set the width of the figure to 22 mm (2.2 cm)
+    'output',['example_4_0',num2str(l)])
+end
+
+%%
+% Now we can concatenate the 10 figures in single one using slicerCollage.
+% This time we will also specify the figure ordering, since the default
+% list of figure has the 10th network in the second position:
+
+slicerCollage('wildcard','slicer_example_4_*',...
+              'order',[1 3 4 5 6 7 8 9 10 2],... %change the ordering (otherwise the 10th network would be in 2nd position) 
+              'output','example_4_combined')
+%% The .mat file
+% You might have noticed that each printed figure is accompanied by a
+% slicer*.mat file. The file contains a variable storing all the info
+% necessary to construct the figure, including the path to each image file,
+% limits and minimum cluster sizes. 
+% Here is an example of a mat file:
+load('slicer_example_3_01.mat')
+opt
+%% Figure size, resolution and fontsize
+% Two properties regulate the resolution and size of the output figure:
+
+% * 'resolution'           - Scalar/char indicating the PNG resolution.
+%                            Default: 300. 
+% * 'size'                 - Char. Define the size of the printed figure 
+%                            by specifing either the figure hight or
+%                            the figure width in mm. You cannot specify both
+%                            since the aspect ratio is dictated by the
+%                            number of slices. E.g.: 'w170' or 'h30' (i.e.,
+%                            width of 170 mm or hight of 30 mm).
+%%
+% Note that changing the figure size also affects the readability of
+% text elements. If you need to use a very large size (or very small)
+% you might end up with too small (or too large) characters. In this case
+% you can adjust the text fontsize via the following property:
+
+% * 'fontsize'             - 3-element vector specifying the fontsize of:
+%                            [Title, ColorBarLabel, Coordinates]. 
+%                            Default: [10 7 6]
+%%
+% There are many other tweakable properties that you can play with. These
+% are illustrated in the help of the slicer function. 
+
+%% 
+% cleanup the working directory form output files:
+delete('slicer_example_*');
+delete('example_*.mat');
+delete('example_*.png');
+close all
+
+##### SOURCE END #####
+--></body></html>

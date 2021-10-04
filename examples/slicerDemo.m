@@ -4,7 +4,7 @@
 %  Before jumping into the examples, make sure _slicer_ is in your matlab's path. 
 %
 %  Next, we need to retrive the location where example data are stored:
-data_folder = [fileparts(which('slicer')),'/exampleData/'];
+data_folder = [fileparts(which('slicer')),'/examples/data/'];
 % Also, close open figures, if any:
 close all
 %%
@@ -172,7 +172,7 @@ slicerCollage('wildcard','slicer_example_3_*',...
 % centering the slices around the network:
 
 for l = 1:10 % loop over volumes inside Smith09
-    slicer({2,'PNAS_Smith09_rsn10.nii'},...
+    slicer({2,[data_folder,'PNAS_Smith09_rsn10.nii']},...
     'volume',{1,l},... % for the second layer at each iteration select a different volume
     'limits',{[],[4 11]},...
     'labels',{[],[]},... % when a layer's label is empty no colorbar will be printed.
@@ -224,3 +224,9 @@ opt
 % There are many other tweakable properties that you can play with. These
 % are illustrated in the help of the slicer function. 
 
+%% 
+% cleanup the working directory form output files:
+delete('slicer_example_*');
+delete('example_*.mat');
+delete('example_*.png');
+close all
