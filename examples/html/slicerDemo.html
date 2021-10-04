@@ -71,7 +71,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 Before jumping into the examples, make sure _slicer_ is in your matlab's path.</pre><pre>Next, we need to retrive the location where example data are stored:</pre><pre class="codeinput">data_folder = [fileparts(which(<span class="string">'slicer'</span>)),<span class="string">'/examples/data/'</span>];
 <span class="comment">% Also, close open figures, if any:</span>
 close <span class="string">all</span>
-</pre><pre>Now, we are ready to start!</pre><p>TODO: negative values in t-map</p><h2 id="3">Example 1: standard + one-side t-map</h2><p>Let's start with a very simple figure: just one layer occupied by a standard brain. Layers are specified in the first input to slicer as elements of a cell. You can specify the path to your favourite standard image. However, for your convinience, we have stored some popular FSL standard images (in MNI space) and reserved them handy aliases:</p><div><ul><li>0 -&gt; MNI152_T1_0.5mm</li><li>1 -&gt; MNI152_T1_1mm</li><li>2 -&gt; MNI152_T1_2mm</li><li>3 -&gt; MNI152_T1_0.5mm_brain</li><li>4 -&gt; MNI152_T1_1mm_brain</li><li>5 -&gt; MNI152_T1_2mm_brain</li></ul></div><p>Thus, to print the FSL's MNI152_T1_2mm image just run:</p><pre class="codeinput">slicer({2},<span class="string">'output'</span>,<span class="string">'example_1'</span>)
+</pre><pre>Now, we are ready to start!</pre><h2 id="3">Example 1: standard + one-side t-map</h2><p>Let's start with a very simple figure: just one layer occupied by a standard brain. Layers are specified in the first input to slicer as elements of a cell. You can specify the path to your favourite standard image. However, for your convinience, we have stored some popular FSL standard images (in MNI space) and reserved them handy aliases:</p><div><ul><li>0 -&gt; MNI152_T1_0.5mm</li><li>1 -&gt; MNI152_T1_1mm</li><li>2 -&gt; MNI152_T1_2mm</li><li>3 -&gt; MNI152_T1_0.5mm_brain</li><li>4 -&gt; MNI152_T1_1mm_brain</li><li>5 -&gt; MNI152_T1_2mm_brain</li></ul></div><p>Thus, to print the FSL's MNI152_T1_2mm image just run:</p><pre class="codeinput">slicer({2},<span class="string">'output'</span>,<span class="string">'example_1'</span>)
 </pre><pre class="codeoutput">slicer - welcome
 slicer - coordinates are in mm
 slicer - printing image:
@@ -414,10 +414,6 @@ data_folder = [fileparts(which('slicer')),'/examples/data/'];
 close all
 %%
 %  Now, we are ready to start!
-%
-% TODO: 
-% negative values in t-map
-
 
 %% Example 1: standard + one-side t-map
 % Let's start with a very simple figure: just one layer occupied by a standard brain.
