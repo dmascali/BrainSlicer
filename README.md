@@ -21,8 +21,11 @@ BrainSlicer requires:
 - MATLAB version >= R2014b 
 
 ## EXAMPLES
-[SlicerDemo.m](examples/SlicerDemo.m) demostrates the major functionalities of the toolbox using common usage examples. Below some examples:
-![Example 1](examples/higRes/slicer_example_2.png)
-![Example 2](examples/higRes/example_3_combined.png)
-![Example 3](examples/higRes/example_4_combined.png)
-![Example 3](examples/higRes/example_5.png)
+[SlicerDemo.m](https://github.com/dmascali/BrainSlicer/blob/master/examples/slicerDemo.m) demostrates the major functionalities of the toolbox using common usage examples.
+
+- Figure showing a t-map and 1-p-map:
+&nbsp;![Example 2](https://github.com/dmascali/BrainSlicer/blob/master/examples/highRes/example_3_combined.png)&nbsp;
+- Figure showing the 10 networks from Smith et al. 2009 (PNAS):
+&nbsp;![Example 3](https://github.com/dmascali/BrainSlicer/blob/master/examples/highRes/example_4_combined.png)&nbsp;
+- Figure showing the 7 networks from Yeo et al. 2011 (J Neurophysiol) parcellated according to Schaefer et al 2018 (Cortex):
+&nbsp;![Example 3](https://github.com/dmascali/BrainSlicer/blob/master/examples/highRes/example_5.png)&nbsp;
