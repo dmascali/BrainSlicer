@@ -129,6 +129,9 @@ function slicer(img,varargin)
 %                            'northeast','northwest','southeast','southwest',
 %                            or aliases: 'n','s','e','w','ne','nw','se',
 %                            'sw'. Default: 'southwest'.
+%     flip_LR              - Boolean. Flip the x-axis so to swap left for
+%                            right. Default: False. 
+%
 %   MISCELLANEOUS:
 %     show                 - Boolean. Show figure. Default: True. 
 %     noMat                - Boolean. Do not output the mat file containing
@@ -211,6 +214,7 @@ default_skip = [0.2 0.2];
 params  =  {'labels','limits','minClusterSize','colormaps','alpha','cbLocation',...
             'margins', 'innerMargins','mount', 'view','resolution','zscore',...
             'slices','skip','colormode','showCoordinates','coordinateLocation',...
+            'flip_LR',...
             'title','output','fontsize','noMat','show','volume','p-map','size',...
             'titleLocation'};
 defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % labels
@@ -222,6 +226,7 @@ defParms = {cellfun(@(x) ['img',x],layerStrings,'UniformOutput',0)', ... % label
             [2 6],   'ax', '300',... % mount; view; resolution
             cell(1,nLayers), 'auto', default_skip,... %zscore; slice; skip
             'k',  1, [],... % colorMode; showCoordinates; coordinateLocation
+            0,... % flip_LR
             [], [], [10 7 6],..., % title; output; fontsize(title,colorbar,coord),
             0, 1, num2cell(ones(1,nLayers)),...%  noMat, show, volume
             num2cell(zeros(1,nLayers)), 'w170', 'center'}; % p-map, size, titlelocation
@@ -260,24 +265,25 @@ legalValues{15} = {'k','black','w','white'};
 legalValues{16} = [0 1]; %showCoordinates
 legalValues{17} = {'north','south','east','west','northeast','northwest',...
     'southeast','southwest','n','s','e','o','ne','nw','se','sw'};
-legalValues{18} = []; %title
-legalValues{19} = []; %output
-legalValues{20} = {@(x) (~ischar(x) && numel(x)==3 && all(x>0)),['FontSize is expected ',...
+legalValues{18} = [0 1]; %flip_LR
+legalValues{19} = []; %title
+legalValues{20} = []; %output
+legalValues{21} = {@(x) (~ischar(x) && numel(x)==3 && all(x>0)),['FontSize is expected ',...
         'to be a 3-element vector: [Title ColorbarLabel Coordinate]. Default is [12 10 6].']};
-legalValues{21} = [0 1]; %noMat
-legalValues{22} = [0 1]; %Show
-legalValues{23} = {@(x) (iscell(x) && length(x) == nLayers && all(cellfun(@(x) (mod(x,1)==0 && x > 0),x)) ),['Volume is ',...
+legalValues{22} = [0 1]; %noMat
+legalValues{23} = [0 1]; %Show
+legalValues{24} = {@(x) (iscell(x) && length(x) == nLayers && all(cellfun(@(x) (mod(x,1)==0 && x > 0),x)) ),['Volume is ',...
     'expected to be a cell array whose length equals the number of layers. For 4-D images, this option ',...
     'allows you to select the temporal volume to be consider. Positive integers are allowed.']};
-legalValues{24} = {@(x) (iscell(x) && length(x) == nLayers),['P-map is ',...
+legalValues{25} = {@(x) (iscell(x) && length(x) == nLayers),['P-map is ',...
     'expected to be a cell array whose length equals the number of layers. If you are plotting ',...
     'a p-value map this option will create a 1-p map, so that you can threshold it appropriately.']};
-legalValues{25} = {@(x) (ischar(x) && (x(1) == 'w' || x(1) == 'h')), ['Size is expected ',...
+legalValues{26} = {@(x) (ischar(x) && (x(1) == 'w' || x(1) == 'h')), ['Size is expected ',...
         'to be a char vector indicating the length in cm of one of the two dimensions, e.g.: ''w180'' or ''h70''.']};
-legalValues{26} = {'left','center','centre','right'}; %titleLocation 
+legalValues{27} = {'left','center','centre','right'}; %titleLocation 
 [labels,limits,minClusterSize,colorMaps,alpha,cbLocation,margins,...
     innerMargins,mount,view,resolution,zScore,slices,skip,colorMode,...
-    showCoordinates,coordinateLocation,Title,output,fontSize,noMat,...
+    showCoordinates,coordinateLocation,flip_LR,Title,output,fontSize,noMat,...
     show,volume,pmap,printSize,titleLocation] = ParseVarargin(params,defParms,legalValues,varargin,1);
 %--------------------------------------------------------------------------
 
@@ -373,6 +379,8 @@ switch view
     case {'ax'}
         for l = 1:nLayers
             img{l} = flipdim(img{l},2);
+            % Flip Left with right if requested
+            if flip_LR; img{l} = flipdim(img{l},1); end
         end
         if isempty(coordinateLocation); coordinateLocation = 'sw'; end       
         sliceDim = [s(1) s(2)];
@@ -380,6 +388,8 @@ switch view
         sliceDim = [s(2) s(3)];
         if isempty(coordinateLocation); coordinateLocation = 'nw'; end    
     case {'cor'} %this might be flipped
+        % Flip Left with right if requested
+        if flip_LR; img{l} = flipdim(img{l},1); end
         sliceDim = [s(1) s(3)];
         if isempty(coordinateLocation); coordinateLocation = 'nw'; end    
 end
@@ -650,6 +660,7 @@ if ~isempty(output)
         opt.appearance.colorBarLocation0 = cbLocation;
         opt.appearance.showCoordinates = showCoordinates;
         opt.appearance.coordinateLocation = coordinateLocation;
+        opt.appearance.flip_LR = flip_LR;
         opt.resolution = resolution;
         opt.sizePixels = [printSizePixel(3),printSizePixel(4)];
         opt.sizeCm = [PaperPosition(3),PaperPosition(4)];
